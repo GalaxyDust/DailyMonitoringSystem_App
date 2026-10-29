@@ -165,12 +165,12 @@ def code_box(slide, x, y, w, h, text, size=None, mono_w=0.555):
 
 def panel(lines, seps=()):
     W = max(len(l) for l in lines) + 2
-    out = ["\u250c" + "\u2500" * W + "\u2510"]
+    out = ["┌" + "─" * W + "┐"]
     for i, l in enumerate(lines):
-        out.append("\u2502 " + l.ljust(W - 2) + " \u2502")
+        out.append("│ " + l.ljust(W - 2) + " │")
         if i in seps:
-            out.append("\u251c" + "\u2500" * W + "\u2524")
-    out.append("\u2514" + "\u2500" * W + "\u2518")
+            out.append("├" + "─" * W + "┤")
+    out.append("└" + "─" * W + "┘")
     return out
 
 def two_col(left, right, gap=3):
@@ -183,22 +183,59 @@ def two_col(left, right, gap=3):
         out.append(a.ljust(W1) + " " * gap + b)
     return out
 
+
+def reason_bar(slide, alasan, jawaban, y=6.44, h=0.54):
+    """Blok wajib pada setiap slide: ALASAN (dasar data) dan JAWABAN (keputusan)."""
+    rect(slide, 0.42, y, 6.10, h, fill=RGBColor(0xFB, 0xF6, 0xE6),
+         line_color=RGBColor(0xE6, 0xD6, 0xA2), line_w=0.75)
+    rect(slide, 0.42, y, 0.06, h, fill=GOLD)
+    tb(slide, 0.58, y + 0.04, 1.2, 0.14, "ALASAN", size=7.5, bold=True, color=GOLD)
+    tb(slide, 0.58, y + 0.20, 5.80, h - 0.24, alasan, size=8.5,
+       color=RGBColor(0x3A, 0x33, 0x18), line=1.15)
+
+    rect(slide, 6.72, y, 6.10, h, fill=RGBColor(0xEA, 0xF6, 0xF6),
+         line_color=RGBColor(0xA9, 0xDC, 0xDB), line_w=0.75)
+    rect(slide, 6.72, y, 0.06, h, fill=TEAL)
+    tb(slide, 6.88, y + 0.04, 1.2, 0.14, "JAWABAN", size=7.5, bold=True,
+       color=RGBColor(0x1E, 0x7A, 0x79))
+    tb(slide, 6.88, y + 0.20, 5.80, h - 0.24, jawaban, size=8.5,
+       color=RGBColor(0x12, 0x3A, 0x40), line=1.15)
+
+
 # ---------------------------------------------------------------- 1. COVER
 s = prs.slides.add_slide(L_COVER)
 clear_placeholders(s)
 rect(s, 0.00, 0.00, 13.333, 7.5, fill=WHITE)
-s.shapes.add_picture("docs/assets/gf_cover_band.jpg", Inches(0), Inches(5.90), Inches(13.333), Inches(1.60))
-rect(s, 0.85, 1.00, 0.11, 1.60, fill=GOLD)
-tb(s, 1.15, 1.00, 6.2, 0.30, "DAILY MONITORING SYSTEM", size=13, bold=True, color=GOLD)
-tb(s, 1.15, 1.38, 6.6, 1.30,
-   "DIGITALISASI DMS\nDARI EXCEL KE INSIGHT", size=34, bold=True, color=NAVY, line=1.02)
-tb(s, 1.15, 2.82, 6.4, 0.90,
-   "Satu aplikasi: form harian, dashboard manajemen,\ndan display TV lantai produksi",
-   size=13, color=GREY, line=1.25)
-rect(s, 1.15, 3.78, 3.10, 0.03, fill=BORDER)
-tb(s, 1.15, 3.96, 6.4, 0.30, "PLANT SNACK · FACTORY 10 & FACTORY 30", size=12, bold=True, color=NAVY)
-tb(s, 1.15, 4.30, 6.4, 0.30, "Oktober 2026", size=12, color=GREY)
-tb(s, 1.15, 4.82, 6.4, 0.30, "Dokumen: Logic & Design v1   ·   Status: draft untuk diskusi", size=9.5, color=LGREY)
+s.shapes.add_picture("docs/assets/gf_cover_band.jpg", Inches(0), Inches(5.92), Inches(13.333), Inches(1.58))
+rect(s, 0.85, 1.05, 0.11, 0.78, fill=GOLD)
+tb(s, 1.15, 0.72, 7.6, 0.28, "DAILY MONITORING SYSTEM   ·   PLANT SNACK", size=12, bold=True, color=GOLD)
+tb(s, 1.15, 1.04, 8.4, 1.10,
+   "DIGITALISASI DMS: DARI EXCEL KE INSIGHT", size=31, bold=True, color=NAVY, line=1.05)
+
+rect(s, 1.15, 2.34, 8.30, 1.10, fill=RGBColor(0xFB, 0xF6, 0xE6),
+     line_color=RGBColor(0xE6, 0xD6, 0xA2), line_w=0.75)
+rect(s, 1.15, 2.34, 0.07, 1.10, fill=GOLD)
+tb(s, 1.38, 2.44, 1.6, 0.20, "ALASAN", size=9, bold=True, color=GOLD)
+tb(s, 1.38, 2.64, 7.85, 0.78,
+   "Angka DMS dipakai untuk laporan manajemen, tetapi di dalam workbook: 973 kasus ditutup "
+   "tanpa akar masalah, 94% kasus berulang tidak terdeteksi, dan 99,7% penyebabnya berada "
+   "di luar kendali leader line.",
+   size=10, color=RGBColor(0x3A, 0x33, 0x18), line=1.22)
+
+rect(s, 1.15, 3.62, 8.30, 1.10, fill=RGBColor(0xEA, 0xF6, 0xF6),
+     line_color=RGBColor(0xA9, 0xDC, 0xDB), line_w=0.75)
+rect(s, 1.15, 3.62, 0.07, 1.10, fill=TEAL)
+tb(s, 1.38, 3.72, 1.8, 0.20, "JAWABAN", size=9, bold=True, color=RGBColor(0x1E, 0x7A, 0x79))
+tb(s, 1.38, 3.92, 7.85, 0.78,
+   "Satu aplikasi dua lapis: form meeting 5 menit, dashboard tiga level, dan display TV lantai "
+   "produksi — ditopang 14 aturan insight yang mengubah angka menjadi tindakan berpemilik "
+   "dan bertenggat.",
+   size=10, color=RGBColor(0x12, 0x3A, 0x40), line=1.22)
+
+rect(s, 1.15, 5.02, 3.10, 0.03, fill=BORDER)
+tb(s, 1.15, 5.16, 9.6, 0.26,
+   "Dokumen: Logic & Design v1   ·   Oktober 2026   ·   Status: draft diskusi — belum implementasi",
+   size=9, color=LGREY)
 
 # ---------------------------------------------------------------- 2. AGENDA
 s = prs.slides.add_slide(L_CONTENT); clear_placeholders(s)
@@ -212,13 +249,15 @@ items = [
     ("06  Rancangan tampilan", "Form 5 menit · Dashboard 3 level · Display TV lantai produksi"),
     ("07  Roadmap & keputusan", "Pilot Snack 8 pekan + hal yang masih perlu diputuskan"),
 ]
-y = 1.30
+y = 1.24
 for i, (h, sub) in enumerate(items):
     if i % 2 == 0:
         rect(s, 0.42, y - 0.04, 12.45, 0.68, fill=LIGHT2)
     tb(s, 0.60, y, 3.35, 0.30, h, size=12.5, bold=True, color=NAVY)
     tb(s, 4.00, y + 0.02, 8.6, 0.60, sub, size=11, color=GREY)
-    y += 0.78
+    y += 0.70
+reason_bar(s, 'Pemaparan disusun berurutan dari bukti, logika, lalu keputusan \— bukan dari fitur ke fitur.',
+              'Tujuh bagian; yang diminta hari ini adalah jawaban atas keputusan yang masih terbuka.')
 footer(s, 2)
 
 # ---------------------------------------------------------------- 3. KONDISI SAAT INI
@@ -245,6 +284,8 @@ bullets(s, 0.42, 3.88, 12.4, [
     ("Kasus dan checklist tidak saling terhubung", "Item PICA dan follow-up dinilai manual, padahal buktinya ada di 5.817 baris kasus"),
     ("Tidak ada dimensi waktu", "Tidak ada aging, tren, maupun peringatan sebelum masalah membesar"),
 ], size=12.5, gap=10)
+reason_bar(s, 'Tiga angka pada slide ini dihitung langsung dari 5.817 baris workbook, bukan perkiraan.',
+              'Akar masalahnya logika file, bukan orangnya. Perbaikannya harus di sistem, bukan imbauan.')
 footer(s, 3)
 
 # ---------------------------------------------------------------- 4. BASELINE DATA
@@ -278,6 +319,8 @@ bullets(s, 5.05, 4.28, 7.8, [
     ("Prefix mesin: MHM 26,8% · BCAT 14,1%", "Downtime median 50 menit per kasus — total 208.848 menit"),
     ("Standardisasi hampir tidak pernah dijalankan", "OPL / PM / AM / CRMO dominan 'O' (88–98%) = tidak sesuai"),
 ], size=11.5, gap=6)
+reason_bar(s, 'Sheet1 terbukti 100% ISO, dan 184 pola berulang mencakup 26,2% kasus produktivitas.',
+              '5.817 kasus layak jadi baseline; 120 baris IIAA dibuang karena duplikat dan 100% Close.')
 footer(s, 4)
 
 # ---------------------------------------------------------------- 5. KUALITAS DATA
@@ -303,6 +346,8 @@ tb(s, 0.68, 5.16, 11.9, 0.90,
    "973 kasus ditutup tanpa akar masalah, dan 22 kasus masih Open dengan due date terlampaui "
    "hingga 1.045 hari. Sistem monitoring yang tidak bisa menutup loop akan terus menghasilkan angka 75%.",
    size=11.5, color=NAVY, line=1.30)
+reason_bar(s, 'Status Close diisi saat kolom terisi, bukan saat masalah selesai: 973 kasus tanpa akar masalah.',
+              'Gate close diberlakukan: root cause + action + bukti + approval.')
 footer(s, 5)
 
 # ---------------------------------------------------------------- 6. CACAT LOGIKA
@@ -320,8 +365,10 @@ data = [
     ["8", "Tidak ada dimensi waktu", "Tidak ada aging / tren", "Aging, tren, lead indicator"],
     ["9", "Ambang batas tanpa pembulatan", "0,88/0,8 = 1,0999 → skor 3", "Bandingkan pada 2 desimal"],
 ]
-table(s, data, [0.55, 4.05, 4.05, 3.75], y=1.22, row_h=0.52, font=9.5, head_font=10,
+table(s, data, [0.55, 4.05, 4.05, 3.75], y=1.22, row_h=0.50, font=9.5, head_font=10,
       aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
+reason_bar(s, 'Sembilan cacat ini terbukti dari rumus aslinya, misalnya 0,88/0,8 = 1,0999 yang jatuh ke skor 3.',
+              'Semuanya ditambal di aplikasi; tidak ada satu pun yang dibiarkan karena warisan Excel.')
 footer(s, 6)
 
 # ---------------------------------------------------------------- 7. LAPORAN VS INSIGHT
@@ -358,6 +405,8 @@ for k, v in rows:
     tb(s, 7.04, y, 1.42, 0.26, k, size=8.5, bold=True, color=GOLD)
     tb(s, 8.52, y - 0.02, 4.05, 0.50, v, size=9.5, color=NAVY, line=1.12)
     y += 0.58
+reason_bar(s, 'Ach 83,7% tidak menjelaskan apa pun, sehingga rapat berhenti pada pertanyaan kenapa.',
+              'Output aplikasi = temuan + bukti + sebab + dampak + rekomendasi + pemilik.')
 footer(s, 7)
 
 # ---------------------------------------------------------------- 8. ARSITEKTUR
@@ -401,6 +450,8 @@ rect(s, 6.95, 4.42, 0.07, 1.05, fill=RED)
 tb(s, 7.18, 4.56, 5.5, 0.80,
    "Aturan keras: setiap query wajib ter-filter plant_id.\nIni pencegahan kebocoran data antar plant yang paling sering terlewat.",
    size=9.5, color=NAVY, line=1.25)
+reason_bar(s, 'Satu plant Snack sudah punya dua factory, dan data Dairy sudah bocor 1 entri ke sheet Snack.',
+              'plant_id wajib di semua transaksi, dan nama plant diganti kode stabil (PLT-SNK, PLT-DRY).')
 footer(s, 8)
 
 # ---------------------------------------------------------------- 9. ALUR APLIKASI
@@ -440,30 +491,35 @@ for k, v in comps:
     tb(s, 0.68, y, 1.55, 0.26, k, size=10, bold=True, color=NAVY)
     tb(s, 2.30, y, 10.3, 0.26, v, size=10, color=GREY)
     y += 0.36
+reason_bar(s, 'Excel sekarang berhenti di tahap capture dan detect; tidak ada explain, recommend, maupun verifikasi.',
+              'Loop ditutup di ACT & VERIFY: setiap kasus dicek kembali kambuh atau tidak.')
 footer(s, 9)
 
 # ---------------------------------------------------------------- 10. FORM MEETING
 s = prs.slides.add_slide(L_CONTENT); clear_placeholders(s)
 header(s, "RANCANGAN FORM MEETING HARIAN", "Dipakai berdiri, sambil rapat berjalan — target selesai di bawah 5 menit")
 wf = "\n".join(panel([
-    "Meeting Harian  \u00b7  29 Okt 2026  \u00b7  Pilus L1",
+    "Meeting Harian  ·  29 Okt 2026  ·  Pilus L1",
     "Leader: [dropdown]    Mulai 07:00    Selesai 07:08    [OK] ON-TIME",
-    "A. CHECKLIST \u2014 6 item",
-    "1  On time ......................... otomatis  \u00b7 bobot 10",
-    "2  Kelengkapan form ................ otomatis  \u00b7 bobot 20",
+    "A. CHECKLIST — 6 item",
+    "1  On time ......................... otomatis  · bobot 10",
+    "2  Kelengkapan form ................ otomatis  · bobot 20",
     "3  Peserta aktif ............ [0] [5] [8] [10]   (note)*",
     "4  Leader menjalankan tugas . [0] [5] [8] [10]   (note)*",
     "5  PICA lengkap ............. [0] [5] [8] [10]   (note)*",
     "6  Action direview .......... [0] [5] [8] [10]   (note)*",
     "    *) catatan wajib diisi bila skor < 8",
-    "B. KPI \u2014 15 item, tombol besar V / O / N-A",
+    "B. KPI — 15 item, tombol besar V / O / N-A",
     "Safety        KAK           [V][O][NA]    PICA Safety   [V][O][NA]",
     "Quality       Defect Pack   [V][O][NA]    PICA Quality  [V][O][NA]",
     "Productivity  OEE           [V][O][NA]    Yield RM      [V][O][NA]",
     "Energy        Gas Engine    [V][O][NA]    Electrical    [V][O][NA]",
     "  [ + MASALAH BARU ]                                  [ SIMPAN ]",
 ], seps=(1, 9, 14)))
-code_box(s, 0.42, 1.25, 8.55, 4.60, wf)
+code_box(s, 0.42, 1.25, 8.55, 4.55, wf)
+
+reason_bar(s, "30 dari 100 bobot dinilai manusia, padahal dua item itu dapat dihitung sistem.",
+           "Item 1 dan 2 otomatis, autosave per field, dan catatan wajib bila skor di bawah 8.")
 
 tb(s, 9.20, 1.25, 3.7, 0.26, "KEPUTUSAN DESAIN", size=11, bold=True, color=GOLD)
 bullets(s, 9.20, 1.60, 3.65, [
@@ -473,15 +529,8 @@ bullets(s, 9.20, 1.60, 3.65, [
     ("Tombol besar", "Diisi di HP maupun tablet"),
     ("Satu layar", "Bukan wizard bertahap"),
 ], size=10.5, gap=8)
-tb(s, 9.20, 5.35, 3.65, 0.60,
-   "Hari wajib = Senin–Jumat dikurangi\nhari libur nasional.", size=9.5, color=GREY, line=1.2)
-facts = [("Target waktu", "di bawah 5 menit"), ("Perangkat", "HP / tablet / laptop"), ("Koneksi", "autosave per field")]
-x = 0.42
-for k, v in facts:
-    rect(s, x, 6.10, 2.75, 0.66, fill=LIGHT2, line_color=BORDER, line_w=0.75)
-    tb(s, x + 0.14, 6.18, 2.5, 0.22, k, size=8.5, bold=True, color=GOLD)
-    tb(s, x + 0.14, 6.40, 2.5, 0.24, v, size=9.5, color=NAVY)
-    x += 2.88
+tb(s, 9.20, 5.20, 3.65, 0.80,
+   "Hari wajib = Senin–Jumat dikurangi\nhari libur nasional.\nTarget waktu: di bawah 5 menit.", size=9.5, color=GREY, line=1.25)
 footer(s, 10)
 
 # ---------------------------------------------------------------- 11. FORM KASUS
@@ -509,8 +558,8 @@ right = "\n".join(panel([
     "C-072  PICA Safety   0 hari",
     "",
     "Detail:",
-    "  5-Why \u00b7 Action \u00b7 Bukti",
-    "  Riwayat \u00b7 Ajukan Close",
+    "  5-Why · Action · Bukti",
+    "  Riwayat · Ajukan Close",
     "",
     "  [ AJUKAN CLOSE ]",
 ]))
@@ -525,23 +574,25 @@ for i, st in enumerate(steps):
     rect(s, x, 4.54, 1.30, 0.05, fill=TEAL if i < 5 else GOLD)
     tb(s, x + 0.08, 4.68, 1.16, 0.52, st, size=8.5, bold=True, color=NAVY, align=PP_ALIGN.CENTER, line=1.15)
     if i < 5:
-        tb(s, x + 1.30, 4.74, 0.14, 0.26, "\u203a", size=14, bold=True, color=GOLD)
+        tb(s, x + 1.30, 4.74, 0.14, 0.26, "›", size=14, bold=True, color=GOLD)
     x += 1.44
 
-rect(s, 0.42, 5.60, 8.58, 0.95, fill=LIGHT2, line_color=BORDER, line_w=0.75)
-rect(s, 0.42, 5.60, 0.07, 0.95, fill=GOLD)
-tb(s, 0.70, 5.74, 8.1, 0.70,
+rect(s, 0.42, 5.56, 8.58, 0.72, fill=LIGHT2, line_color=BORDER, line_w=0.75)
+rect(s, 0.42, 5.56, 0.07, 0.72, fill=GOLD)
+tb(s, 0.70, 5.66, 8.1, 0.56,
    "Enam tahap ini adalah state machine kasus. Sistem tidak mengizinkan lompat tahap:\n"
    "kasus tidak dapat masuk \"Cek kambuh\" sebelum close disetujui dengan bukti lengkap.",
    size=9.5, color=NAVY, line=1.25)
 
 tb(s, 9.20, 1.25, 3.7, 0.26, "ATURAN INPUT", size=11, bold=True, color=GOLD)
 bullets(s, 9.20, 1.60, 3.65, [
-    ("Wajib saat itu", "Problem \u00b7 PIC \u00b7 due date \u2014 tiga field yang dipakai mesin insight"),
+    ("Wajib saat itu", "Problem · PIC · due date — tiga field yang dipakai mesin insight"),
     ("5-Why menyusul", "Boleh dilengkapi, tetapi tidak boleh close sebelum lengkap"),
     ("Default Medium", "Prioritas ~100% High membuat triase mati"),
     ("Bukti dari HP", "Sesuatu yang Excel tidak pernah bisa minta"),
 ], size=10.5, gap=9)
+reason_bar(s, 'Kasus tanpa PIC dan due date tidak bisa menua dan tidak bisa dieskalasi.',
+              'Problem + PIC + due date wajib saat input; 5-Why boleh menyusul, tetapi close tidak.')
 footer(s, 11)
 
 # ---------------------------------------------------------------- 12. ADMIN
@@ -553,11 +604,11 @@ b1 = panel([
     "C-076  M03 BCAT    root cause OK  action OK  bukti --",
     "       > [ Minta bukti ]  [ Tolak ]  [ Setujui ]",
     "C-072  MHM38 LSTR  root cause OK  action OK  bukti OK",
-    "       ! recurrence ke-7 \u2014 wajib Preventive Action",
+    "       ! recurrence ke-7 — wajib Preventive Action",
     "       > [ Setujui dengan syarat ]  [ Tolak ]",
 ], seps=(1,))
 b2 = panel([
-    "PENGATURAN PENILAIAN \u2014 versioned \u00b7 effective_date",
+    "PENGATURAN PENILAIAN — versioned · effective_date",
     "Bobot checklist   [10][20][10][20][20][20]      Total = 100",
     "Band skor         >=120%->5  >=110%->4  >=100%->3  >=90%->2",
     "Healthy Check     nilai [0,8]   bobot [0,2]   mode [konstan]",
@@ -567,7 +618,7 @@ b2 = panel([
     "                         [ BATAL ]    [ SIMPAN VERSI ]",
 ], seps=(0,))
 wf = "\n".join(b1) + "\n" + "\n".join(b2)
-code_box(s, 0.42, 1.22, 8.55, 5.40, wf)
+code_box(s, 0.42, 1.22, 8.55, 4.42, wf)
 
 tb(s, 9.20, 1.22, 3.7, 0.26, "PRINSIP ADMIN", size=11, bold=True, color=GOLD)
 bullets(s, 9.20, 1.58, 3.65, [
@@ -576,12 +627,14 @@ bullets(s, 9.20, 1.58, 3.65, [
     ("Approval bukan formalitas", "Syarat close: root cause + action + bukti"),
     ("Semua perubahan tercatat", "Siapa, kapan, sebelum → sesudah, alasan"),
 ], size=10.5, gap=9)
-rect(s, 0.42, 6.02, 8.55, 0.72, fill=LIGHT2, line_color=BORDER, line_w=0.75)
-rect(s, 0.42, 6.02, 0.07, 0.72, fill=RED)
-tb(s, 0.70, 6.14, 8.2, 0.52,
+rect(s, 0.42, 5.76, 8.55, 0.50, fill=LIGHT2, line_color=BORDER, line_w=0.75)
+rect(s, 0.42, 5.76, 0.07, 0.50, fill=RED)
+tb(s, 0.70, 5.84, 8.2, 0.38,
    "Batasan Admin: tidak dapat mengubah skor pada periode yang sudah dikunci.\n"
    "Koreksi hanya melalui penyesuaian beralasan yang tercatat di audit log.",
    size=9, color=NAVY, line=1.2)
+reason_bar(s, 'Mengubah bobot hari ini tanpa versioning berarti mengubah skor periode yang sudah dilaporkan.',
+              'Config memakai effective_date + period lock; koreksi hanya lewat penyesuaian beralasan.')
 footer(s, 12)
 
 # ---------------------------------------------------------------- 13. DASHBOARD
@@ -609,28 +662,30 @@ for title, who, items, note, contoh in levels:
     tb(s, x + 0.22, 4.55, 3.6, 0.26, note, size=8.5, color=LGREY)
     x += 4.14
 
-rect(s, 0.42, 5.38, 12.40, 1.20, fill=LIGHT2, line_color=BORDER, line_w=0.75)
-rect(s, 0.42, 5.38, 0.07, 1.20, fill=TEAL)
-tb(s, 0.68, 5.52, 12.0, 0.28, "ATURAN YANG TIDAK BOLEH DILANGGAR", size=10.5, bold=True, color=GOLD)
-tb(s, 0.68, 5.80, 12.0, 0.70,
+rect(s, 0.42, 5.26, 12.40, 0.96, fill=LIGHT2, line_color=BORDER, line_w=0.75)
+rect(s, 0.42, 5.26, 0.07, 0.96, fill=TEAL)
+tb(s, 0.68, 5.36, 12.0, 0.24, "ATURAN YANG TIDAK BOLEH DILANGGAR", size=10.5, bold=True, color=GOLD)
+tb(s, 0.68, 5.60, 12.0, 0.56,
    "Setiap angka harus bisa ditelusuri: index → parameter → hari → item checklist → kasus penyebabnya.   "
    "Setiap insight harus punya PIC dan due date — jika tidak, ia berhenti menjadi insight dan berubah menjadi keluhan.",
    size=10.5, color=NAVY, line=1.30)
+reason_bar(s, 'Satu dashboard untuk semua orang berakhir tidak berguna untuk siapa pun.',
+              'Tiga level dengan audiens jelas; setiap angka dapat di-drill sampai kasus penyebabnya.')
 footer(s, 13)
 
 # ---------------------------------------------------------------- 14. TV
 s = prs.slides.add_slide(L_CONTENT); clear_placeholders(s)
 header(s, "DISPLAY TV LANTAI PRODUKSI", "Bukan dashboard yang diperbesar — tata letak sendiri untuk jarak 3–10 meter")
 wf = "\n".join(panel([
-    "DMS FACTORY 10 \u2014 PILUS L1          Kam, 29 Okt 2026  14:32:10",
+    "DMS FACTORY 10 — PILUS L1          Kam, 29 Okt 2026  14:32:10",
     "DMS INDEX HARI INI      |  STATUS MEETING HARI INI",
     "       3,40  ^          |  [OK] Line 9    selesai 07:12",
     "    TARGET 3,00         |  [  ] Line 10   belum mulai",
     "  ##########.... (gauge)|  [!]  Frying     telat 25 menit",
     "KASUS TERBUKA 142    AGING >30 HARI 37    RECURRENCE 5,3%",
     "PERLU TINDAKAN                          (rotasi 20 detik)",
-    "!  MHM38 BCAT \u2014 7x dalam 60 hari \u2014 PIC Teknik \u2014 sisa 4 hari",
-    "!  PICA Safety 75,4% < 90% \u2014 37 kasus lewat due date",
+    "!  MHM38 BCAT — 7x dalam 60 hari — PIC Teknik — sisa 4 hari",
+    "!  PICA Safety 75,4% < 90% — 37 kasus lewat due date",
     "!  Checklist \"PICA\" skor < 8 tiga hari berturut-turut",
 ], seps=(0, 4, 5)))
 code_box(s, 0.42, 1.28, 8.55, 3.28, wf)
@@ -650,6 +705,8 @@ for i, r in enumerate(rota):
     rect(s, x, 5.34, 1.64, 0.62, fill=WHITE, line_color=BORDER, line_w=0.75)
     tb(s, x + 0.06, 5.42, 1.52, 0.50, r, size=8, color=NAVY, align=PP_ALIGN.CENTER, line=1.1)
     x += 1.72
+reason_bar(s, 'Layar dilihat dari jarak 3\–10 meter, sambil berdiri, di bawah pencahayaan pabrik.',
+              'Font minimum 40 px, refresh 30\–60 detik, tiga warna status, tanpa interaksi, ada fallback.')
 footer(s, 14)
 
 # ---------------------------------------------------------------- 15. TV KONFIGURASI
@@ -668,10 +725,12 @@ data = [
 ]
 table(s, data, [3.95, 3.75, 4.70], y=1.28, row_h=0.50, font=10, head_font=10.5)
 
-tb(s, 0.42, 6.02, 12.4, 0.26, "YANG TIDAK DITAMPILKAN DI TV", size=10.5, bold=True, color=GOLD)
-tb(s, 0.42, 6.30, 12.4, 0.50,
+tb(s, 0.42, 5.80, 12.4, 0.20, "YANG TIDAK DITAMPILKAN DI TV", size=10.5, bold=True, color=GOLD)
+tb(s, 0.42, 6.04, 12.4, 0.30,
    "Ranking individu/PIC (memicu konflik, bukan perbaikan)  ·  angka mentah panjang  ·  KPI di luar wewenang orang di lantai",
    size=10.5, color=NAVY)
+reason_bar(s, 'Kebutuhan tampilan berbeda per area; hardcode berarti setiap perubahan butuh deployment.',
+              'TV dirender dari profil: jumlah kartu, jenis insight, rotasi, jam aktif, ambang warna.')
 footer(s, 15)
 
 # ---------------------------------------------------------------- 16. INSIGHT ENGINE
@@ -696,6 +755,8 @@ data = [
 ]
 table(s, data, [0.80, 3.60, 6.45, 1.55], y=1.20, row_h=0.335, font=9, head_font=9.5,
       aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER])
+reason_bar(s, '849 dari 902 kasus berulang tetap dilabeli Occurrence, jadi deteksi manual tidak mungkin.',
+              '14 aturan otomatis; maksimal 3 tampil di TV dan L1 (dapat diubah), sisanya masuk daftar.')
 footer(s, 16)
 
 # ---------------------------------------------------------------- 17. RUMUS
@@ -743,6 +804,8 @@ bullets(s, 8.20, 3.72, 4.6, [
     ("Ambang batas dibulatkan", "Selisih realisasi 1% tidak lagi menjatuhkan satu band penuh"),
     ("Healthy Check jadi parameter", "Nilai & bobot dapat diubah Admin per tanggal berlaku"),
 ], size=10, gap=8)
+reason_bar(s, 'AVERAGEIF mengabaikan sel kosong, dan ambang tanpa pembulatan menjatuhkan satu band penuh.',
+              'Penyebut = hari kerja dikurangi hari libur, dan perbandingan band pada 2 desimal.')
 footer(s, 17)
 
 # ---------------------------------------------------------------- 18. ROADMAP
@@ -786,6 +849,8 @@ tb(s, 8.44, 4.94, 4.2, 1.26,
    "Exist Plant  →  Dairy  →  New Plant\n\n"
    "New Plant dimulai tanpa data lama — paling mudah.",
    size=9.5, color=NAVY, line=1.25)
+reason_bar(s, 'Snack dipilih karena template dan 5.817 baris datanya sudah ada, sehingga bisa divalidasi tanpa data baru.',
+              'Delapan pekan, dengan lima metrik keberhasilan terukur \— bukan sekadar aplikasi selesai.')
 footer(s, 18)
 
 # ---------------------------------------------------------------- 19. KEPUTUSAN
@@ -822,11 +887,13 @@ pending = [
 ]
 y = 1.62
 for i, (h, sub) in enumerate(pending):
-    rect(s, 6.95, y, 5.85, 0.92, fill=WHITE, line_color=BORDER, line_w=0.75)
-    rect(s, 6.95, y, 0.06, 0.92, fill=AMBER)
+    rect(s, 6.95, y, 5.85, 0.84, fill=WHITE, line_color=BORDER, line_w=0.75)
+    rect(s, 6.95, y, 0.06, 0.84, fill=AMBER)
     tb(s, 7.18, y + 0.12, 5.5, 0.26, h, size=10.5, bold=True, color=NAVY)
     tb(s, 7.18, y + 0.38, 5.5, 0.50, sub, size=9, color=GREY, line=1.15)
     y += 1.00
+reason_bar(s, 'Tiga hal tidak dapat dijawab dari file: kalender libur, status N/A, dan kebijakan impor data lama.',
+              'Yang diminta hari ini bukan persetujuan membangun, melainkan jawaban atas tiga keputusan itu.')
 footer(s, 19)
 
 # ---------------------------------------------------------------- 20. CLOSING
