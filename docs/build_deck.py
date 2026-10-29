@@ -80,7 +80,7 @@ def text(slide, x, y, w, h, s, size=12, bold=False, color=INK, align=PP_ALIGN.LE
     return box
 
 
-def block(slide, x, y, w, h, fill=None, line=None, lw=0.75, radius=None):
+def block(slide, x, y, w, h, fill=None, line=None, lw=0.75, radius=None, dash=None):
     shape = MSO_SHAPE.ROUNDED_RECTANGLE if radius else MSO_SHAPE.RECTANGLE
     sh = slide.shapes.add_shape(shape, Inches(x), Inches(y), Inches(w), Inches(h))
     if fill is None:
@@ -93,10 +93,18 @@ def block(slide, x, y, w, h, fill=None, line=None, lw=0.75, radius=None):
     else:
         sh.line.color.rgb = line
         sh.line.width = Pt(lw)
+        if dash:
+            from pptx.enum.dml import MSO_LINE_DASH_STYLE
+            sh.line.dash_style = MSO_LINE_DASH_STYLE.DASH
     sh.shadow.inherit = False
     if radius:
-        sh.adjustments[0] = radius
+        sh.adjustments[0] = min(radius, 0.5)
     return sh
+
+
+def card(slide, x, y, w, h, fill=WHITE, line=RULE, radius=0.07, lw=0.9):
+    """Panel bersudut membulat — pengganti kotak tajam."""
+    return block(slide, x, y, w, h, fill=fill, line=line, lw=lw, radius=radius)
 
 
 def hrule(slide, x, y, w, color=RULE, h=0.012):
@@ -116,49 +124,52 @@ def head(slide, title, sub=None, code=None, stage=None):
     block(slide, 0, 0, 13.333, 7.5, fill=WHITE)
     block(slide, 0, 0, 13.333, 0.82, fill=NAVY_D)
     slide.shapes.add_picture(LOGO, Inches(0.46), Inches(0.15), height=Inches(0.50))
-    text(slide, 3.05, 0.30, 6.6, 0.22, "DAILY MONITORING SYSTEM  ·  SEMUA PLANT",
-         size=8.5, bold=True, color=GOLD)
-    text(slide, 9.40, 0.30, 3.20, 0.22, "PENILAIAN & INSIGHT HARIAN", size=8.5,
+    text(slide, 3.05, 0.29, 6.6, 0.24, "DAILY MONITORING SYSTEM  ·  SEMUA PLANT",
+         size=9.5, bold=True, color=GOLD)
+    text(slide, 9.20, 0.29, 3.40, 0.24, "PENILAIAN & INSIGHT HARIAN", size=9,
          color=RGBColor(0x8E, 0x9C, 0xB8), align=PP_ALIGN.RIGHT)
 
     y = 1.04
     if code or stage:
         if stage:
-            text(slide, 0.86, y, 3.0, 0.20, stage.upper(), size=7.5, bold=True,
+            text(slide, 0.86, y, 3.0, 0.22, stage.upper(), size=8, bold=True,
                  color=LGREY)
         if code:
-            text(slide, 3.06, y, 9.4, 0.20, code.upper(), size=8.5, bold=True, color=GOLD)
-        y += 0.22
-    text(slide, 0.86, y, 11.5, 0.48, title, size=20, bold=True, color=NAVY, spacing=1.02)
-    y += 0.48
+            text(slide, 3.10, y, 9.4, 0.22, code.upper(), size=9.5, bold=True, color=GOLD)
+        y += 0.24
+    text(slide, 0.86, y, 11.5, 0.50, title, size=22, bold=True, color=NAVY, spacing=1.02)
+    y += 0.50
     if sub:
-        text(slide, 0.86, y, 11.5, 0.26, sub, size=9.5, color=GREY)
-        y += 0.26
+        text(slide, 0.86, y, 11.5, 0.28, sub, size=10.5, color=GREY, spacing=1.2)
+        y += 0.30
     hrule(slide, 0.86, y + 0.03, 11.58, GOLD, 0.022)
     return y + 0.24
 
 
 def foot(slide, n):
-    text(slide, 0.86, 7.06, 8.0, 0.22, "Digitalisasi DMS · semua plant · draft diskusi",
-         size=8, color=LGREY)
-    text(slide, 11.85, 7.06, 0.60, 0.22, str(n), size=8, color=LGREY, align=PP_ALIGN.RIGHT)
+    text(slide, 0.86, 7.05, 8.0, 0.24, "Digitalisasi DMS · semua plant · draft diskusi",
+         size=8.5, color=LGREY)
+    text(slide, 11.85, 7.05, 0.60, 0.24, str(n), size=8.5, color=LGREY, align=PP_ALIGN.RIGHT)
 
 
-def reason(slide, alasan, jawaban, y=6.46):
-    w, h = 5.86, 0.54
-    block(slide, 0.86, y, w, h, fill=GOLD_L)
-    block(slide, 0.86, y, 0.045, h, fill=GOLD)
-    text(slide, 1.06, y + 0.055, 1.0, 0.14, "ALASAN", size=6.5, bold=True, color=GOLD)
-    text(slide, 2.00, y + 0.05, 4.55, 0.44, alasan, size=8, color=RGBColor(0x3E, 0x35, 0x1A), spacing=1.12)
+def reason(slide, alasan, jawaban, y=6.36):
+    """Dua panel membulat ALASAN / JAWABAN — ukuran teks dibuat nyaman dibaca."""
+    w, h = 5.80, 0.66
+    card(slide, 0.86, y, w, h, fill=GOLD_L, line=RGBColor(0xE6, 0xD9, 0xB2), radius=0.12)
+    block(slide, 1.02, y + 0.13, 0.05, h - 0.26, fill=GOLD, radius=0.5)
+    text(slide, 1.18, y + 0.10, 1.20, 0.18, "ALASAN", size=8, bold=True, color=GOLD)
+    text(slide, 1.18, y + 0.29, w - 0.46, 0.34, alasan, size=9.5,
+         color=RGBColor(0x3E, 0x35, 0x1A), spacing=1.15)
 
-    x2 = 0.86 + w + 0.14
-    block(slide, x2, y, w, h, fill=TEAL_L)
-    block(slide, x2, y, 0.045, h, fill=TEAL)
-    text(slide, x2 + 0.20, y + 0.055, 1.0, 0.14, "JAWABAN", size=6.5, bold=True, color=TEAL)
-    text(slide, x2 + 1.18, y + 0.05, 4.42, 0.44, jawaban, size=8, color=RGBColor(0x14, 0x36, 0x3B), spacing=1.12)
+    x2 = 0.86 + w + 0.18
+    card(slide, x2, y, w, h, fill=TEAL_L, line=RGBColor(0xBF, 0xD8, 0xDB), radius=0.12)
+    block(slide, x2 + 0.16, y + 0.13, 0.05, h - 0.26, fill=TEAL, radius=0.5)
+    text(slide, x2 + 0.32, y + 0.10, 1.30, 0.18, "JAWABAN", size=8, bold=True, color=TEAL)
+    text(slide, x2 + 0.32, y + 0.29, w - 0.46, 0.34, jawaban, size=9.5,
+         color=RGBColor(0x14, 0x36, 0x3B), spacing=1.15)
 
 
-def table(slide, data, widths, x=0.86, y=1.55, row_h=0.34, size=9.5, head_size=9,
+def table(slide, data, widths, x=0.86, y=1.55, row_h=0.38, size=10, head_size=9.5,
           first_bold=False, aligns=None, head_fill=NAVY):
     rows, cols = len(data), len(data[0])
     shp = slide.shapes.add_table(rows, cols, Inches(x), Inches(y),
@@ -190,18 +201,18 @@ def table(slide, data, widths, x=0.86, y=1.55, row_h=0.34, size=9.5, head_size=9
     return shp
 
 
-def kpi_strip(slide, items, y=1.62, h=1.00):
+def kpi_strip(slide, items, y=1.62, h=1.04):
     w, gap, x = 3.85, 0.19, 0.86
     for big, label, note, col in items:
-        block(slide, x, y, w, h, fill=BG, line=RULE)
-        block(slide, x, y, 0.045, h, fill=col)
-        text(slide, x + 0.22, y + 0.11, 1.9, 0.40, big, size=22, bold=True, color=col)
-        text(slide, x + 0.22, y + 0.52, w - 0.40, 0.22, label, size=9, bold=True, color=INK)
-        text(slide, x + 0.22, y + 0.72, w - 0.40, 0.20, note, size=7.5, color=GREY)
+        card(slide, x, y, w, h, fill=BG, line=RULE, radius=0.09)
+        block(slide, x + 0.14, y + 0.14, 0.05, h - 0.28, fill=col, radius=0.5)
+        text(slide, x + 0.30, y + 0.12, 2.0, 0.42, big, size=24, bold=True, color=col)
+        text(slide, x + 0.30, y + 0.56, w - 0.52, 0.24, label, size=9.5, bold=True, color=INK)
+        text(slide, x + 0.30, y + 0.80, w - 0.52, 0.24, note, size=9, color=GREY)
         x += w + gap
 
 
-def rows_list(slide, x, y, w, items, size=10, gap=0.26, bullet=GOLD):
+def rows_list(slide, x, y, w, items, size=10.5, gap=0.26, bullet=GOLD):
     cy = y
     for head_, body in items:
         block(slide, x, cy + 0.075, 0.07, 0.07, fill=bullet)
@@ -210,36 +221,50 @@ def rows_list(slide, x, y, w, items, size=10, gap=0.26, bullet=GOLD):
         if body:
             cpl = max(int((w - 0.24) * 15.2), 24)
             lines = -(-len(body) // cpl)
-            text(slide, x + 0.20, cy, w - 0.20, 0.19 * lines + 0.04, body,
-                 size=size - 1.5, color=GREY, spacing=1.14)
+            text(slide, x + 0.20, cy, w - 0.20, 0.20 * lines + 0.04, body,
+                 size=size - 1, color=GREY, spacing=1.14)
             cy += 0.19 * lines
         cy += gap
     return cy
 
 
 def placeholder(slide, x, y, w, h, label, note=None):
-    """Bidang kosong bertanda untuk rancangan tampilan (desain UI menyusul)."""
-    block(slide, x, y, w, h, fill=RGBColor(0xF7, 0xF8, 0xFA))
-    hrule(slide, x, y, w, RGBColor(0xC9, 0xD0, 0xDB))
-    hrule(slide, x, y + h, w, RGBColor(0xC9, 0xD0, 0xDB))
-    block(slide, x, y, 0.02, h, fill=RGBColor(0xC9, 0xD0, 0xDB))
-    block(slide, x + w - 0.02, y, 0.02, h, fill=RGBColor(0xC9, 0xD0, 0xDB))
-    text(slide, x + 0.16, y + h / 2 - 0.22, w - 0.32, 0.22, label.upper(), size=9,
-         bold=True, color=RGBColor(0x8A, 0x93, 0xA5), align=PP_ALIGN.CENTER)
+    """Panel membulat bertanda untuk rancangan tampilan (desain UI menyusul)."""
+    card(slide, x, y, w, h, fill=RGBColor(0xF7, 0xF8, 0xFA),
+         line=RGBColor(0xC2, 0xCA, 0xD6), radius=0.06, lw=1.0)
+    text(slide, x + 0.16, y + h / 2 - 0.26, w - 0.32, 0.24, label.upper(), size=10.5,
+         bold=True, color=RGBColor(0x86, 0x90, 0xA0), align=PP_ALIGN.CENTER)
     if note:
-        text(slide, x + 0.16, y + h / 2 + 0.04, w - 0.32, 0.24, note, size=8.5,
-             color=RGBColor(0xA6, 0xAE, 0xBC), align=PP_ALIGN.CENTER)
+        text(slide, x + 0.16, y + h / 2 + 0.00, w - 0.32, 0.24, note, size=9,
+             color=RGBColor(0xA3, 0xAB, 0xB9), align=PP_ALIGN.CENTER)
 
 
-def bars(slide, items, y, x=0.86, label_w=3.35, max_w=7.40, row_h=0.50):
+def img_slot(slide, x, y, w, h, caption, note="sisipkan foto atau gambar di sini"):
+    """Kotak gambar berbingkai putus-putus: tinggal diganti foto/diagram nanti."""
+    card(slide, x, y, w, h, fill=RGBColor(0xFA, 0xFB, 0xFD),
+         line=RGBColor(0xBF, 0xC7, 0xD4), radius=0.05, lw=1.15)
+    ic = 0.30
+    cx, cy = x + w / 2, y + h / 2 - 0.20
+    card(slide, cx - ic / 2, cy - ic / 2, ic, ic, fill=WHITE,
+         line=RGBColor(0xC2, 0xCA, 0xD6), radius=0.18, lw=1.0)
+    text(slide, cx - ic / 2, cy - 0.11, ic, 0.22, "+", size=13, bold=True,
+         color=RGBColor(0xA3, 0xAB, 0xB9), align=PP_ALIGN.CENTER)
+    text(slide, x + 0.18, y + h / 2 + 0.14, w - 0.36, 0.24, caption.upper(), size=9.5,
+         bold=True, color=RGBColor(0x86, 0x90, 0xA0), align=PP_ALIGN.CENTER)
+    text(slide, x + 0.18, y + h / 2 + 0.36, w - 0.36, 0.24, note, size=8.5,
+         color=RGBColor(0xA9, 0xB1, 0xBE), align=PP_ALIGN.CENTER)
+
+
+
+def bars(slide, items, y, x=0.86, label_w=3.35, max_w=7.40, row_h=0.56):
     """Batang horizontal sederhana untuk kontribusi (%) tanpa dekorasi."""
     for label, pct, col in items:
-        text(slide, x, y + 0.06, label_w - 0.15, 0.22, label, size=9.5, color=INK)
+        text(slide, x, y + 0.04, label_w - 0.15, 0.24, label, size=10, color=INK)
         bw = max_w * pct / 100.0
-        block(slide, x + label_w, y + 0.06, max_w, 0.20, fill=RGBColor(0xEE, 0xF0, 0xF4))
-        block(slide, x + label_w, y + 0.06, bw, 0.20, fill=col)
-        text(slide, x + label_w + max_w + 0.12, y + 0.05, 0.70, 0.22,
-             f"{pct}%", size=9, bold=True, color=col)
+        block(slide, x + label_w, y + 0.05, max_w, 0.24, fill=RGBColor(0xEE, 0xF0, 0xF4), radius=0.5)
+        block(slide, x + label_w, y + 0.05, bw, 0.24, fill=col, radius=0.5)
+        text(slide, x + label_w + max_w + 0.12, y + 0.04, 0.70, 0.24,
+             f"{pct}%", size=10, bold=True, color=col)
         y += row_h
     return y
 
@@ -250,8 +275,8 @@ clean(s)
 s.shapes.add_picture(LOGO, Inches(0.94), Inches(1.16), height=Inches(0.90))
 text(s, 0.86, 3.08, 10.0, 0.24, "DAILY MONITORING SYSTEM  ·  DAIRY · EXIST · NEW PLANT · SNACK",
      size=9.5, bold=True, color=GOLD)
-text(s, 0.86, 3.36, 11.6, 0.92, "Menutup Celah Monitoring Harian: Nol Penilaian Manual",
-     size=29, bold=True, color=WHITE, spacing=1.06)
+text(s, 0.86, 3.34, 11.6, 1.00, "Menutup Celah Monitoring Harian:\nNol Penilaian Manual",
+     size=28, bold=True, color=WHITE, spacing=1.06)
 hrule(s, 0.86, 4.34, 2.60, GOLD, 0.03)
 text(s, 0.86, 4.50, 10.6, 0.28,
      "Satu kerangka penilaian, satu alur tindakan, satu mesin insight untuk seluruh plant.",
@@ -259,22 +284,22 @@ text(s, 0.86, 4.50, 10.6, 0.28,
 text(s, 0.86, 4.82, 9.6, 0.24, "Usulan rancangan   ·   Oktober 2026   ·   draft diskusi, belum implementasi",
      size=8.5, color=RGBColor(0x93, 0xA1, 0xBB))
 
-w, h = 5.86, 0.84
-block(s, 0.86, 5.16, w, h, fill=WHITE)
-block(s, 0.86, 5.16, 0.05, h, fill=GOLD)
-text(s, 1.08, 5.26, 0.90, 0.16, "ALASAN", size=7, bold=True, color=GOLD)
-text(s, 1.08, 5.46, 5.42, 0.46,
+w, h = 5.80, 0.92
+card(s, 0.86, 5.12, w, h, fill=WHITE, line=RGBColor(0xE6, 0xD9, 0xB2), radius=0.10)
+block(s, 1.02, 5.28, 0.05, h - 0.32, fill=GOLD, radius=0.5)
+text(s, 1.18, 5.24, 1.10, 0.18, "ALASAN", size=8, bold=True, color=GOLD)
+text(s, 1.18, 5.44, w - 0.48, 0.52,
      "Monitoring berjalan di semua plant, tetapi skornya masih dinilai manusia dan "
-     "penutupan kasus tidak diverifikasi.", size=8.5,
-     color=RGBColor(0x33, 0x2C, 0x14), spacing=1.2)
+     "penutupan kasus tidak diverifikasi.", size=9.5,
+     color=RGBColor(0x33, 0x2C, 0x14), spacing=1.18)
 
-x2 = 0.86 + w + 0.14
-block(s, x2, 5.16, w, h, fill=WHITE)
-block(s, x2, 5.16, 0.05, h, fill=TEAL)
-text(s, x2 + 0.22, 5.26, 1.00, 0.16, "JAWABAN", size=7, bold=True, color=TEAL)
-text(s, x2 + 0.22, 5.46, 5.42, 0.46,
+x2 = 0.86 + w + 0.18
+card(s, x2, 5.12, w, h, fill=WHITE, line=RGBColor(0xBF, 0xD8, 0xDB), radius=0.10)
+block(s, x2 + 0.16, 5.28, 0.05, h - 0.32, fill=TEAL, radius=0.5)
+text(s, x2 + 0.32, 5.24, 1.15, 0.18, "JAWABAN", size=8, bold=True, color=TEAL)
+text(s, x2 + 0.32, 5.44, w - 0.48, 0.52,
      "Delapan langkah perbaikan: masalah, sebab, tindakan, ukuran, standar — "
-     "berlaku untuk plant mana pun.", size=8.5, color=RGBColor(0x14, 0x36, 0x3B), spacing=1.2)
+     "berlaku untuk plant mana pun.", size=9.5, color=RGBColor(0x14, 0x36, 0x3B), spacing=1.2)
 
 
 # ============================================================ 02 · PETA 8 LANGKAH
@@ -310,18 +335,20 @@ foot(s, 2)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Masalahnya penilaian yang manual, bukan orangnya",
-         "Diuji pada workbook satu plant; pola penyebabnya berlaku umum",
+         "Diuji pada satu plant; polanya berlaku untuk semua plant",
          code="1A · Penentuan masalah", stage="Langkah 1")
 kpi_strip(s, [
     ("5.817", "baris kasus diperiksa", "seluruh sheet resume", NAVY),
     ("973", "kasus ditutup tanpa akar masalah", "16,7% dari total", RED),
     ("94%", "kasus berulang salah label", "849 dari 902 kasus", AMBER),
 ], y=y + 0.02, h=0.94)
-rows_list(s, 0.86, 3.56, 11.58, [
-    ("Skor dinilai manusia", "30 dari 100 bobot diisi manual: on-time dan kelengkapan file."),
-    ("Penutupan tidak diverifikasi", "Status Close diisi ketika kolomnya berisi, bukan ketika masalahnya selesai."),
-    ("Tidak ada dimensi waktu", "Tidak ada aging, tren, atau peringatan sebelum masalah membesar."),
-], size=9.5, gap=0.24)
+rows_list(s, 0.86, 3.52, 7.35, [
+    ("Skor dinilai manusia", "Sebagian bobot diisi manual, sehingga hasilnya bergantung pada ingatan."),
+    ("Penutupan tidak diverifikasi", "Status selesai diisi saat kolomnya berisi, bukan saat masalahnya tuntas."),
+    ("Tidak ada dimensi waktu", "Belum ada aging, tren, atau peringatan sebelum masalah membesar."),
+], size=10, gap=0.26)
+img_slot(s, 8.45, 3.46, 3.99, 2.20, "Bukti kondisi saat ini",
+         "salinan tangkapan layar workbook atau foto rapat")
 reason(s, "Ketiga gejala muncul di semua sheet, sehingga bukan kebiasaan satu plant atau satu orang.",
        "Masalah utama dirumuskan pada mekanisme penilaian dan penutupan kasus.")
 foot(s, 3)
@@ -331,7 +358,7 @@ foot(s, 3)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Data cukup untuk mendiagnosis, belum cukup untuk menilai",
-         "Sumber data diseragamkan; angka di bawah adalah sampel satu plant",
+         "Sumber data diseragamkan di semua plant; angka di bawah adalah contoh satu plant",
          code="1B · Pengumpulan data", stage="Langkah 1")
 table(s, [
     ["Sumber", "Kasus", "Rentang", "Kelengkapan akar masalah", "Status pakai"],
@@ -360,11 +387,11 @@ foot(s, 4)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Tema: satu cara menilai, dipakai semua plant",
-         "Tema dipilih karena dampaknya besar, dalam kendali, dan berulang tiap hari",
+         "Tema dipilih karena dampaknya besar, berada dalam kendali tim, dan berulang setiap hari",
          code="1C · Penentuan tema", stage="Langkah 1")
-block(s, 0.86, y + 0.02, 11.58, 1.02, fill=BG, line=RULE)
+card(s, 0.86, y + 0.02, 11.58, 1.02, fill=BG, line=RULE, radius=0.09)
 block(s, 0.86, y + 0.02, 0.045, 1.02, fill=NAVY)
-text(s, 1.10, y + 0.14, 11.0, 0.20, "TEMA YANG DIUSULKAN", size=8, bold=True, color=GOLD)
+text(s, 1.10, y + 0.12, 11.0, 0.22, "TEMA YANG DIUSULKAN", size=9, bold=True, color=GOLD)
 text(s, 1.10, y + 0.36, 11.0, 0.56,
      "Menghapus penilaian manual pada monitoring harian, sehingga setiap angka dapat ditelusuri "
      "sampai kasus dan setiap kasus ditutup dengan bukti.", size=11, color=INK, spacing=1.2)
@@ -374,8 +401,15 @@ table(s, [
     ["Dalam kendali tim", "Ya", "Mekanisme penilaian dan penutupan ada di proses sendiri"],
     ["Keterulangan", "Harian", "Muncul setiap hari kerja di semua plant"],
     ["Kelayakan", "Tinggi", "Tidak menuntut investasi mesin; cukup aturan dan sistem"],
-], [3.05, 1.60, 6.93], y=y + 1.20, row_h=0.36, size=9.5, first_bold=True,
+], [3.05, 1.60, 6.93], y=y + 1.16, row_h=0.345, size=9.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
+card(s, 0.86, 5.30, 11.58, 0.86, fill=BG, line=RULE, radius=0.09)
+block(s, 1.02, 5.44, 0.05, 0.58, fill=NAVY, radius=0.5)
+text(s, 1.20, 5.40, 10.9, 0.20, "CATATAN RUANG LINGKUP", size=8.5, bold=True, color=NAVY)
+text(s, 1.20, 5.62, 10.9, 0.46,
+     "Yang diperbaiki adalah cara menilai dan menutup kasus, bukan mesin atau proses produksinya. "
+     "Karena itu perbaikan ini dapat diterapkan di plant mana pun tanpa investasi peralatan.",
+     size=9.5, color=INK, spacing=1.2)
 reason(s, "Tema dipilih dengan empat kriteria yang sama seperti pemilihan tema perbaikan lain.",
        "Ruang lingkupnya proses penilaian dan pelaporan, bukan proyek perangkat keras.")
 foot(s, 5)
@@ -385,7 +419,7 @@ foot(s, 5)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Target delapan pekan: nol penilaian manual, nol penutupan tanpa bukti",
-         "Semua target dapat diukur pekanan dan berlaku seragam di tiap plant",
+         "Semua target dapat diukur pekanan dan berlaku sama di setiap plant",
          code="1D · Penetapan target", stage="Langkah 1")
 table(s, [
     ["Indikator", "Sekarang (sampel)", "Target", "Cara ukur"],
@@ -422,7 +456,7 @@ table(s, [
      "Pola berulang terdeteksi; perbaikan diarahkan ke penyebab, bukan gejalanya"],
     ["Delivery", "Eskalasi bergantung pada ingatan; 22 kasus terlambat hingga 1.045 hari",
      "Aging dan eskalasi otomatis sejak hari pertama keterlambatan"],
-], [1.55, 5.05, 4.98], y=y + 0.02, row_h=0.80, size=9.5, first_bold=True,
+], [1.55, 5.05, 4.98], y=y + 0.02, row_h=0.74, size=9.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
 reason(s, "PQCD adalah empat sisi yang dipakai menilai dampak pada setiap perbaikan.",
        "Karena itu usulan ini dinilai dari empat sisi tersebut, bukan dari jumlah fitur.")
@@ -433,7 +467,7 @@ foot(s, 7)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Excel berhenti di dua tahap pertama",
-         "Urutan proses yang sama dipakai di semua plant: lima tahap, satu loop tertutup",
+         "Urutan proses yang sama berlaku di semua plant: lima tahap, satu putaran tertutup",
          code="2A · Penggambaran urutan proses", stage="Langkah 2")
 stages = [
     ("1", "CAPTURE", "Meeting harian dan kasus baru tercatat", "sudah ada"),
@@ -445,12 +479,12 @@ stages = [
 cw, gap = 2.18, 0.20
 x = 0.86
 for no, name, desc, tag in stages:
-    block(s, x, y + 0.04, cw, 1.62, fill=WHITE, line=RULE)
+    card(s, x, y + 0.04, cw, 1.62, fill=WHITE, line=RULE, radius=0.08)
     hrule(s, x, y + 0.04, cw, NAVY if tag == "sudah ada" else GOLD, 0.05)
     text(s, x + 0.14, y + 0.16, 0.30, 0.22, no, size=11, bold=True, color=GOLD)
     text(s, x + 0.46, y + 0.17, cw - 0.60, 0.22, name, size=9, bold=True, color=NAVY)
-    text(s, x + 0.14, y + 0.54, cw - 0.28, 0.72, desc, size=8.5, color=GREY, spacing=1.2)
-    text(s, x + 0.14, y + 1.32, cw - 0.28, 0.20, tag, size=7.5, color=LGREY)
+    text(s, x + 0.14, y + 0.52, cw - 0.28, 0.74, desc, size=9, color=GREY, spacing=1.2)
+    text(s, x + 0.14, y + 1.30, cw - 0.28, 0.22, tag, size=8.5, color=LGREY)
     x += cw + gap
 text(s, 0.86, 4.06, 11.5, 0.24,
      "YANG MEMBEDAKAN DENGAN DASBOR BIASA", size=9, bold=True, color=GOLD)
@@ -468,7 +502,7 @@ foot(s, 8)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Delapan penyebab potensial, semuanya di metode dan alat",
-         "Brainstorming dari bukti file, bukan dari dugaan",
+         "Dikumpulkan dari bukti yang tercatat, bukan dari dugaan",
          code="2B · Brainstorming penyebab potensial", stage="Langkah 2")
 table(s, [
     ["No", "Penyebab potensial", "Sumber bukti"],
@@ -491,7 +525,7 @@ foot(s, 9)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Tiga penyebab terbukti lewat 5G, bukan dugaan",
-         "Setiap dugaan diuji di tempat kerja, lalu dibandingkan dengan standar dan teori",
+         "Setiap dugaan diuji langsung di tempat kerja, lalu dibandingkan dengan standar dan teori",
          code="2C · Analisis 5G", stage="Langkah 2")
 table(s, [
     ["Penyebab potensial", "Genba (aktivitas)", "Genbutsu (objek)", "Genjitsu (temuan)",
@@ -505,8 +539,8 @@ table(s, [
     ["Pengulangan diisi manual", "Membandingkan label dengan riwayat",
      "Kolom status berulang", "849 dari 902 label keliru",
      "Deteksi berbasis data", "Pola hanya terlihat bila dihitung mesin", "TERBUKTI"],
-], [1.95, 1.60, 1.45, 2.15, 1.50, 1.75, 1.18], y=y + 0.02, row_h=0.92, size=7.5,
-    head_size=7.5, first_bold=True,
+], [1.95, 1.60, 1.45, 2.15, 1.50, 1.75, 1.18], y=y + 0.02, row_h=0.80, size=8.5,
+    head_size=8.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT,
             PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER])
 reason(s, "5G memisahkan pengamatan nyata dari asumsi, sehingga kesimpulan tidak bisa dibantah dengan opini.",
@@ -518,7 +552,7 @@ foot(s, 10)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Sebabnya menyebar di lima kategori, akarnya tetap metode",
-         "Diagram sebab-akibat: dari gejala di lapangan menuju satu masalah utama",
+         "Diagram sebab-akibat: dari gejala di lapangan menuju satu masalah utama ",
          code="2D · Fishbone analysis", stage="Langkah 2")
 spine_y = 4.42
 line(s, 1.00, spine_y, 9.60, spine_y, NAVY, 2.0)
@@ -537,21 +571,21 @@ down = [
     (6.10, "DATA", ["Akar masalah 0–79%", "Bukti penutupan kosong", "Kategori kasus 16%"]),
 ]
 for bx, name, causes in up:
-    text(s, bx - 0.55, 2.34, 2.25, 0.20, name, size=8.5, bold=True, color=NAVY)
+    text(s, bx - 0.55, 2.30, 2.25, 0.22, name, size=9.5, bold=True, color=NAVY)
     cy = 2.60
     for c in causes:
         block(s, bx - 0.62, cy + 0.07, 0.06, 0.06, fill=GOLD)
-        text(s, bx - 0.46, cy, 2.05, 0.20, c, size=7.5, color=GREY, spacing=1.1)
+        text(s, bx - 0.46, cy, 2.05, 0.22, c, size=8.5, color=GREY, spacing=1.1)
         cy += 0.28
     line(s, bx, spine_y, bx - 0.42, cy - 0.10, NAVY, 1.25)
 
 for bx, name, causes in down:
     line(s, bx, spine_y, bx - 0.42, spine_y + 0.44, NAVY, 1.25)
-    text(s, bx - 0.55, spine_y + 0.50, 2.25, 0.20, name, size=8.5, bold=True, color=NAVY)
+    text(s, bx - 0.55, spine_y + 0.48, 2.25, 0.22, name, size=9.5, bold=True, color=NAVY)
     cy = spine_y + 0.76
     for c in causes:
         block(s, bx - 0.62, cy + 0.07, 0.06, 0.06, fill=GOLD)
-        text(s, bx - 0.46, cy, 2.05, 0.20, c, size=7.5, color=GREY, spacing=1.1)
+        text(s, bx - 0.46, cy, 2.05, 0.22, c, size=8.5, color=GREY, spacing=1.1)
         cy += 0.28
 reason(s, "Gejala yang tampak berbeda (angka, kelengkapan, keterlambatan) mengarah ke satu akar yang sama.",
        "Perbaikan tidak menyasar orang per orang, melainkan aturan penilaian dan verifikasinya.")
@@ -562,7 +596,7 @@ foot(s, 11)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Empat akar penyebab menjelaskan hampir seluruh masalah",
-         "Daftar akar penyebab dengan bukti, bobot kontribusi, dan dampaknya",
+         "Akar penyebab beserta bukti, bobot kontribusi, dan dampaknya bila dibiarkan",
          code="3A · Daftar akar penyebab", stage="Langkah 3")
 table(s, [
     ["#", "Akar penyebab", "Bukti", "Kontribusi", "Dampak bila dibiarkan"],
@@ -576,8 +610,8 @@ table(s, [
      "Eskalasi terlambat, masalah membesar"],
 ], [0.52, 3.45, 3.55, 1.20, 2.86], y=y + 0.02, row_h=0.56, size=9.5,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
-text(s, 0.86, 5.06, 11.5, 0.24, "URUTAN PRIORITAS PENANGANAN", size=9, bold=True, color=GOLD)
-rows_list(s, 0.86, 5.36, 11.58, [
+text(s, 0.86, 4.98, 11.5, 0.24, "URUTAN PRIORITAS PENANGANAN", size=9, bold=True, color=GOLD)
+rows_list(s, 0.86, 5.24, 11.58, [
     ("Pertama: hitung otomatis dan gate penutupan", "Dua akar teratas menyumbang 65% masalah."),
     ("Kedua: deteksi berulang dan dimensi waktu", "Sisanya 35%, bergantung pada data yang sudah bersih."),
 ], size=9.5, gap=0.10)
@@ -598,13 +632,14 @@ bars(s, [
     ("Pengulangan manual", 20, TEAL),
     ("Tanpa dimensi waktu", 15, TEAL),
 ], y=y + 0.18)
-block(s, 0.86, 4.62, 11.58, 1.00, fill=BG, line=RULE)
-block(s, 0.86, 4.62, 0.045, 1.00, fill=GOLD)
-text(s, 1.08, 4.74, 11.0, 0.20, "CARA MEMBACA", size=8, bold=True, color=GOLD)
-text(s, 1.08, 4.96, 11.1, 0.56,
+card(s, 0.86, 4.48, 6.90, 1.24, fill=BG, line=RULE, radius=0.08)
+block(s, 1.02, 4.66, 0.05, 0.88, fill=GOLD, radius=0.5)
+text(s, 1.20, 4.58, 6.0, 0.20, "CARA MEMBACA", size=8.5, bold=True, color=GOLD)
+text(s, 1.20, 4.80, 6.34, 0.78,
      "Dua batang pertama berada di mekanisme penilaian dan penutupan kasus — keduanya dapat "
      "diperbaiki tanpa menambah orang. Dua batang berikutnya baru bermakna setelah data bersih.",
      size=9.5, color=INK, spacing=1.25)
+img_slot(s, 8.05, 4.48, 4.39, 1.24, "Grafik pendukung", "tempel pareto atau tren di sini")
 reason(s, "Bila keempat akar dikerjakan bersamaan, hasilnya sulit dibedakan mana yang bekerja.",
        "Pilot mengerjakan dua akar teratas lebih dulu, dua sisanya menyusul pada fase berikutnya.")
 foot(s, 13)
@@ -614,7 +649,7 @@ foot(s, 13)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Dua solusi menang: hitung otomatis dan gate penutupan",
-         "Alternatif solusi dinilai dengan matriks dampak, biaya, risiko, dan kompleksitas",
+         "Setiap alternatif dinilai dengan ukuran yang sama: dampak, biaya, risiko, dan kompleksitas",
          code="4A · Analisis alternatif solusi", stage="Langkah 4")
 table(s, [
     ["No", "Alternatif solusi", "Dampak 40%", "Biaya 10%", "Risiko 30%", "Kompleksitas 20%", "Skor", "Prioritas"],
@@ -622,16 +657,20 @@ table(s, [
     ["2", "Gate penutupan: akar masalah + tindakan + bukti + persetujuan", "5", "5", "4", "5", "4,7", "1"],
     ["3", "Deteksi berulang otomatis berbasis riwayat kasus", "4", "5", "4", "3", "3,9", "3"],
     ["4", "Penegasan disiplin tanpa mengubah sistem", "2", "4", "3", "5", "3,1", "—"],
-], [0.52, 4.55, 0.95, 0.95, 0.95, 1.30, 0.80, 1.06], y=y + 0.28, row_h=0.46, size=8.5,
-    head_size=8,
+], [0.52, 4.55, 0.95, 0.95, 0.95, 1.30, 0.80, 1.06], y=y + 0.28, row_h=0.46, size=9,
+    head_size=8.5,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT] + [PP_ALIGN.CENTER] * 6)
 text(s, 0.86, y - 0.02, 11.5, 0.22,
      "SKALA 1–5 · SKOR = DAMPAK×0,4 + BIAYA×0,1 + RISIKO×0,3 + KOMPLEKSITAS×0,2",
      size=8.5, bold=True, color=GOLD)
-text(s, 0.86, 4.90, 11.5, 0.60,
+card(s, 0.86, 4.98, 7.10, 1.20, fill=BG, line=RULE, radius=0.08)
+block(s, 1.02, 5.12, 0.05, 0.92, fill=GOLD, radius=0.5)
+text(s, 1.20, 5.08, 6.5, 0.20, "CATATAN PEMILIHAN", size=8.5, bold=True, color=GOLD)
+text(s, 1.20, 5.30, 6.50, 0.80,
      "Solusi nomor 4 sengaja dicantumkan sebagai pembanding: menambah penekanan pada orang "
-     "tidak menyelesaikan sebabnya, karena penyebabnya berada di mekanisme.",
-     size=9, color=GREY, spacing=1.2)
+     "tidak menyelesaikan sebabnya. Skor dihitung dengan bobot yang sama untuk semua usulan.",
+     size=9.5, color=INK, spacing=1.22)
+img_slot(s, 8.16, 4.98, 4.28, 1.20, "Matriks scoring", "tempel hasil perhitungan tim")
 reason(s, "Matriks ini memaksa setiap usulan dibandingkan pada ukuran yang sama, bukan pada selera.",
        "Dua solusi teratas dikerjakan lebih dulu; keduanya saling menguatkan.")
 foot(s, 14)
@@ -641,7 +680,7 @@ foot(s, 14)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Rencana kerja: tiga paket, tiga pemilik, satu jadwal",
-         "Setiap paket ditulis dengan What, Why, How, Who, When, Where, How much",
+         "Setiap paket ditulis lengkap: apa, mengapa, bagaimana, siapa, kapan, di mana, berapa",
          code="4B · Workplan 5W1H", stage="Langkah 4")
 table(s, [
     ["What (rencana)", "Why (ukuran berhasil)", "How (uraian)", "Who", "When", "Where", "How much"],
@@ -651,10 +690,14 @@ table(s, [
      "Pemilik proses", "Pekan 3–6", "Semua plant", "Internal"],
     ["Deteksi berulang", "100% pola ≥3× terdeteksi", "Aturan otomatis atas riwayat kasus",
      "Tim DMS", "Pekan 6–7", "Semua plant", "Internal"],
-], [2.30, 2.10, 3.35, 1.40, 0.95, 1.00, 0.88], y=y + 0.02, row_h=0.86, size=8,
-    head_size=8, first_bold=True,
+], [2.30, 2.10, 3.35, 1.40, 0.95, 1.00, 0.88], y=y + 0.02, row_h=0.80, size=8.5,
+    head_size=8.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT,
             PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.CENTER])
+text(s, 0.86, 5.58, 11.58, 0.44,
+     "Ketiga paket dijalankan berurutan: perhitungan skor menjadi dasar gate penutupan, "
+     "dan deteksi berulang baru berjalan setelah data penutupan lengkap.",
+     size=9.5, italic=True, color=GREY, spacing=1.22)
 reason(s, "Paket tanpa pemilik dan tanggal tidak akan berjalan, sebaik apa pun idenya.",
        "Ketiga paket memakai pemilik proses yang sudah ada; tidak perlu organisasi baru.")
 foot(s, 15)
@@ -664,7 +707,7 @@ foot(s, 15)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Delapan pekan: fondasi dulu, tampilan paling akhir",
-         "Urutan fase mengikuti ketergantungan data, bukan kemudahan pembuatan layar",
+         "Urutan fase mengikuti kesiapan data, bukan kemudahan membuat tampilan",
          code="4C · Timeline perbaikan", stage="Langkah 4")
 phases = [
     ("0", "Fondasi", "2 pekan", "Master data bersih, aturan penilaian, hak akses"),
@@ -676,12 +719,12 @@ phases = [
 ]
 cw, gap, x = 1.86, 0.14, 0.86
 for i, (no, name, dur, desc) in enumerate(phases):
-    block(s, x, y + 0.10, cw, 2.16, fill=WHITE, line=RULE)
+    card(s, x, y + 0.10, cw, 2.16, fill=WHITE, line=RULE, radius=0.07)
     hrule(s, x, y + 0.10, cw, GOLD, 0.05)
     text(s, x + 0.12, y + 0.22, 0.30, 0.22, no, size=11, bold=True, color=GOLD)
-    text(s, x + 0.12, y + 0.50, cw - 0.24, 0.22, name.upper(), size=8.5, bold=True, color=NAVY)
+    text(s, x + 0.12, y + 0.50, cw - 0.24, 0.22, name.upper(), size=9, bold=True, color=NAVY)
     text(s, x + 0.12, y + 0.74, cw - 0.24, 0.20, dur, size=8, color=GOLD)
-    text(s, x + 0.12, y + 1.00, cw - 0.24, 1.10, desc, size=7.5, color=GREY, spacing=1.2)
+    text(s, x + 0.12, y + 0.98, cw - 0.24, 1.12, desc, size=8.5, color=GREY, spacing=1.2)
     x += cw + gap
 text(s, 0.86, 4.58, 11.5, 0.24, "ATURAN URUTAN", size=9, bold=True, color=GOLD)
 rows_list(s, 0.86, 4.88, 11.58, [
@@ -700,24 +743,20 @@ y = head(s, "Tampilan mengikuti peran, bukan sebaliknya",
          "Kerangka empat kanal di bawah ini masih kosong — desain antarmuka dibuat terpisah",
          code="5A · Pelaksanaan — rancangan tampilan", stage="Langkah 5")
 cw, gap, x = 2.80, 0.18, 0.86
-for label in ["Form harian", "Dasbor L1–L3", "Tampilan lantai (TV)", "Halaman admin"]:
-    placeholder(s, x, y + 0.06, cw, 2.06, label, "rancangan menyusul")
+for label, who, desc in [
+    ("Form harian", "Leader & DH", "Satu layar, target di bawah 5 menit"),
+    ("Dasbor L1–L3", "Supervisor, admin", "Tiga tingkat dengan audiens berbeda"),
+    ("Tampilan lantai", "Lantai produksi", "Tanpa interaksi, rotasi otomatis"),
+    ("Halaman admin", "Admin plant & group", "Persetujuan, konfigurasi, audit"),
+]:
+    img_slot(s, x, y + 0.02, cw, 1.94, label, "mockup atau foto layar")
+    text(s, x, 4.24, cw, 0.22, who, size=9.5, bold=True, color=NAVY)
+    text(s, x, 4.48, cw, 0.44, desc, size=9, color=GREY, spacing=1.2)
     x += cw + gap
-labels = [
-    ("Leader & DH", "Satu layar, target di bawah 5 menit"),
-    ("Supervisor, admin", "Tiga tingkat dengan audiens berbeda"),
-    ("Lantai produksi", "Tanpa interaksi, rotasi otomatis"),
-    ("Admin plant & group", "Persetujuan, konfigurasi, audit"),
-]
-x = 0.86
-for name, desc in labels:
-    text(s, x, 4.36, cw, 0.22, name, size=9, bold=True, color=NAVY)
-    text(s, x, 4.60, cw, 0.44, desc, size=8, color=GREY, spacing=1.2)
-    x += cw + gap
-text(s, 0.86, 5.20, 11.5, 0.44,
-     "Catatan: seluruh gambar rancangan aplikasi (form, dasbor, TV) belum disertakan pada versi ini. "
+text(s, 0.86, 5.10, 11.5, 0.44,
+     "Catatan: rancangan aplikasi (form, dasbor, TV) sengaja dikosongkan. "
      "Pembahasan hari ini difokuskan pada logika penilaian, alur kerja, dan mesin insight.",
-     size=9, color=GREY, spacing=1.25)
+     size=9.5, color=GREY, spacing=1.25)
 reason(s, "Desain antarmuka perlu dibahas dengan pengguna lapangan sebelum digambar.",
        "Deck ini menetapkan struktur kanal dan batasannya, bukan tampilan visualnya.")
 foot(s, 17)
@@ -729,15 +768,15 @@ clean(s)
 y = head(s, "Angka tidak boleh bisa diubah diam-diam",
          "Tiga hal yang dijaga pada halaman admin — gambarnya menyusul",
          code="5B · Pelaksanaan — kontrol admin", stage="Langkah 5")
-placeholder(s, 0.86, y + 0.06, 7.30, 2.62, "Rancangan halaman admin", "rancangan menyusul")
-rows_list(s, 8.45, y + 0.10, 3.99, [
+img_slot(s, 0.86, y + 0.02, 7.30, 2.66, "Rancangan halaman admin", "mockup atau foto layar")
+rows_list(s, 8.45, y + 0.06, 3.99, [
     ("Persetujuan", "Penutupan kasus disetujui pihak lain, bukan pengisi."),
     ("Konfigurasi", "Bobot, ambang skor, target, dan kalender libur bertanggal berlaku."),
     ("Audit", "Setiap perubahan tercatat: siapa, kapan, sebelum–sesudah."),
-], size=9, gap=0.16)
-block(s, 0.86, y + 2.86, 11.58, 0.62, fill=BG, line=RULE)
-block(s, 0.86, y + 2.86, 0.045, 0.62, fill=RED)
-text(s, 1.04, y + 2.96, 11.2, 0.44,
+], size=9.5, gap=0.20)
+card(s, 0.86, y + 2.84, 11.58, 0.66, fill=BG, line=RULE, radius=0.10)
+block(s, 1.02, y + 2.96, 0.05, 0.42, fill=RED, radius=0.5)
+text(s, 1.20, y + 2.94, 11.0, 0.48,
      "Admin tidak dapat mengubah skor periode yang sudah dikunci; koreksi hanya melalui "
      "penyesuaian beralasan yang tercatat.", size=9, color=INK, spacing=1.2)
 reason(s, "Mengubah bobot hari ini tanpa versioning berarti mengubah skor periode yang sudah dilaporkan.",
@@ -749,7 +788,7 @@ foot(s, 18)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Capaian diukur pekanan dengan enam indikator yang sama",
-         "Tabel monitoring dipakai seragam di semua plant, sehingga hasilnya dapat dibandingkan",
+         "Tabel monitoring dipakai seragam, sehingga hasil antarplant dapat dibandingkan",
          code="6A · Monitoring capaian terhadap target", stage="Langkah 6")
 table(s, [
     ["Indikator", "Cara ukur", "Frekuensi", "Ambang eskalasi"],
@@ -773,7 +812,7 @@ foot(s, 19)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Evaluasi dinilai dari empat dampak, bukan dari aplikasi selesai",
-         "Perbandingan sebelum dan sesudah delapan pekan, memakai kerangka yang sama dengan 1E",
+         "Perbandingan sebelum dan sesudah delapan pekan, memakai kerangka yang sama dengan poin 1E",
          code="6B · Evaluasi hasil", stage="Langkah 6")
 table(s, [
     ["Aspek", "Sebelum", "Sesudah (target)", "Kriteria lanjut"],
@@ -783,7 +822,7 @@ table(s, [
     ["Delivery", "Keterlambatan 1.045 hari", "Tidak ada kasus lewat tenggat tanpa eskalasi", "Eskalasi berjalan otomatis"],
 ], [1.55, 3.65, 3.35, 3.03], y=y + 0.02, row_h=0.56, size=9.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
-block(s, 0.86, 5.28, 11.58, 0.86, fill=BG, line=RULE)
+card(s, 0.86, 5.28, 11.58, 0.86, fill=BG, line=RULE, radius=0.09)
 block(s, 0.86, 5.28, 0.045, 0.86, fill=GREEN)
 text(s, 1.08, 5.38, 11.0, 0.20, "KRITERIA GO / NO-GO", size=8, bold=True, color=GREEN)
 text(s, 1.08, 5.60, 11.1, 0.44,
@@ -798,7 +837,7 @@ foot(s, 20)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Hasil bertahan karena standar, bukan karena pengawasan",
-         "Standar hasil, proses, sistem, dan audit — diisi sekali, dipakai semua plant",
+         "Empat standar yang cukup disusun sekali dan dipakai semua plant",
          code="7 · Standarisasi", stage="Langkah 7")
 table(s, [
     ["Standar", "Isi", "Bentuk dokumen"],
@@ -808,8 +847,8 @@ table(s, [
     ["7D · Audit", "Jejak perubahan, kunci periode, koreksi beralasan", "Prosedur audit dan contoh laporan"],
 ], [1.85, 5.55, 4.18], y=y + 0.02, row_h=0.54, size=9.5, first_bold=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
-text(s, 0.86, 4.86, 11.5, 0.22, "YANG BERUBAH SETELAH STANDAR BERLAKU", size=9, bold=True, color=GOLD)
-rows_list(s, 0.86, 5.16, 11.58, [
+text(s, 0.86, 4.74, 11.5, 0.22, "YANG BERUBAH SETELAH STANDAR BERLAKU", size=9, bold=True, color=GOLD)
+rows_list(s, 0.86, 5.04, 11.58, [
     ("Tidak ada lagi versi file per orang", "Satu acuan, satu versi, satu tanggal berlaku."),
     ("Masalah lama tidak kembali", "Kasus yang kambuh otomatis muncul sebagai temuan."),
 ], size=9.5, gap=0.10)
@@ -822,12 +861,12 @@ foot(s, 21)
 s = prs.slides.add_slide(L_CONTENT)
 clean(s)
 y = head(s, "Setelah satu plant stabil, kerangka yang sama dipakai plant lain",
-         "Tema berikutnya dan urutan penyebarannya",
+         "Tema berikutnya dan urutan penyebaran ke plant lain",
          code="8 · Tema berikutnya", stage="Langkah 8")
-block(s, 0.86, y + 0.02, 11.58, 1.00, fill=BG, line=RULE)
-block(s, 0.86, y + 0.02, 0.045, 1.00, fill=GOLD)
-text(s, 1.08, y + 0.14, 11.0, 0.20, "TEMA BERIKUTNYA", size=8, bold=True, color=GOLD)
-text(s, 1.08, y + 0.36, 11.0, 0.56,
+card(s, 0.86, y + 0.02, 11.58, 1.00, fill=BG, line=RULE, radius=0.09)
+block(s, 1.02, y + 0.16, 0.05, 0.72, fill=GOLD, radius=0.5)
+text(s, 1.20, y + 0.12, 11.0, 0.20, "TEMA BERIKUTNYA", size=8.5, bold=True, color=GOLD)
+text(s, 1.20, y + 0.34, 10.9, 0.56,
      "Menyebarkan kerangka penilaian yang sama ke seluruh plant, dengan tambahan KPI khas "
      "masing-masing plant.", size=11, color=INK, spacing=1.2)
 table(s, [
@@ -836,8 +875,9 @@ table(s, [
     ["2", "Exist Plant", "Salin template, sesuaikan KPI dan kalender", "Pekan 9–12"],
     ["3", "Dairy", "KPI proses dan mutu khas dairy", "Pekan 13–16"],
     ["4", "New Plant", "Ikut sejak awal operasi", "Saat plant berjalan"],
-], [0.80, 2.10, 6.10, 2.58], y=y + 1.18, row_h=0.40, size=9.5,
+], [0.70, 1.90, 4.35, 2.00], y=y + 1.18, row_h=0.42, size=9.5,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
+img_slot(s, 9.30, y + 1.18, 3.14, 2.10, "Peta sebaran plant", "sisipkan foto atau diagram")
 reason(s, "KPI khas plant berbeda, tetapi cara menilai, menutup kasus, dan membaca insight tetap sama.",
        "Penyebaran dilakukan setelah satu plant terbukti, agar kesalahannya tidak berlipat.")
 foot(s, 22)
@@ -866,7 +906,7 @@ table(s, [
 text(s, 0.86, 5.42, 11.58, 0.50,
      "Dua hal menyusul setelah ketiganya: akun untuk fungsi Teknik (mayoritas kasus milik mereka) "
      "dan kebijakan retensi data.", size=9, italic=True, color=GREY, spacing=1.2)
-text(s, 0.86, 6.02, 11.0, 0.34, "Terima kasih.", size=14, bold=True, color=NAVY)
+text(s, 0.86, 5.92, 11.0, 0.32, "Terima kasih.", size=13.5, bold=True, color=NAVY)
 reason(s, "Ketiganya kebijakan, bukan angka: tidak dapat disimpulkan dari workbook mana pun.",
        "Arahan pada sesi ini mengunci lingkup pilot dan tanggal mulai.")
 text(s, 11.85, 7.06, 0.60, 0.22, "23", size=8, color=LGREY, align=PP_ALIGN.RIGHT)

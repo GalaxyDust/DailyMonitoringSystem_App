@@ -119,7 +119,7 @@ for i, s in enumerate(p.slides, 1):
                 f = font(min(sz, 30), bold)
                 lines = []
                 for seg in txt.split('\n'):
-                    lines += textwrap.wrap(seg, width=max(int((w / 96) * 96 / (sz * 0.52)), 6)) or ['']
+                    lines += textwrap.wrap(seg, width=max(int(w / (sz * 0.70)), 6)) or ['']
                 for ln in lines:
                     d.text((x, ty), ln, font=f, fill=col)
                     ty += sz * 96 / 72 * (para.line_spacing or 1.15) * 0.86
