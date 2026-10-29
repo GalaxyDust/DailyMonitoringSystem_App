@@ -107,7 +107,20 @@ for i, s in enumerate(p.slides, 1):
         if fill or lc:
             d.rectangle([x, y, x + w, y + h], fill=fill, outline=lc)
         if sh.has_text_frame and sh.text_frame.text.strip():
-            ty = y + 1
+            tf = sh.text_frame
+            ml = (tf.margin_left or 0) / 914400 * 96
+            mt = (tf.margin_top or 0) / 914400 * 96
+            # hitung tinggi total teks untuk anchor tengah
+            total_h = 0.0
+            for para in tf.paragraphs:
+                txt0 = ''.join(r.text for r in para.runs)
+                sz0 = para.runs[0].font.size.pt if para.runs and para.runs[0].font.size else 12
+                wd = max(int((w - ml - 4) / (sz0 * 0.667)), 6)
+                lines0 = textwrap.wrap(txt0, width=wd) if txt0 else ['']
+                total_h += len(lines0) * sz0 * 96 / 72 * (para.line_spacing or 1.15) * 1.02
+            anchor = str(tf.vertical_anchor)
+            ty = y + mt + (max(h - total_h, 0) / 2 if 'MIDDLE' in anchor else 0)
+            x = x + ml
             for para in sh.text_frame.paragraphs:
                 txt = ''.join(r.text for r in para.runs)
                 if not txt:
@@ -119,9 +132,9 @@ for i, s in enumerate(p.slides, 1):
                 f = font(min(sz, 30), bold)
                 lines = []
                 for seg in txt.split('\n'):
-                    lines += textwrap.wrap(seg, width=max(int(w / (sz * 0.70)), 6)) or ['']
+                    lines += textwrap.wrap(seg, width=max(int((w - ml - 4) / (sz * 0.667)), 6)) or ['']
                 for ln in lines:
                     d.text((x, ty), ln, font=f, fill=col)
-                    ty += sz * 96 / 72 * (para.line_spacing or 1.15) * 0.86
+                    ty += sz * 96 / 72 * (para.line_spacing or 1.15) * 1.02
     img.save(f'/tmp/prev/s{i:02d}.png')
 print('ok', len(p.slides))
