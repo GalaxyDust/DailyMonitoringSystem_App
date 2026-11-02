@@ -194,19 +194,30 @@ def draw_chart(d, sh, x, y, w, h):
             d.line([plot[0], gy, plot[2], gy], fill=(231, 234, 240))
             d.text((x + 4, gy - 6), fmt(vmax * g / 4, nf), font=font(7), fill=(139, 147, 161))
         n = len(cats)
+        ns = max(len(series), 1)
         slot = pw / max(n, 1)
-        bw = slot * (0.52 if len(series) == 1 else 0.62)
+        group = slot * 0.68
+        bw = group / ns
         for i, cat in enumerate(cats):
-            cx = plot[0] + slot * i + (slot - bw) / 2
+            base = plot[0] + slot * i + (slot - group) / 2
             bottom = plot[3]
-            for name, vals, col in series:
+            for si, (name, vals, col) in enumerate(series):
                 v = vals[i]
                 hh = ph * (v / vmax)
                 top = bottom - hh
-                d.rectangle([cx, top, cx + bw, bottom], fill=col)
-                d.text((cx + bw / 2 - d.textlength(fmt(v, nf), font=font(8, True)) / 2, top - 13),
-                       fmt(v, nf), font=font(8, True), fill=(31, 51, 100))
-                bottom = top
+                cx = base + si * bw
+                d.rectangle([cx, top, cx + bw - 1, bottom], fill=col)
+                if not stacked:
+                    bottom = plot[3]
+                    lbl = fmt(v, nf)
+                    d.text((cx + (bw - 1) / 2 - d.textlength(lbl, font=font(7, True)) / 2, top - 12),
+                           lbl, font=font(7, True), fill=(31, 51, 100))
+                else:
+                    lbl = fmt(v, nf)
+                    if hh > 14:
+                        d.text((cx + (bw - 1) / 2 - d.textlength(lbl, font=font(7, True)) / 2,
+                                top + hh / 2 - 6), lbl, font=font(7, True), fill=(255, 255, 255))
+                    bottom = top
             lab = cat
             tw = d.textlength(lab, font=font(8))
             d.text((plot[0] + slot * i + slot / 2 - tw / 2, plot[3] + 5), lab, font=font(8), fill=(34, 40, 51))
@@ -216,25 +227,30 @@ def draw_chart(d, sh, x, y, w, h):
             d.line([gx, plot[1], gx, plot[3]], fill=(231, 234, 240))
             d.text((gx - 12, plot[3] + 6), fmt(vmax * g / 4, nf), font=font(7), fill=(139, 147, 161))
         n = len(cats)
+        ns = max(len(series), 1)
         slot = ph / max(n, 1)
-        bh = slot * (0.52 if len(series) == 1 else 0.62)
+        group = slot * 0.68
+        bh = group / ns
         for i, cat in enumerate(cats):
-            cy = plot[1] + slot * i + (slot - bh) / 2
+            base = plot[1] + slot * i + (slot - group) / 2
             left = plot[0]
-            for name, vals, col in series:
+            for si, (name, vals, col) in enumerate(series):
                 v = vals[i]
                 bwv = pw * (v / vmax)
-                d.rectangle([left, cy, left + bwv, cy + bh], fill=col)
-                if bwv > 26:
-                    d.text((left + bwv / 2 - d.textlength(fmt(v, nf), font=font(8, True)) / 2,
-                            cy + bh / 2 - 7), fmt(v, nf), font=font(8, True), fill=(255, 255, 255))
+                cy = base + si * bh
+                d.rectangle([left, cy, left + bwv, cy + bh - 1], fill=col)
+                lbl = fmt(v, nf)
+                if bwv > 40 and not stacked:
+                    d.text((left + bwv / 2 - d.textlength(lbl, font=font(8, True)) / 2,
+                            cy + bh / 2 - 7), lbl, font=font(8, True), fill=(255, 255, 255))
                 else:
-                    d.text((left + bwv + 3, cy + bh / 2 - 7), fmt(v, nf), font=font(8, True),
+                    d.text((left + bwv + 3, cy + bh / 2 - 7), lbl, font=font(8, True),
                            fill=(31, 51, 100))
-                left += bwv
+                if stacked:
+                    left += bwv
             lab = cat
             tw = d.textlength(lab, font=font(8))
-            d.text((plot[0] - tw - 6, cy + bh / 2 - 7), lab, font=font(8), fill=(34, 40, 51))
+            d.text((plot[0] - tw - 6, base + group / 2 - 7), lab, font=font(8), fill=(34, 40, 51))
 
 
 for i, s in enumerate(p.slides, 1):

@@ -1,0 +1,1180 @@
+{
+ "Snack": {
+  "file": "12. Konsep Penilaian DMS Snack Des 24.xlsx",
+  "SHE": {
+   "kasus": 1185,
+   "rentang": [
+    "2023-01-30",
+    "2025-12-23"
+   ],
+   "root_cause_pct": 54.2,
+   "due_date_pct": 0.0,
+   "bukti_pct": 4.5,
+   "pic_pct": 0.0,
+   "close": 396,
+   "close_tanpa_sebab": 396,
+   "pola_3x": 38,
+   "kasus_dalam_pola": 762,
+   "pola_teratas": [
+    [
+     "packing pilus",
+     146
+    ],
+    [
+     "fraying",
+     140
+    ],
+    [
+     "seasoning sllury",
+     62
+    ]
+   ],
+   "top_lbn": [
+    [
+     "packing pilus",
+     146
+    ],
+    [
+     "fraying",
+     140
+    ],
+    [
+     "seasoning sllury",
+     62
+    ]
+   ],
+   "top_line": [],
+   "top_kategori": [],
+   "high_pct": 0.0,
+   "top_pic": [],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 0,
+   "overdue_tertua": 0,
+   "ringkasan_sheet": {
+    "OPEN": 119,
+    "Occurrence": 483,
+    "CLOSE": 364,
+    "Recurrence": 0,
+    "TOTAL": 483
+   },
+   "error_sel": {}
+  },
+  "QC": {
+   "kasus": 1519,
+   "rentang": [
+    "2023-08-01",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 78.9,
+   "due_date_pct": 99.9,
+   "bukti_pct": null,
+   "pic_pct": 99.9,
+   "close": 1517,
+   "close_tanpa_sebab": 320,
+   "pola_3x": 83,
+   "kasus_dalam_pola": 451,
+   "pola_teratas": [
+    [
+     "pilus l1",
+     "svb13 bcat",
+     20
+    ],
+    [
+     "pilus l1",
+     "rbp52 bcat",
+     15
+    ],
+    [
+     "pilus l1",
+     "rbp50 bcat",
+     13
+    ]
+   ],
+   "top_lbn": [
+    [
+     "pilus l1",
+     1240
+    ],
+    [
+     "pilus l01",
+     104
+    ],
+    [
+     "pellet l1",
+     89
+    ]
+   ],
+   "top_line": [
+    [
+     "9",
+     1344
+    ],
+    [
+     "10",
+     145
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     1512
+    ],
+    [
+     "material",
+     5
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "prod",
+     953
+    ],
+    [
+     "teknik",
+     184
+    ]
+   ],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 1,
+   "overdue_tertua": 1042,
+   "ringkasan_sheet": {
+    "OPEN": 1,
+    "Occurrence": 962,
+    "CLOSE": 1017,
+    "Recurrence": 56,
+    "TOTAL": 1018
+   },
+   "error_sel": {}
+  },
+  "Prod": {
+   "kasus": 3111,
+   "rentang": [
+    "2023-08-02",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 78.5,
+   "due_date_pct": 99.3,
+   "bukti_pct": null,
+   "pic_pct": 100.0,
+   "close": 3088,
+   "close_tanpa_sebab": 653,
+   "pola_3x": 182,
+   "kasus_dalam_pola": 788,
+   "pola_teratas": [
+    [
+     "pilus l1",
+     "svb13 bcat",
+     14
+    ],
+    [
+     "pilus l1",
+     "mhm39 lstr",
+     13
+    ],
+    [
+     "pilus l1",
+     "svb 19 lstr",
+     13
+    ]
+   ],
+   "top_lbn": [
+    [
+     "pilus l1",
+     2832
+    ],
+    [
+     "pilus l01",
+     169
+    ],
+    [
+     "pellet",
+     20
+    ]
+   ],
+   "top_line": [
+    [
+     "9",
+     3014
+    ],
+    [
+     "10",
+     56
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     3109
+    ],
+    [
+     "method",
+     2
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "teknik",
+     2809
+    ],
+    [
+     "tekpro",
+     293
+    ]
+   ],
+   "dt_median": 50,
+   "dt_total": 208848,
+   "overdue": 22,
+   "overdue_tertua": 1153,
+   "ringkasan_sheet": {
+    "OPEN": 17,
+    "CLOSE": 971,
+    "TOTAL": 988
+   },
+   "error_sel": {
+    "#VALUE!": 44,
+    "#REF!": 7
+   }
+  },
+  "index_blok": [
+   {
+    "blok": "Agustus",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.89,
+      1.1125,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W31",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   },
+   {
+    "blok": "W27",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.92,
+      1.15,
+      4
+     ],
+     [
+      "Ceklist Daily",
+      0.9,
+      1.125,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.8
+   },
+   {
+    "blok": "W28",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.9,
+      1.125,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W29",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.9,
+      1.125,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W30",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.86,
+      1.075,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   }
+  ],
+  "total_kasus": 5815,
+  "close_tanpa_sebab": 1369,
+  "pola_3x": 303,
+  "kasus_dalam_pola": 2001,
+  "overdue": 23,
+  "error_sel_total": 51
+ },
+ "Exist Plant": {
+  "file": "12. Konsep Penilaian DMS EP Des 24.xlsx",
+  "SHE": {
+   "kasus": 1836,
+   "rentang": [
+    "2023-01-02",
+    "2026-05-05"
+   ],
+   "root_cause_pct": 51.9,
+   "due_date_pct": 0.0,
+   "bukti_pct": 22.6,
+   "pic_pct": 45.3,
+   "close": 1296,
+   "close_tanpa_sebab": 692,
+   "pola_3x": 1,
+   "kasus_dalam_pola": 64,
+   "pola_teratas": [
+    [
+     "produksi biscuit",
+     64
+    ]
+   ],
+   "top_lbn": [
+    [
+     "produksi biscuit",
+     64
+    ]
+   ],
+   "top_line": [],
+   "top_kategori": [],
+   "high_pct": 0.0,
+   "top_pic": [
+    [
+     "https://garudafood365.sharepoint.com/sites/shebue/shared%20documents/apps/microsoft%20forms/she%20observasi%202025/question/img_20250407_205730_revi%20elvis.jpg",
+     2
+    ],
+    [
+     "https://garudafood365.sharepoint.com/sites/shebue/shared%20documents/apps/microsoft%20forms/she%20observasi%202025/question/img-20250408-wa0012_andri%20efendi.jpeg",
+     2
+    ]
+   ],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 0,
+   "overdue_tertua": 0,
+   "ringkasan_sheet": {
+    "OPEN": 131,
+    "Occurrence": 472,
+    "CLOSE": 340,
+    "Recurrence": 0,
+    "TOTAL": 471
+   },
+   "error_sel": {}
+  },
+  "QC": {
+   "kasus": 2338,
+   "rentang": [
+    "2023-08-01",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 97.6,
+   "due_date_pct": 100.0,
+   "bukti_pct": null,
+   "pic_pct": 100.0,
+   "close": 2337,
+   "close_tanpa_sebab": 55,
+   "pola_3x": 148,
+   "kasus_dalam_pola": 1501,
+   "pola_teratas": [
+    [
+     "ws l04",
+     "p02 bct",
+     134
+    ],
+    [
+     "ws l04",
+     "p42 bct",
+     80
+    ],
+    [
+     "ws l04",
+     "m02 bct",
+     73
+    ]
+   ],
+   "top_lbn": [
+    [
+     "ws l02",
+     535
+    ],
+    [
+     "ws l04",
+     457
+    ],
+    [
+     "ws l01",
+     283
+    ]
+   ],
+   "top_line": [
+    [
+     "2",
+     605
+    ],
+    [
+     "4",
+     578
+    ],
+    [
+     "1",
+     365
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     2337
+    ],
+    [
+     "material",
+     1
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "teknik",
+     2334
+    ],
+    [
+     "eneng & norma",
+     1
+    ]
+   ],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 1,
+   "overdue_tertua": 888,
+   "ringkasan_sheet": {
+    "OPEN": 1,
+    "Occurrence": 836,
+    "CLOSE": 992,
+    "Recurrence": 157,
+    "TOTAL": 993
+   },
+   "error_sel": {}
+  },
+  "Prod": {
+   "kasus": 2600,
+   "rentang": [
+    "2023-08-01",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 91.9,
+   "due_date_pct": 99.9,
+   "bukti_pct": null,
+   "pic_pct": 99.9,
+   "close": 2579,
+   "close_tanpa_sebab": 207,
+   "pola_3x": 143,
+   "kasus_dalam_pola": 675,
+   "pola_teratas": [
+    [
+     "ws l04",
+     "p02 bct",
+     29
+    ],
+    [
+     "ws l04",
+     "m02 bct",
+     16
+    ],
+    [
+     "ws l03",
+     "p67 bct",
+     15
+    ]
+   ],
+   "top_lbn": [
+    [
+     "ws l02",
+     587
+    ],
+    [
+     "ws l01",
+     325
+    ],
+    [
+     "ws l04",
+     215
+    ]
+   ],
+   "top_line": [
+    [
+     "2",
+     682
+    ],
+    [
+     "1",
+     423
+    ],
+    [
+     "4",
+     296
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     2593
+    ],
+    [
+     "material",
+     4
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "teknik",
+     2511
+    ],
+    [
+     "tekpro",
+     47
+    ]
+   ],
+   "dt_median": 60,
+   "dt_total": 196525,
+   "overdue": 20,
+   "overdue_tertua": 1157,
+   "ringkasan_sheet": {
+    "OPEN": 20,
+    "CLOSE": 957,
+    "TOTAL": 977
+   },
+   "error_sel": {
+    "#VALUE!": 44,
+    "#REF!": 7
+   }
+  },
+  "index_blok": [
+   {
+    "blok": "Agustus",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.82,
+      1.025,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   },
+   {
+    "blok": "W31",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0,
+      0,
+      null
+     ],
+     [
+      "Ceklist Daily",
+      0,
+      0,
+      null
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 0.6
+   },
+   {
+    "blok": "W27",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.83,
+      1.0374999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   },
+   {
+    "blok": "W28",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.83,
+      1.0374999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   },
+   {
+    "blok": "W29",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.83,
+      1.0374999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   },
+   {
+    "blok": "W30",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.81,
+      1.0125,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.87,
+      1.0875,
+      3
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.0
+   }
+  ],
+  "total_kasus": 6774,
+  "close_tanpa_sebab": 954,
+  "pola_3x": 292,
+  "kasus_dalam_pola": 2240,
+  "overdue": 21,
+  "error_sel_total": 51
+ },
+ "New Plant": {
+  "file": "12. Konsep Penilaian DMS NP Des 24 (1).xlsx",
+  "SHE": {
+   "kasus": 1875,
+   "rentang": [
+    "2023-01-27",
+    "2025-12-21"
+   ],
+   "root_cause_pct": 56.7,
+   "due_date_pct": 0.0,
+   "bukti_pct": 19.4,
+   "pic_pct": 38.9,
+   "close": 1512,
+   "close_tanpa_sebab": 655,
+   "pola_3x": 0,
+   "kasus_dalam_pola": 0,
+   "pola_teratas": [],
+   "top_lbn": [],
+   "top_line": [],
+   "top_kategori": [],
+   "high_pct": 0.0,
+   "top_pic": [
+    [
+     "lainnya",
+     52
+    ],
+    [
+     "tersengat listrik",
+     40
+    ]
+   ],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 0,
+   "overdue_tertua": 0,
+   "ringkasan_sheet": {
+    "OPEN": 97,
+    "Occurrence": 483,
+    "CLOSE": 386,
+    "Recurrence": 0,
+    "TOTAL": 483
+   },
+   "error_sel": {}
+  },
+  "QC": {
+   "kasus": 1266,
+   "rentang": [
+    "2023-08-02",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 92.8,
+   "due_date_pct": 100.0,
+   "bukti_pct": null,
+   "pic_pct": 99.9,
+   "close": 1265,
+   "close_tanpa_sebab": 91,
+   "pola_3x": 88,
+   "kasus_dalam_pola": 779,
+   "pola_teratas": [
+    [
+     "ws l09",
+     "e08 bct",
+     33
+    ],
+    [
+     "ws l11",
+     "e01 bct",
+     31
+    ],
+    [
+     "ws l11",
+     "bws 19 ka > std",
+     31
+    ]
+   ],
+   "top_lbn": [
+    [
+     "ws l11",
+     615
+    ],
+    [
+     "ws l09",
+     170
+    ],
+    [
+     "ws l12",
+     144
+    ]
+   ],
+   "top_line": [
+    [
+     "3",
+     602
+    ],
+    [
+     "1",
+     243
+    ],
+    [
+     "4",
+     142
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     1265
+    ],
+    [
+     "method",
+     1
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "tekpro",
+     1199
+    ],
+    [
+     "teknik",
+     36
+    ]
+   ],
+   "dt_median": null,
+   "dt_total": null,
+   "overdue": 1,
+   "overdue_tertua": 863,
+   "ringkasan_sheet": {
+    "OPEN": 1,
+    "Occurrence": 894,
+    "CLOSE": 998,
+    "Recurrence": 106,
+    "TOTAL": 999
+   },
+   "error_sel": {}
+  },
+  "Prod": {
+   "kasus": 1471,
+   "rentang": [
+    "2023-08-01",
+    "2026-10-21"
+   ],
+   "root_cause_pct": 89.7,
+   "due_date_pct": 99.7,
+   "bukti_pct": null,
+   "pic_pct": 99.7,
+   "close": 1462,
+   "close_tanpa_sebab": 151,
+   "pola_3x": 46,
+   "kasus_dalam_pola": 173,
+   "pola_teratas": [
+    [
+     "ws l11",
+     7
+    ],
+    [
+     "ws l10",
+     "p46 esl",
+     6
+    ],
+    [
+     "ws l09",
+     "e08 bct",
+     6
+    ]
+   ],
+   "top_lbn": [
+    [
+     "ws l11",
+     372
+    ],
+    [
+     "ws l12",
+     245
+    ],
+    [
+     "ws l10",
+     219
+    ]
+   ],
+   "top_line": [
+    [
+     "3",
+     367
+    ],
+    [
+     "2",
+     319
+    ],
+    [
+     "4",
+     249
+    ]
+   ],
+   "top_kategori": [
+    [
+     "machine",
+     1470
+    ],
+    [
+     "methode",
+     1
+    ]
+   ],
+   "high_pct": 100.0,
+   "top_pic": [
+    [
+     "teknik",
+     1447
+    ],
+    [
+     "tekpro",
+     8
+    ]
+   ],
+   "dt_median": 60,
+   "dt_total": 102853,
+   "overdue": 8,
+   "overdue_tertua": 1182,
+   "ringkasan_sheet": {
+    "OPEN": 8,
+    "CLOSE": 995,
+    "TOTAL": 1003
+   },
+   "error_sel": {
+    "#VALUE!": 44,
+    "#REF!": 7
+   }
+  },
+  "index_blok": [
+   {
+    "blok": "Agustus",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.88,
+      1.0999999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.93,
+      1.1625,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W31",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0,
+      0,
+      4
+     ],
+     [
+      "Ceklist Daily",
+      0,
+      0,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.8
+   },
+   {
+    "blok": "W27",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      1,
+      1.25,
+      5
+     ],
+     [
+      "Ceklist Daily",
+      0.94,
+      1.1749999999999998,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 4.2
+   },
+   {
+    "blok": "W28",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.85,
+      1.0625,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.94,
+      1.1749999999999998,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W29",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.83,
+      1.0374999999999999,
+      3
+     ],
+     [
+      "Ceklist Daily",
+      0.94,
+      1.1749999999999998,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.4
+   },
+   {
+    "blok": "W30",
+    "rows": [
+     [
+      "Summary DMS to KPI",
+      0.89,
+      1.1125,
+      4
+     ],
+     [
+      "Ceklist Daily",
+      0.94,
+      1.1749999999999998,
+      4
+     ],
+     [
+      "Corporate",
+      0.8,
+      1,
+      3
+     ]
+    ],
+    "index": 3.8
+   }
+  ],
+  "total_kasus": 4612,
+  "close_tanpa_sebab": 897,
+  "pola_3x": 134,
+  "kasus_dalam_pola": 952,
+  "overdue": 9,
+  "error_sel_total": 51
+ },
+ "_total": {
+  "total_kasus": 17201,
+  "close_tanpa_sebab": 3220,
+  "pola_3x": 729,
+  "kasus_dalam_pola": 5193,
+  "overdue": 53,
+  "error_sel_total": 153
+ }
+}

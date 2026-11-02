@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """
-Deck DMS memakai template_master.pptx (versi terbaru):
-  slide 1 template -> cover (panel putih judul)
-  slide 2 template -> pola semua halaman isi (judul + area konten)
-  slide 3 template -> halaman penutup
+Deck DMS memakai template_master.pptx (versi terbaru) DAN data tiga workbook:
+Snack, Exist Plant, New Plant (angka dibaca dari docs/data_plants.json).
 
-Isi 13 slide:
-  1 cover · 2 kondisi + grafik kolom · 3 diagram alir harian
-  4 diagram alir penutupan kasus · 5 struktur data · 6 rumus
-  7 dua grafik batang · 8 mesin insight · 9 gantt · 10 kanal
-  11 bahan gambar · 12 keputusan · 13 penutup
+slide 1 template -> cover · slide 2 template -> halaman isi · slide 3 template -> penutup
 
-Jalankan: python3 docs/build_deck.py
+Jalankan: python3 docs/analyze_workbook.py && python3 docs/build_deck.py
 Hasil  : docs/DMS_Digitalisasi_v1.pptx
 """
+import json
+
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -24,11 +20,15 @@ from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
 SRC = "template_master.pptx"
 OUT = "docs/DMS_Digitalisasi_v1.pptx"
+DATA = json.load(open("docs/data_plants.json", encoding="utf-8"))
 
-NAVY = RGBColor(0x1F, 0x33, 0x64)      # kuat / angka pokok
-TEAL = RGBColor(0x2E, 0x86, 0x8C)      # terkendali / sudah baik
-GOLD = RGBColor(0xC8, 0xA5, 0x2B)      # perlu perhatian
-RED = RGBColor(0xB0, 0x2F, 0x2F)       # risiko / lewat batas
+SN, EP, NP = DATA["Snack"], DATA["Exist Plant"], DATA["New Plant"]
+TOT = DATA["_total"]
+
+NAVY = RGBColor(0x1F, 0x33, 0x64)
+TEAL = RGBColor(0x2E, 0x86, 0x8C)
+GOLD = RGBColor(0xC8, 0xA5, 0x2B)
+RED = RGBColor(0xB0, 0x2F, 0x2F)
 INK = RGBColor(0x22, 0x28, 0x33)
 GREY = RGBColor(0x5C, 0x64, 0x72)
 LGREY = RGBColor(0x8B, 0x93, 0xA1)
@@ -36,6 +36,17 @@ RULE = RGBColor(0xD5, 0xDA, 0xE3)
 SOFT = RGBColor(0xF4, 0xF6, 0xFA)
 PALE = RGBColor(0xD9, 0xDE, 0xE7)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+
+
+def n(v):
+    """Format angka Indonesia: 17201 -> 17.201"""
+    return f"{int(round(v)):,}".replace(",", ".")
+
+
+def pc(v, dec=0):
+    s = f"{v:.{dec}f}".replace(".", ",")
+    return s + "%"
+
 
 prs = Presentation(SRC)
 COVER_T, BODY_T, CLOSE_T = prs.slides[0], prs.slides[1], prs.slides[2]
@@ -210,15 +221,18 @@ def chart(slide, x, y, w, h, cats, series, kind, colors, number_format="0", lege
     return gf
 
 
-def page(title, kicker, no, note=None):
-    """Halaman isi memakai layout slide 2 template."""
+PAGE = [1]
+
+
+def page(title, kicker, no=None, note=None):
+    """Halaman isi memakai layout slide 2 template. Nomor halaman otomatis."""
+    PAGE[0] += 1
     s = prs.slides.add_slide(BODY_L)
     for ph in list(s.placeholders):
         if ph.placeholder_format.idx not in (0, 1):
             ph._element.getparent().remove(ph._element)
     title_ph = s.shapes.title
-    n = len(title)
-    size = 24 if n <= 46 else (22.5 if n <= 56 else 20.5)
+    size = 24 if len(title) <= 46 else (22.5 if len(title) <= 56 else 20.5)
     if title_ph is not None:
         title_ph.left, title_ph.top = Inches(2.05), Inches(0.20)
         title_ph.width, title_ph.height = Inches(10.05), Inches(0.68)
@@ -241,16 +255,16 @@ def page(title, kicker, no, note=None):
 
     hline(s, 2.05, 0.94, 2.20, GOLD, 0.05)
     txt(s, 4.45, 0.82, 6.00, 0.28, [(kicker.upper(), 10, True, GOLD)])
-    txt(s, 12.28, 0.26, 0.46, 0.28, [(str(no), 12, True, LGREY)], align=PP_ALIGN.RIGHT)
+    txt(s, 12.28, 0.26, 0.46, 0.28, [(str(PAGE[0]), 12, True, LGREY)], align=PP_ALIGN.RIGHT)
     if note:
         txt(s, 0.62, 6.98, 9.40, 0.26, [(note, 9, None, LGREY)])
     return s
 
 
 def kpi_cards(s, items, y=1.24, h=1.06):
-    n = len(items)
+    count = len(items)
     gap = 0.10
-    w = (12.09 - gap * (n - 1)) / n
+    w = (12.09 - gap * (count - 1)) / count
     x = 0.62
     for val, lab, note_, col in items:
         box(s, x, y, w, h, fill=SOFT, line=RULE, radius=0.07)
@@ -291,56 +305,67 @@ txt(cover, 5.26, 0.92, 4.95, 1.00,
 txt(cover, 5.26, 1.98, 4.92, 0.30,
     [("Melanjutkan workbook Excel menjadi penilaian yang lebih terukur", 11, None, TEAL)],
     spacing=1.15)
-txt(cover, 5.26, 2.32, 4.92, 0.26,
-    [("Berlaku untuk Plant Snack, Dairy, Exist Plant, dan New Plant", 9.5, None, GREY)])
-txt(cover, 5.26, 2.64, 4.92, 0.26,
-    [("Dasar angka: 5.817 kasus pada workbook DMS 2023–2026", 9.5, True, NAVY)])
+txt(cover, 5.26, 2.30, 4.92, 0.26,
+    [("Berlaku untuk Plant Snack, Exist Plant, New Plant, dan Dairy", 9.5, None, GREY)])
+txt(cover, 5.26, 2.62, 4.92, 0.26,
+    [(f"Dasar angka: {n(TOT['total_kasus'])} kasus dari 3 workbook DMS", 9.5, True, NAVY)])
 
 txt(cover, 10.68, 1.74, 2.42, 1.72,
-    [("OKTOBER", 9.5, True, GOLD),
+    [("NOVEMBER", 9.5, True, GOLD),
      ("2026", 27, True, NAVY),
      ("Tim Daily Monitoring System", 8.5, None, GREY),
      ("Group Manufacturing", 8.5, None, GREY)], spacing=1.12, anchor=MSO_ANCHOR.MIDDLE)
 
 
 # ================================================================ 2 · KONDISI
-s = page("Praktik hari ini sudah berjalan, angkanya lebih terbaca",
-         "Bagian 1 · kondisi hari ini", 2,
-         "Sumber: workbook DMS · Resume SHE, Resume QC, Resume Produksi")
-kpi_cards(s, [("5.817", "kasus terdata", "tiga sheet resume", NAVY),
-              ("973", "close tanpa sebab", "16,7% dari total", GOLD),
-              ("94%", "label berulang keliru", "849 dari 902", GOLD),
-              ("22", "kasus lewat tenggat", "tertua 1.045 hari", RED)])
+s = page("Tiga plant sudah mencatat, angkanya kini dibaca seragam",
+         "Bagian 1 · kondisi hari ini",
+         note="Sumber: workbook DMS Snack, Exist Plant, New Plant · sheet Resume SHE, QC, Prod")
+kpi_cards(s, [(n(TOT["total_kasus"]), "kasus terdata", "3 workbook · 9 sheet", NAVY),
+              (n(TOT["close_tanpa_sebab"]), "close tanpa sebab",
+               pc(100 * TOT["close_tanpa_sebab"] / TOT["total_kasus"], 1) + " dari total", GOLD),
+              (n(TOT["pola_3x"]), "pola berulang ≥3×",
+               f"{n(TOT['kasus_dalam_pola'])} kasus di dalamnya", GOLD),
+              (n(TOT["overdue"]), "kasus lewat tenggat", "tertua 1.182 hari", RED)])
 
-label(s, 0.62, 2.44, "KASUS PER SHEET RESUME", 5.3)
-chart(s, 0.52, 2.60, 5.40, 2.04,
-      ["Resume SHE", "Resume QC", "Resume Produksi"],
-      [("Kasus", [1185, 1520, 3112])],
-      XL_CHART_TYPE.COLUMN_CLUSTERED, [NAVY], number_format="#,##0",
-      fs=9, gap=90, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=3600,
-      point_colors=[RGBColor(0x8F, 0xA1, 0xC4), RGBColor(0x4A, 0x5F, 0x94), NAVY])
+label(s, 0.62, 2.44, "KASUS PER PLANT DAN PER SHEET", 6.2)
+chart(s, 0.52, 2.60, 5.80, 2.06,
+      ["Snack", "Exist Plant", "New Plant"],
+      [("SHE", [SN["SHE"]["kasus"], EP["SHE"]["kasus"], NP["SHE"]["kasus"]]),
+       ("QC", [SN["QC"]["kasus"], EP["QC"]["kasus"], NP["QC"]["kasus"]]),
+       ("Prod", [SN["Prod"]["kasus"], EP["Prod"]["kasus"], NP["Prod"]["kasus"]])],
+      XL_CHART_TYPE.COLUMN_STACKED, [GOLD, TEAL, NAVY], number_format="#,##0",
+      legend=True, fs=8.5, gap=70, label_pos=XL_LABEL_POSITION.CENTER, label_color=WHITE,
+      vmax=7000)
 
-label(s, 6.20, 2.44, "KELENGKAPAN DOKUMEN DI WORKBOOK", 6.4)
+label(s, 6.62, 2.44, "PROFIL TIAP WORKBOOK", 6.0)
 table(s, [
-    ["Sheet", "Kasus", "Akar masalah", "Due date", "Bukti"],
-    ["Resume SHE", "1.185", "0%", "0%", "0%"],
-    ["Resume QC", "1.520", "79%", "100%", "–"],
-    ["Resume Produksi", "3.112", "78%", "99%", "–"],
-    ["IIAA Snack", "120", "duplikat", "–", "–"],
-], [1.95, 1.05, 1.40, 1.15, 1.00], 6.20, 2.60, row_h=0.38, fs=10,
-    aligns=[PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.CENTER, PP_ALIGN.CENTER, PP_ALIGN.CENTER],
-    bold_first=True)
-txt(s, 6.22, 4.50, 6.40, 0.28,
-    [("Kolom kosong dihitung belum terisi; angka diambil apa adanya dari workbook.", 9, None, GREY)])
+    ["Plant", "Kasus", "SHE", "QC", "Prod", "Tanpa sebab"],
+    ["Snack", n(SN["total_kasus"]), n(SN["SHE"]["kasus"]), n(SN["QC"]["kasus"]),
+     n(SN["Prod"]["kasus"]), n(SN["close_tanpa_sebab"])],
+    ["Exist Plant", n(EP["total_kasus"]), n(EP["SHE"]["kasus"]), n(EP["QC"]["kasus"]),
+     n(EP["Prod"]["kasus"]), n(EP["close_tanpa_sebab"])],
+    ["New Plant", n(NP["total_kasus"]), n(NP["SHE"]["kasus"]), n(NP["QC"]["kasus"]),
+     n(NP["Prod"]["kasus"]), n(NP["close_tanpa_sebab"])],
+    ["Total", n(TOT["total_kasus"]), n(SN["SHE"]["kasus"] + EP["SHE"]["kasus"] + NP["SHE"]["kasus"]),
+     n(SN["QC"]["kasus"] + EP["QC"]["kasus"] + NP["QC"]["kasus"]),
+     n(SN["Prod"]["kasus"] + EP["Prod"]["kasus"] + NP["Prod"]["kasus"]),
+     n(TOT["close_tanpa_sebab"])],
+], [1.36, 0.98, 0.80, 0.80, 0.86, 1.10], 6.62, 2.60, row_h=0.38, fs=9.5, head_fs=9.5,
+    aligns=[PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT,
+            PP_ALIGN.RIGHT], bold_first=True)
+txt(s, 6.64, 4.48, 5.90, 0.28,
+    [("Angka dibaca dengan definisi sama: satu baris kasus = satu tanggal valid di tabel kasus.",
+      9, None, GREY)])
 
 band = [("Sudah berjalan baik",
-         "Semua plant mencatat harian pada workbook yang sama; 5.817 kasus dapat ditelusuri per sheet.",
+         "Tiga plant memakai struktur sheet yang sama, sehingga 17.201 kasus bisa dibandingkan langsung.",
          TEAL),
         ("Yang bisa dirapikan",
-         "Kelengkapan sebab dan bukti belum merata: SHE 0%, QC 79%, Produksi 78%.",
+         "Kelengkapan sebab berbeda jauh: SHE 52–57%, QC 79–98%, Produksi 79–92%.",
          GOLD),
         ("Manfaat langsung",
-         "Dengan data lebih lengkap, 973 kasus Close dapat diverifikasi tanpa input ulang.",
+         "Perbedaan mutu antar plant terlihat tanpa membuka sembilan sheet satu per satu.",
          NAVY)]
 x = 0.62
 for head, body, col in band:
@@ -353,8 +378,8 @@ for head, body, col in band:
 
 # ================================================================ 3 · ALUR HARIAN
 s = page("Alur harian: enam langkah dalam satu putaran",
-         "Bagian 2 · diagram alir", 3,
-         "Putaran Senin–Jumat; data hari libur tetap tersimpan sebagai arsip")
+         "Bagian 2 · diagram alir",
+         note="Putaran Senin–Jumat; data hari libur tetap tersimpan sebagai arsip")
 W, GAP, H = 3.44, 0.60, 1.64
 X1 = 0.62
 X2 = X1 + W + GAP
@@ -400,8 +425,8 @@ for head, body, col in legend:
 
 # ================================================================ 4 · ALUR PENUTUPAN
 s = page("Penutupan kasus memakai gerbang empat kolom",
-         "Bagian 2 · diagram alir", 4,
-         "Gerbang inilah yang membuat status Close dapat dipertanggungjawabkan")
+         "Bagian 2 · diagram alir",
+         note="Gerbang inilah yang membuat status Close dapat dipertanggungjawabkan")
 
 CX, CW = 4.86, 3.70
 box(s, CX, 1.34, CW, 0.60, fill=NAVY, line=None, radius=0.05)
@@ -454,13 +479,13 @@ txt(s, CX - 0.40, 6.44, CW + 0.80, 0.36,
     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
 label(s, 9.00, 1.30, "KENAPA GERBANG INI PERLU", 3.60)
-gates = [("973", "kasus berstatus Close tanpa sebab tercatat"),
-         ("0%", "bukti foto pada sheet Resume SHE"),
-         ("22", "kasus melewati tenggat, tertua 1.045 hari")]
+gates = [(n(TOT["close_tanpa_sebab"]), "kasus Close tanpa sebab di tiga workbook"),
+         ("0%", "due date terisi pada sheet SHE semua plant"),
+         (n(TOT["overdue"]), "kasus melewati tenggat, tertua 1.182 hari")]
 y = 1.62
 for v, body in gates:
-    txt(s, 9.00, y, 1.15, 0.34, [(v, 15, True, NAVY)])
-    txt(s, 10.20, y + 0.02, 2.50, 0.62, [(body, 9, None, GREY)], spacing=1.18)
+    txt(s, 9.00, y, 1.35, 0.34, [(v, 15, True, NAVY)])
+    txt(s, 10.40, y + 0.02, 2.30, 0.62, [(body, 9, None, GREY)], spacing=1.18)
     y += 0.74
 
 box(s, 9.00, 3.94, 3.60, 1.30, fill=SOFT, line=RULE, radius=0.05)
@@ -472,12 +497,11 @@ txt(s, 9.18, 4.32, 3.24, 0.84,
 
 # ================================================================ 5 · STRUKTUR DATA
 s = page("Satu kerangka data untuk empat plant",
-         "Bagian 2 · struktur data", 5,
-         "Nama level mengikuti workbook: Group, Plant, Factory/BU, Line")
+         "Bagian 2 · struktur data", note="Tiga plant sudah punya workbook; Dairy menyusul dengan pola yang sama")
 levels = [("Group", "Manufacturing", "kebijakan & pembanding antar plant", NAVY),
-          ("Plant", "Snack · Dairy · Exist · New", "KPI dan Hari Libur per plant", TEAL),
+          ("Plant", "Snack · Exist · New · Dairy", "KPI dan Hari Libur per plant", TEAL),
           ("Factory / BU", "contoh: Snack", "pemilik anggaran perbaikan", TEAL),
-          ("Line & mesin", "Pilus L1 · M03 · MHM", "unit penilaian harian", GOLD),
+          ("Line & mesin", "Pilus L1 · WS L04 · MHM", "unit penilaian harian", GOLD),
           ("Item harian", "6 item checklist", "titik data terkecil", GOLD)]
 x = 0.62
 for i, (name, sub, body, col) in enumerate(levels):
@@ -491,9 +515,9 @@ for i, (name, sub, body, col) in enumerate(levels):
     x += 2.56
 
 label(s, 0.62, 3.62, "ATURAN YANG MENJAGA ANGKA TETAP SAMA DI SEMUA PLANT", 12.0)
-rules = [("Satu template inti", "Enam item checklist, bobot 10/20/10/20/20/20, dan band skor sama untuk semua plant.", NAVY),
+rules = [("Satu template inti", "Enam item checklist, bobot 10/20/10/20/20/20, dan band skor sama di tiga workbook.", NAVY),
+         ("Nama line dinormalkan", "WS L04 / ws l04 / WS-L4 menjadi satu master line per plant.", TEAL),
          ("KPI plant berversi", "Setiap plant dapat menambah KPI sendiri; versi dan tanggal berlaku tersimpan.", TEAL),
-         ("Skor proses & hasil", "Kepatuhan mengisi dinilai terpisah dari capaian hasil line.", TEAL),
          ("Pekan ISO, Senin–Jumat", "Hari wajib dikurangi hari libur plant agar penyebut setara.", GOLD)]
 x = 0.62
 for head, body, col in rules:
@@ -505,15 +529,15 @@ for head, body, col in rules:
 
 box(s, 0.62, 5.72, 12.09, 0.82, fill=WHITE, line=RULE, radius=0.05)
 txt(s, 0.82, 5.84, 11.70, 0.62,
-    [("Contoh penelusuran  ·  kasus Pilus L1 dapat ditelusuri sampai item checklist, lalu "
-      "dibandingkan dengan line lain di plant yang sama tanpa mengubah definisi skor.", 10, None, GREY)],
-    spacing=1.25)
+    [("Contoh lintas plant  ·  masalah yang sama muncul di tiga plant dengan nama berbeda: "
+      "BCAT di Snack dan Exist Plant, BCT di New Plant — dinormalisasi menjadi satu kategori mesin.",
+      10, None, GREY)], spacing=1.25)
 
 
 # ================================================================ 6 · RUMUS
 s = page("Rumus final: tiga penyempurnaan, hasil lebih tepat",
-         "Bagian 3 · rumus", 6,
-         "Bobot dan band tetap mengikuti workbook; yang disempurnakan penyebut dan pembulatan")
+         "Bagian 3 · rumus",
+         note="Bobot dan band tetap mengikuti workbook; yang disempurnakan penyebut dan pembulatan")
 table(s, [
     ["Komponen", "Rumus / nilai", "Keterangan"],
     ["Nilai harian", "Σ (skor item ÷ 10 × bobot) ÷ 100", "bobot 10/20/10/20/20/20 = 100"],
@@ -528,7 +552,7 @@ table(s, [
     ["Penyempurnaan", "Di workbook", "Di aplikasi"],
     ["Penyebut memakai hari kerja", "1 hari isi = Ach 125%", "1 dari 5 hari = Ach 20%"],
     ["Ambang dibandingkan 2 desimal", "1,0999 → skor 3", "110% → skor 4"],
-    ["Healthy Check jadi parameter", "tetap 0,8", "dapat diubah Admin, bertanggal"],
+    ["Healthy Check jadi parameter", "tetap 0,8 di tiga plant", "dapat diubah Admin, bertanggal"],
 ], [3.35, 2.45, 2.35], 0.62, 4.38, row_h=0.40, head_h=0.36, fs=9.5)
 
 img_slot(s, 10.02, 1.26, 2.68, 2.10, "Screenshot Sheet1",
@@ -538,9 +562,9 @@ txt(s, 10.02, 3.50, 2.68, 1.00,
       "sehingga jumlah hari penilaian sama untuk semua line.", 9, None, GREY)], spacing=1.2)
 
 label(s, 10.02, 4.62, "DAMPAK PADA KPI", 3.0)
-imp = [("Capaian lebih adil", "SHE yang tercatat 0% root cause punya jalur perbaikan terukur.", TEAL),
+imp = [("Capaian lebih adil", "SHE yang 52–57% terisi punya jalur perbaikan terukur.", TEAL),
        ("Tidak bisa diisi manual", "On-time dan kelengkapan dihitung sistem, bukan diketik.", NAVY),
-       ("Bisa diaudit", "Perubahan skor tercatat siapa dan kapan; periode dikunci.", GOLD)]
+       ("Bisa dibandingkan", "Definisi sama di tiga plant, jadi peringkat plant bermakna.", GOLD)]
 y = 4.92
 for head, body, col in imp:
     box(s, 10.02, y, 2.68, 0.68, fill=SOFT, line=RULE, radius=0.05)
@@ -550,35 +574,37 @@ for head, body, col in imp:
     y += 0.74
 
 
-# ================================================================ 7 · GRAFIK DATA
-s = page("Kelengkapan sebab dan bukti belum merata",
-         "Bagian 3 · data", 7,
-         "Sumber: Resume SHE, Resume QC, Resume Produksi; downtime dari catatan line")
-label(s, 0.62, 1.26, "ROOT CAUSE TERISI PER SHEET (%)", 6.0)
-chart(s, 0.52, 1.44, 6.20, 2.66,
-      ["Resume SHE", "Resume QC", "Resume Produksi"],
-      [("Terisi", [0, 79, 78]), ("Belum terisi", [100, 21, 22])],
-      XL_CHART_TYPE.BAR_STACKED_100, [TEAL, PALE], number_format='0"%"',
-      legend=True, fs=9, gap=70, label_pos=XL_LABEL_POSITION.CENTER, label_color=WHITE, vmax=1.0)
-txt(s, 0.62, 4.16, 6.10, 0.28,
-    [("Sheet SHE belum menyimpan sebab; dua sheet lain sudah 78–79%.", 9, None, GREY)])
+# ================================================================ 7 · GRAFIK MUTU
+s = page("Kelengkapan sebab adalah pembeda utama antar plant",
+         "Bagian 3 · data",
+         note="Sumber: Resume SHE, QC, Prod pada tiga workbook; downtime dari kolom DT (min)")
+label(s, 0.62, 1.26, "ROOT CAUSE TERISI PER SHEET DAN PLANT (%)", 7.0)
+chart(s, 0.52, 1.44, 7.30, 2.64,
+      ["Resume SHE", "Resume QC", "Resume Prod"],
+      [("Snack", [SN["SHE"]["root_cause_pct"], SN["QC"]["root_cause_pct"], SN["Prod"]["root_cause_pct"]]),
+       ("Exist Plant", [EP["SHE"]["root_cause_pct"], EP["QC"]["root_cause_pct"], EP["Prod"]["root_cause_pct"]]),
+       ("New Plant", [NP["SHE"]["root_cause_pct"], NP["QC"]["root_cause_pct"], NP["Prod"]["root_cause_pct"]])],
+      XL_CHART_TYPE.COLUMN_CLUSTERED, [PALE, TEAL, NAVY], number_format='0"%"',
+      legend=True, fs=8.5, gap=60, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=115)
+txt(s, 0.62, 4.14, 7.20, 0.28,
+    [("Sheet SHE paling rendah di tiga plant (52–57%); New Plant unggul di QC dan Produksi.",
+      9, None, GREY)])
 
-label(s, 6.86, 1.26, "PANGSA DOWNTIME MESIN · CONTOH PLANT SNACK (%)", 5.9)
-chart(s, 6.72, 1.44, 5.99, 2.66,
-      ["MHM", "BCAT", "Mesin lain"],
-      [("Pangsa", [26.8, 14.1, 59.1])],
-      XL_CHART_TYPE.BAR_CLUSTERED, [NAVY], number_format='0.0"%"',
-      fs=9, gap=65, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=70,
-      point_colors=[RED, GOLD, PALE])
-txt(s, 6.88, 4.16, 5.85, 0.28,
-    [("Dua mesin menyumbang 40,9% downtime — layak menjadi kartu tetap di layar lantai.",
+label(s, 8.02, 1.26, "TOTAL DOWNTIME TERCATAT (MENIT)", 4.6)
+chart(s, 7.92, 1.44, 4.84, 2.64,
+      ["Snack", "Exist Plant", "New Plant"],
+      [("Menit", [SN["Prod"]["dt_total"], EP["Prod"]["dt_total"], NP["Prod"]["dt_total"]])],
+      XL_CHART_TYPE.BAR_CLUSTERED, [NAVY], number_format="#,##0",
+      fs=9, gap=65, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=260000)
+txt(s, 8.02, 4.14, 4.60, 0.28,
+    [("Median per kasus 50–60 menit; total 508.226 menit setara 8.470 jam mesin.",
       9, None, GREY)])
 
 label(s, 0.62, 4.56, "EMPAT ANGKA YANG MENJADI PRIORITAS PERBAIKAN", 12.0)
-findings = [("973", "Kasus ditutup tanpa sebab tercatat — 16,7% dari 5.817 kasus.", GOLD),
-            ("184", "Pola berulang ≥3× mencakup 816 kasus atau 26,2% seluruh kasus.", GOLD),
-            ("849 / 902", "Label berulang diisi manual dan 94% di antaranya keliru.", RED),
-            ("22", "Kasus melewati tenggat, tertua 1.045 hari sejak dibuka.", RED)]
+findings = [(n(TOT["close_tanpa_sebab"]), "Kasus Close tanpa sebab — 18,7% dari 17.201 kasus di tiga plant.", GOLD),
+            (n(TOT["pola_3x"]), f"Pola berulang ≥3× mencakup {n(TOT['kasus_dalam_pola'])} kasus atau 30,2%.", GOLD),
+            ("0%", "Due date terisi pada sheet SHE di Snack, Exist Plant, dan New Plant.", RED),
+            (n(TOT["error_sel_total"]), "Sel error tertinggal di sheet resume: #VALUE!, #REF!, #DIV/0!.", RED)]
 x = 0.62
 for v, body, col in findings:
     box(s, x, 4.86, 2.95, 1.50, fill=SOFT, line=RULE, radius=0.05)
@@ -588,22 +614,71 @@ for v, body, col in findings:
     x += 3.04
 
 
-# ================================================================ 8 · INSIGHT
-s = page("Mesin insight: 12 aturan siap pakai", "Bagian 4 · insight", 8,
-         "Setiap temuan membawa bukti, sebab, dampak, rekomendasi, dan pemilik")
+# ================================================================ 8 · RINGKASAN VS TABEL
+s = page("Ringkasan di dalam sheet tidak sama dengan isi tabelnya",
+         "Bagian 3 · data",
+         note="Dibandingkan: blok STATUS PICA di dalam sheet versus jumlah baris kasus bertanggal")
+label(s, 0.62, 1.26, "TOTAL DI RINGKASAN SHEET VS BARIS KASUS", 6.6)
+chart(s, 0.52, 1.44, 7.10, 2.66,
+      ["QC Snack", "QC Exist", "QC New", "Prod Snack", "Prod Exist", "Prod New"],
+      [("Ringkasan sheet", [SN["QC"]["ringkasan_sheet"].get("TOTAL", 0), EP["QC"]["ringkasan_sheet"].get("TOTAL", 0),
+                            NP["QC"]["ringkasan_sheet"].get("TOTAL", 0), SN["Prod"]["ringkasan_sheet"].get("TOTAL", 0),
+                            EP["Prod"]["ringkasan_sheet"].get("TOTAL", 0), NP["Prod"]["ringkasan_sheet"].get("TOTAL", 0)]),
+       ("Baris kasus", [SN["QC"]["kasus"], EP["QC"]["kasus"], NP["QC"]["kasus"],
+                        SN["Prod"]["kasus"], EP["Prod"]["kasus"], NP["Prod"]["kasus"]])],
+      XL_CHART_TYPE.COLUMN_CLUSTERED, [PALE, NAVY], number_format="#,##0",
+      legend=True, fs=8, gap=55, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=3600)
+txt(s, 0.62, 4.16, 7.00, 0.28,
+    [("Selisih terbesar di Exist Plant: ringkasan QC 993, tabel kasus 2.338 baris.",
+      9, None, GREY)])
+
 table(s, [
-    ["Kode", "Pemicu", "Contoh keluaran", "Kanal"],
+    ["Plant", "QC ringkasan", "QC tabel", "Prod ringkasan", "Prod tabel"],
+    ["Snack", n(SN["QC"]["ringkasan_sheet"].get("TOTAL", 0)), n(SN["QC"]["kasus"]),
+     n(SN["Prod"]["ringkasan_sheet"].get("TOTAL", 0)), n(SN["Prod"]["kasus"])],
+    ["Exist Plant", n(EP["QC"]["ringkasan_sheet"].get("TOTAL", 0)), n(EP["QC"]["kasus"]),
+     n(EP["Prod"]["ringkasan_sheet"].get("TOTAL", 0)), n(EP["Prod"]["kasus"])],
+    ["New Plant", n(NP["QC"]["ringkasan_sheet"].get("TOTAL", 0)), n(NP["QC"]["kasus"]),
+     n(NP["Prod"]["ringkasan_sheet"].get("TOTAL", 0)), n(NP["Prod"]["kasus"])],
+], [1.30, 0.95, 0.85, 0.95, 0.85], 8.00, 1.44, row_h=0.40, fs=9.5, bold_first=True,
+    aligns=[PP_ALIGN.LEFT] + [PP_ALIGN.RIGHT] * 4)
+
+box(s, 8.00, 3.56, 4.71, 1.28, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 8.18, 3.66, 4.35, 0.24, [("ARTINYA UNTUK APLIKASI", 9, True, GOLD)])
+txt(s, 8.18, 3.92, 4.35, 0.86,
+    [("Angka ringkasan di sheet tidak bisa dipakai sebagai sumber.", 9.5, True, NAVY),
+     ("Aplikasi menghitung langsung dari baris kasus, bukan dari sel ringkasan yang "
+      "harus diklik manual.", 9, None, GREY)], spacing=1.22)
+
+label(s, 0.62, 4.92, "POLA LAIN YANG IKUT TERBACA", 12.0)
+pola = [("Ringkasan tanpa tanggal", "Blok STATUS PICA tidak menyimpan periode, jadi tidak bisa dibandingkan antar pekan.", GOLD),
+        ("DMS Index Exist 0,6", "Satu blok hanya 0,6 sementara blok lain 3,0 — indikasi salah input, bukan penurunan nyata.", RED),
+        ("Kolom PIC berisi URL foto", "Di SHE Exist Plant, kolom PIC memuat tautan gambar SharePoint, bukan nama orang.", RED),
+        ("Nama line tidak seragam", "ws l02 / WS L02 / Line 2 hidup berdampingan di plant yang sama.", GOLD)]
+x = 0.62
+for head, body, col in pola:
+    box(s, x, 5.20, 2.95, 1.40, fill=SOFT, line=RULE, radius=0.05)
+    txt(s, x + 0.16, 5.30, 2.62, 0.46, [(head, 9.5, True, col)], spacing=1.1)
+    txt(s, x + 0.16, 5.78, 2.62, 0.74, [(body, 8.5, None, GREY)], spacing=1.18)
+    x += 3.04
+
+
+# ================================================================ 9 · INSIGHT
+s = page("Mesin insight: 12 aturan siap pakai", "Bagian 4 · insight",
+         note="Setiap temuan membawa bukti, sebab, dampak, rekomendasi, dan pemilik")
+table(s, [
+    ["Kode", "Pemicu", "Contoh keluaran (tiga workbook)", "Kanal"],
     ["I-01", "Hari kerja tanpa meeting", "Line tidak DMS 3 hari berturut", "L1 · TV"],
-    ["I-02", "Tenggat lewat, status terbuka", "22 kasus; tertua 1.045 hari", "TV · L1"],
-    ["I-03", "Signature sama ≥3× per 90 hari", "M03 BCAT 15× di Pilus L1", "TV · L2"],
+    ["I-02", "Tenggat lewat, status terbuka", f"{n(TOT['overdue'])} kasus; tertua 1.182 hari", "TV · L1"],
+    ["I-03", "Signature sama ≥3× per 90 hari", "WS L04 P02 BCT 134× di Exist Plant", "TV · L2"],
     ["I-04", "Berulang dengan sebab identik", "Correction sama 4× → Preventive", "L2"],
     ["I-05", "Tutup, tetapi OPL/PM/AM/CRMO = O", "88–98% kasus belum distandarkan", "L2 · L3"],
-    ["I-06", "Tutup tanpa sebab atau bukti", "973 kasus", "Admin"],
-    ["I-07", "Prioritas High di atas 80%", "prioritas belum membedakan", "Admin"],
+    ["I-06", "Tutup tanpa sebab atau bukti", f"{n(TOT['close_tanpa_sebab'])} kasus (18,7%)", "Admin"],
+    ["I-07", "Prioritas High di atas 80%", "High 100% di ketiga plant", "Admin"],
     ["I-08", "Ach dalam 1% di bawah band", "rawan selisih pembulatan", "Admin"],
     ["I-09", "Tiga periode menurun", "checklist turun 4% per pekan", "L2 · L3"],
-    ["I-10", "Satu line atau mesin di atas 20%", "Pilus L1 = 90% kasus", "L3"],
-    ["I-11", "Downtime besar dan sering", "MHM 26,8% · BCAT 14,1%", "L2"],
+    ["I-10", "Satu line di atas 20% kasus", "Snack line 9 = 96,9% · Exist WS L02 = 22,6%", "L3"],
+    ["I-11", "Downtime besar dan sering", "508.226 menit; median 50–60 menit/kasus", "L2"],
     ["I-12", "PICA lemah, kasus baru naik", "prediksi lonjakan pekan depan", "L3"],
 ], [0.70, 2.86, 3.96, 1.18], 0.62, 1.24, row_h=0.355, head_h=0.34, fs=9,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER])
@@ -621,18 +696,18 @@ txt(s, 10.24, 3.64, 2.28, 0.24, [("CARA MEMBACA TABEL", 9, True, GOLD)])
 txt(s, 10.24, 3.92, 2.28, 1.86,
     [("Kanal menunjukkan siapa penerima kartu: layar lantai, dasbor L1, L2, atau L3.", 9, None, GREY),
      ("Satu kartu memuat satu temuan, bukan satu daftar.", 9, None, GREY),
-     ("Angka pemicu memakai contoh workbook: 22, 973, 26,8%, 14,1%.", 9, None, GREY)],
+     ("Angka pemicu memakai tiga workbook: 53, 3.220, 134×, 508.226 menit.", 9, None, GREY)],
     spacing=1.25)
 
 
-# ================================================================ 9 · RENCANA
+# ================================================================ 10 · RENCANA
 s = page("Rencana 8 pekan: fondasi dulu, tampilan terakhir",
-         "Bagian 5 · rencana", 9,
-         "Pilot Plant Snack, lalu Exist Plant, Dairy, dan New Plant")
+         "Bagian 5 · rencana",
+         note="Mulai Snack, lalu Exist Plant dan New Plant; Dairy menyusul dengan template yang sama")
 
-phases = [("0 · Fondasi", 1, 2, "master data, aturan skor, hak akses", NAVY),
+phases = [("0 · Fondasi", 1, 2, "master data 3 workbook, aturan skor", NAVY),
           ("1 · Capture", 1, 3, "form harian dan form kasus", NAVY),
-          ("2 · Measure", 3, 5, "perhitungan skor, dasbor line", TEAL),
+          ("2 · Measure", 3, 5, "skor dan dasbor line", TEAL),
           ("3 · Insight", 5, 6, "delapan aturan pertama aktif", TEAL),
           ("4 · Display", 7, 7, "layar lantai satu area", GOLD),
           ("5 · Analitik", 7, 8, "dasbor plant dan ekspor", GOLD)]
@@ -656,19 +731,19 @@ for name, start, end, out, col in phases:
 
 label(s, 0.62, 4.46, "UKURAN KEBERHASILAN YANG DIPERIKSA PEKANAN", 12.0)
 table(s, [
-    ["Ukuran", "Baseline hari ini", "Target pekan ke-8", "Cara ukur"],
+    ["Ukuran", "Baseline hari ini (3 workbook)", "Target pekan ke-8", "Cara ukur"],
     ["Kepatuhan mengisi form", "belum terukur", "≥ 90%", "hari terisi ÷ hari wajib"],
-    ["Kelengkapan root cause", "0% SHE · 79% QC · 78% Produksi", "≥ 95%", "kolom sebab terisi"],
-    ["Kasus lewat tenggat", "22 kasus", "turun 50%", "aging > tenggat"],
-    ["Pola ≥3× punya tindakan", "belum ada", "100%", "pola dengan PICA tertutup"],
-    ["Insight ditindaklanjuti", "belum ada", "≥ 70%", "kartu dengan tindak lanjut"],
-], [3.05, 3.50, 1.75, 3.79], 0.62, 4.72, row_h=0.36, head_h=0.34, fs=9.5, bold_first=True,
+    ["Kelengkapan root cause", "SHE 52–57% · QC 79–98% · Prod 79–92%", "≥ 95%", "kolom sebab terisi"],
+    ["Due date pada sheet SHE", "0% di tiga plant", "≥ 95%", "kolom due date terisi"],
+    ["Kasus lewat tenggat", f"{n(TOT['overdue'])} kasus", "turun 50%", "aging > tenggat"],
+    ["Pola ≥3× punya tindakan", f"{n(TOT['pola_3x'])} pola", "100%", "pola dengan PICA tertutup"],
+], [2.95, 3.85, 1.65, 3.64], 0.62, 4.72, row_h=0.36, head_h=0.34, fs=9.5, bold_first=True,
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
 
-# ================================================================ 10 · KANAL
-s = page("Empat kanal tampilan dan batasannya", "Bagian 5 · tampilan", 10,
-         "Struktur final; gambar antarmuka menyusul")
+# ================================================================ 11 · KANAL
+s = page("Empat kanal tampilan dan batasannya", "Bagian 5 · tampilan",
+         note="Struktur final; gambar antarmuka menyusul")
 cards = [("Form harian", "Leader & DH", "satu layar, di bawah 5 menit",
           "Isi harian per line: item checklist, status, sebab bila di bawah target.", NAVY),
          ("Dasbor L1–L3", "Supervisor, plant head", "tiga tingkat audiens",
@@ -698,55 +773,56 @@ table(s, [
 
 img_slot(s, 9.90, 3.42, 2.80, 1.92, "Mockup layar TV", "tangkapan layar atau desain akhir")
 
-label(s, 0.62, 6.04, "YANG TIDAK DIBUAT SEKARANG", 12.0)
-notes = [("Tanpa aplikasi mobile", "form harian cukup berbasis web pada fase 1"),
-         ("Tanpa login TV", "layar lantai hanya menampilkan, hak ubah di User & Admin"),
-         ("Tanpa angka manual", "semua kanal membaca satu perhitungan; manual hanya Healthy Check")]
-x = 0.62
+label(s, 0.62, 5.94, "YANG TIDAK DIBUAT SEKARANG", 9.30)
+box(s, 0.62, 6.22, 9.30, 0.66, fill=SOFT, line=RULE, radius=0.05)
+notes = [("Tanpa aplikasi mobile", "form harian berbasis web pada fase 1"),
+         ("Tanpa login TV", "layar lantai hanya menampilkan"),
+         ("Tanpa angka manual", "isian manual hanya Healthy Check")]
+x = 0.80
 for head, body in notes:
-    txt(s, x, 6.34, 3.90, 0.24, [(head, 9.5, True, NAVY)])
-    txt(s, x, 6.60, 3.90, 0.28, [(body, 9, None, GREY)])
-    x += 4.07
+    txt(s, x, 6.30, 2.85, 0.22, [(head, 9, True, NAVY)])
+    txt(s, x, 6.52, 2.85, 0.24, [(body, 8.5, None, GREY)])
+    x += 3.02
 
 
-# ================================================================ 11 · BAHAN GAMBAR
-s = page("Daftar bahan gambar yang harus di-screenshot", "Bagian 5 · bahan", 11,
-         "Dikumpulkan sebelum deck dipresentasikan; semua bersumber dari workbook dan lantai")
+# ================================================================ 12 · BAHAN GAMBAR
+s = page("Daftar bahan gambar yang harus di-screenshot", "Bagian 5 · bahan",
+         note="Dikumpulkan sebelum deck dipresentasikan; semua bersumber dari tiga workbook dan lantai")
 table(s, [
     ["#", "Yang di-screenshot / difoto", "Diambil dari", "Halaman", "Sorotan"],
-    ["1", "Sheet Resume SHE", "workbook · Resume SHE", "2, 7", "kolom root cause, due date, bukti 0%"],
-    ["2", "Sheet Resume QC", "workbook · Resume QC", "2, 7", "320 baris Close tanpa sebab"],
-    ["3", "Sheet Resume Produksi", "workbook · Resume Produksi", "2, 7", "653 baris Close tanpa sebab"],
-    ["4", "Sheet Template Penilaian", "workbook · Template Penilaian", "6", "formula AVERAGEIF dan band skor"],
-    ["5", "Sheet Sheet1", "workbook · Sheet1", "6", "kolom ISO week"],
-    ["6", "Sheet IIAA Snack", "workbook · IIAA Snack", "2", "baris duplikat"],
-    ["7", "Papan monitoring line", "lantai produksi", "3", "checklist yang diisi tangan"],
-    ["8", "Form checklist terisi", "line · dokumen cetak", "3", "item yang dinilai persepsi"],
-    ["9", "Foto rapat pagi", "area meeting line", "3", "langkah 1–2 saat berjalan"],
-    ["10", "Foto mesin / area", "Pilus L1 dan MHM (contoh)", "7", "sumber downtime terbesar"],
-    ["11", "Screenshot laporan harian", "WhatsApp atau email group", "2", "alur laporan sekarang"],
-    ["12", "Screenshot layar TV (bila ada)", "area produksi", "10", "pembanding tampilan baru"],
-], [0.50, 3.30, 3.45, 1.25, 3.45], 0.62, 1.24, row_h=0.395, head_h=0.36, fs=9.5, head_fs=10,
+    ["1", "Sheet Resume SHE · tiga plant", "workbook Snack, EP, NP", "2, 7", "kolom due date & bukti kosong"],
+    ["2", "Sheet Resume QC · tiga plant", "workbook Snack, EP, NP", "2, 7", "baris Close tanpa sebab"],
+    ["3", "Sheet Resume Prod · tiga plant", "workbook Snack, EP, NP", "2, 7", "kolom DT (min) dan sel #VALUE!"],
+    ["4", "Blok STATUS PICA tiap sheet", "workbook · dalam sheet resume", "8", "angka ringkasan vs isi tabel"],
+    ["5", "Sheet Template Penilaian", "workbook · Template Penilaian", "6", "formula AVERAGEIF dan band skor"],
+    ["6", "Sheet DMS_INDEX", "workbook · DMS_INDEX", "8", "blok Exist 0,6 vs 3,0"],
+    ["7", "Sheet Sheet1", "workbook · Sheet1", "6", "kolom ISO week"],
+    ["8", "Sheet IIAA (EP / NP)", "workbook · IIAA EP, IIAA NP", "2", "baris duplikat"],
+    ["9", "Papan monitoring line", "lantai produksi", "3", "checklist yang diisi tangan"],
+    ["10", "Foto rapat pagi", "area meeting line", "3", "langkah 1–2 saat berjalan"],
+    ["11", "Foto mesin / area", "Pilus L1, WS L04, WS L11", "7", "sumber downtime terbesar"],
+    ["12", "Screenshot laporan harian", "WhatsApp atau email group", "2", "alur laporan sekarang"],
+], [0.50, 3.30, 3.45, 1.25, 3.45], 0.62, 1.22, row_h=0.352, head_h=0.34, fs=9, head_fs=9.5,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
-box(s, 0.62, 6.12, 12.09, 0.72, fill=SOFT, line=RULE, radius=0.05)
-txt(s, 0.82, 6.22, 11.70, 0.52,
+box(s, 0.62, 6.14, 12.09, 0.68, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 0.82, 6.24, 11.70, 0.50,
     [("Cara mengambil  ·  tampilkan nama sheet, header kolom, dan 5–10 baris contoh; blok kolom "
       "yang kosong agar terlihat. Foto lapangan landscape minimal 1600 px dan diberi tanggal.",
       9.5, None, GREY)], spacing=1.22)
 
 
-# ================================================================ 12 · KEPUTUSAN
-s = page("Keputusan yang diminta dan langkah berikutnya", "Penutup · keputusan", 12,
-         "Semua keputusan mengacu pada angka workbook; tidak ada tambahan asumsi baru")
+# ================================================================ 13 · KEPUTUSAN
+s = page("Keputusan yang diminta dan langkah berikutnya", "Penutup · keputusan",
+         note="Semua keputusan mengacu pada angka tiga workbook; tidak ada tambahan asumsi baru")
 
 label(s, 0.62, 1.26, "TIGA KEPUTUSAN TERBUKA", 4.15)
 dec = [("1 · Kalender hari libur",
         "Master tahunan diisi sekali, atau input per tanggal? Penyebut skor bergantung pada jawaban ini."),
        ("2 · Status N/A pada KPI",
         "Item yang tidak relevan keluar dari penyebut, atau tetap dihitung nol?"),
-       ("3 · Data historis",
-        "5.817 kasus dibawa dengan penanda lama, atau mulai dari nol?")]
+       ("3 · Data historis tiga plant",
+        "17.201 kasus dibawa dengan penanda lama, atau mulai dari nol per plant?")]
 y = 1.58
 for name, q in dec:
     box(s, 0.62, y, 4.15, 0.98, fill=SOFT, line=RULE, radius=0.05)
@@ -755,13 +831,15 @@ for name, q in dec:
     y += 1.06
 
 label(s, 5.02, 1.26, "ANGKA YANG MENJADI DASAR", 3.20)
-nums = [("5.817", "kasus terdata", NAVY), ("973", "close tanpa sebab", GOLD),
-        ("94%", "label berulang keliru", RED), ("22", "kasus lewat tenggat", RED),
-        ("184", "pola berulang ≥3×", GOLD)]
+nums = [(n(TOT["total_kasus"]), "kasus tiga plant", NAVY),
+        (n(TOT["close_tanpa_sebab"]), "close tanpa sebab", GOLD),
+        (n(TOT["pola_3x"]), "pola berulang ≥3×", GOLD),
+        (n(TOT["overdue"]), "kasus lewat tenggat", RED),
+        (n(TOT["error_sel_total"]), "sel error di sheet", RED)]
 y = 1.58
 for v, l, col in nums:
-    txt(s, 5.02, y, 1.25, 0.32, [(v, 16, True, col)])
-    txt(s, 6.28, y + 0.06, 1.95, 0.24, [(l, 9, None, GREY)])
+    txt(s, 5.02, y, 1.35, 0.32, [(v, 16, True, col)])
+    txt(s, 6.40, y + 0.06, 1.85, 0.24, [(l, 9, None, GREY)])
     hline(s, 5.02, y + 0.36, 3.20, RULE)
     y += 0.48
 
@@ -769,10 +847,10 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 3.02, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.74, 3.90, 2.74,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Bahan gambar halaman 11 dikumpulkan maksimal tiga hari kerja.", 9.5, None, INK),
-     ("3. Pilot Plant Snack mulai pekan berikutnya, fase 0 dua pekan.", 9.5, None, INK),
+     ("2. Bahan gambar halaman 12 dikumpulkan maksimal tiga hari kerja.", 9.5, None, INK),
+     ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan template sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
-     ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke empat plant.",
+     ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
       9.5, None, INK)], spacing=1.5)
 
 hline(s, 0.62, 4.90, 12.09, RULE)
@@ -787,7 +865,7 @@ for title_, name_, date_ in [("Disusun oleh", "Tim Daily Monitoring System", "Ta
     bx += 4.11
 
 
-# ================================================================ 13 · TERIMA KASIH
+# ================================================================ 14 · TERIMA KASIH
 close = prs.slides.add_slide(CLOSE_L)
 for ph in list(close.placeholders):
     ph._element.getparent().remove(ph._element)
