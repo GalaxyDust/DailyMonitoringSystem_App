@@ -163,6 +163,46 @@ def img_slot(slide, x, y, w, h, caption, note):
         [(note, 8, None, RGBColor(0xA9, 0xB2, 0xC0))], align=PP_ALIGN.CENTER, spacing=1.1)
 
 
+def img_strip(slide, x, y, w, h, caption, note):
+    """Penyemat gambar bentuk strip (lebar, pendek) untuk potongan tabel/foto."""
+    box(slide, x, y, w, h, fill=RGBColor(0xF8, 0xFA, 0xFD), line=RGBColor(0xBE, 0xC7, 0xD6), radius=0.04)
+    box(slide, x + 0.10, y + h / 2 - 0.13, 0.26, 0.26, fill=WHITE, line=RGBColor(0xBE, 0xC7, 0xD6), radius=0.2)
+    txt(slide, x + 0.10, y + h / 2 - 0.09, 0.26, 0.20, [("+", 10, True, LGREY)], align=PP_ALIGN.CENTER)
+    txt(slide, x + 0.44, y + 0.06, w - 0.54, 0.20, [(caption.upper(), 8, True, LGREY)])
+    txt(slide, x + 0.44, y + 0.26, w - 0.54, max(0.22, h - 0.32),
+        [(note, 7.5, None, RGBColor(0xA9, 0xB2, 0xC0))], spacing=1.12)
+
+
+def badge(slide, x, y, w, text, color):
+    box(slide, x, y, w, 0.17, fill=color, line=None, radius=0.5)
+    txt(slide, x, y + 0.015, w, 0.15, [(text, 6.2, True, WHITE)], align=PP_ALIGN.CENTER)
+
+
+def mock_screen(slide, x, y, w, h, head, right="", body_fill=WHITE):
+    """Bingkai layar TV: bezel gelap, kepala navy, isi putih."""
+    box(slide, x, y, w, h, fill=RGBColor(0x16, 0x1D, 0x2A), line=None, radius=0.04)
+    box(slide, x + 0.05, y + 0.05, w - 0.10, h - 0.10, fill=body_fill, line=None, radius=0.03)
+    box(slide, x + 0.05, y + 0.05, w - 0.10, 0.22, fill=NAVY, line=None, radius=None)
+    txt(slide, x + 0.13, y + 0.085, w - 0.85, 0.16, [(head, 7, True, WHITE)])
+    if right:
+        txt(slide, x + w - 0.95, y + 0.085, 0.82, 0.16, [(right, 6.5, True, GOLD)],
+            align=PP_ALIGN.RIGHT)
+    return y + 0.31
+
+
+def mock_card(slide, x, y, w, h, code, title, meta, btext, bcolor, strip=GOLD):
+    """Satu kartu temuan di layar lantai."""
+    box(slide, x, y, w, h, fill=WHITE, line=RULE, radius=0.04)
+    box(slide, x, y, 0.05, h, fill=strip, line=None, radius=0.5)
+    txt(slide, x + 0.14, y + 0.05, w - 1.05, 0.15, [(code, 6.6, True, GREY)])
+    if btext:
+        badge(slide, x + w - 0.86, y + 0.05, 0.74, btext, bcolor)
+    txt(slide, x + 0.14, y + 0.20, w - 0.26, 0.15, [(title, 7.6, True, INK)], spacing=1.0)
+    if meta:
+        txt(slide, x + 0.14, y + h - 0.18, w - 0.26, 0.16,
+            [(meta, 6.2, None, GREY)], spacing=1.0)
+
+
 def chart(slide, x, y, w, h, cats, series, kind, colors, number_format="0", legend=False,
           fs=9, gap=60, overlap=None, label_pos=None, label_color=INK, vmax=None,
           point_colors=None):
@@ -360,11 +400,15 @@ band = [("Beban manual terbesar",
          "Sistem yang mencatat sekali, menghitung sendiri, dan mengingatkan tanpa menambah kerja tim.", TEAL)]
 x = 0.62
 for head_, body, col in band:
-    box(s, x, 4.90, 3.95, 1.54, fill=SOFT, line=RULE, radius=0.05)
-    hline(s, x + 0.01, 4.90, 3.93, col, 0.06)
-    txt(s, x + 0.20, 5.06, 3.58, 0.26, [(head_.upper(), 10, True, col)])
-    txt(s, x + 0.20, 5.38, 3.58, 0.94, [(body, 10, None, INK)], spacing=1.26)
-    x += 4.07
+    box(s, x, 4.90, 2.52, 1.54, fill=SOFT, line=RULE, radius=0.05)
+    hline(s, x + 0.01, 4.90, 2.50, col, 0.06)
+    txt(s, x + 0.16, 5.04, 2.22, 0.24, [(head_.upper(), 9, True, col)])
+    txt(s, x + 0.16, 5.32, 2.22, 1.00, [(body, 8.5, None, INK)], spacing=1.2)
+    x += 2.68
+
+img_slot(s, 8.72, 4.90, 3.99, 1.54, "Foto papan & buku rekap",
+         "papan monitoring line yang dipakai sekarang, buku rekap per shift, "
+         "dan printout laporan lama — tiga foto potret")
 
 
 # ================================================================ 3 · ALUR MANUAL VS SISTEM
@@ -522,6 +566,9 @@ txt(s, 8.42, 5.44, 4.29, 0.50,
     [("Asumsi 2 menit per kasus dan 15 menit per laporan harian dapat diubah Admin; "
       "angka volume tetap dari workbook.", 8.5, None, GREY)], spacing=1.2)
 
+img_strip(s, 8.42, 5.98, 4.29, 0.86, "Screenshot rekap bulanan di Excel",
+          "potongan tabel rekap 12 bulan yang dihitung tangan — cukup 5–8 baris terlihat")
+
 txt(s, 0.62, 5.18, 7.60, 0.24, [("YANG TIDAK DIHITUNG DALAM JAM, TETAPI LEBIH MAHAL", 9, True, GOLD)])
 mahal = [("3.220", "kasus ditutup tanpa sebab — keputusan diambil tanpa dasar"),
          ("53", "kasus lewat tenggat, tertua 1.182 hari — masalah menua"),
@@ -609,6 +656,10 @@ box(s, 0.62, 3.84, 3.30, 0.94, fill=WHITE, line=GOLD, radius=0.05)
 txt(s, 0.82, 3.94, 2.94, 0.76,
     [("Kembali ke PIC", 10.5, True, NAVY),
      ("umur kasus bertambah dan kartunya tetap tampil di layar TV", 9, None, GREY)], spacing=1.2)
+
+img_slot(s, 0.62, 4.92, 3.30, 1.42, "Contoh kartu yang ditolak",
+         "screenshot layar penutupan kasus: kolom sebab dan bukti masih kosong, "
+         "tombol simpan tidak aktif")
 
 arrow(s, CX + CW / 2 - 0.17, 4.22, 0.34, 0.20, "down", TEAL)
 txt(s, CX + CW / 2 + 0.24, 4.18, 0.80, 0.24, [("Ya", 9, True, TEAL)])
@@ -768,21 +819,28 @@ txt(s, 0.62, 6.10, 8.30, 0.70,
      ("Maksimal tiga kartu tampil di layar lantai; sisanya di dasbor supervisor dan admin.",
       9.5, None, GREY)], spacing=1.3)
 
-img_slot(s, 10.06, 1.24, 2.64, 2.10, "Mockup 3 kartu TV",
-         "satu kartu = satu temuan + pemilik + tenggat")
+yc = mock_screen(s, 9.10, 1.24, 3.60, 2.32, "SNACK · LINE 9 · 3 KARTU", "07:10 · TV",
+                 body_fill=SOFT)
+tv_cards = [("I-02 · LEWAT TENGGAT", "Downtime belum ditutup", "PIC Dhani · 1.182 hari", "OVERDUE", RED, RED),
+            ("I-03 · BERULANG", "BCT WS L04 P02 muncul lagi", "PIC Sigit · 134× Exist Plant", "BERULANG", GOLD, GOLD),
+            ("I-10 · MENUMPUK", "Satu line menumpuk kasus", "Snack line 9 · 96,9% kasus", "L3", TEAL, TEAL)]
+for code, title, meta, btext, bcolor, strip in tv_cards:
+    mock_card(s, 9.16, yc, 3.48, 0.58, code, title, meta, btext, bcolor, strip)
+    yc += 0.64
 
-box(s, 10.06, 3.50, 2.64, 2.36, fill=SOFT, line=RULE, radius=0.05)
-txt(s, 10.24, 3.64, 2.28, 0.24, [("CARA MEMBACA TABEL", 9, True, GOLD)])
-txt(s, 10.24, 3.92, 2.28, 1.86,
+box(s, 9.10, 3.66, 3.60, 2.20, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 9.28, 3.78, 3.24, 0.24, [("CARA MEMBACA TABEL", 9, True, GOLD)])
+txt(s, 9.28, 4.06, 3.24, 1.74,
     [("Kanal menunjukkan siapa penerima kartu: layar lantai, dasbor L1, L2, atau L3.", 9, None, GREY),
      ("Satu kartu memuat satu temuan, bukan satu daftar.", 9, None, GREY),
-     ("Angka pemicu memakai tiga workbook: 53, 3.220, 134×, 508.226 menit.", 9, None, GREY)],
+     ("Angka pemicu memakai tiga workbook: 53, 3.220, 134×, 508.226 menit.", 9, None, GREY),
+     ("Kartu yang sama juga muncul di dasbor; tidak ada versi angka kedua.", 9, None, GREY)],
     spacing=1.25)
 
 
 # ================================================================ 10 · KANAL
 s = page("Empat kanal tampilan dan batasannya", "Bagian 5 · tampilan",
-         note="Struktur final; gambar antarmuka menyusul")
+         note="Mockup layar adalah ilustrasi; tangkapan antarmuka asli menyusul")
 cards = [("Form harian", "Leader & DH", "satu layar, di bawah 5 menit",
           "Isi harian per line: item checklist, status, sebab bila di bawah target.", NAVY),
          ("Dasbor L1–L3", "Supervisor, plant head", "tiga tingkat audiens",
@@ -810,7 +868,23 @@ table(s, [
     ["Jejak audit", "Setiap perubahan tercatat: siapa, kapan, sebelum–sesudah"],
 ], [2.25, 6.35], 0.62, 3.42, row_h=0.42, head_h=0.36, fs=10, bold_first=True)
 
-img_slot(s, 9.90, 3.42, 2.80, 1.92, "Mockup layar TV", "tangkapan layar atau desain akhir")
+ys = mock_screen(s, 9.30, 3.40, 3.40, 1.92, "TV LANTAI · EXIST PLANT", "TANPA LOGIN")
+tv_rows = [("Downtime WS L02", "menunggu foto bukti", "6 HARI", RED),
+           ("BCT WS L04 P02", "berulang 134× sebab sama", "BERULANG", GOLD),
+           ("Checklist line 3", "kosong 3 hari berturut", "HARI INI", TEAL)]
+for title, sub, btext, bcolor in tv_rows:
+    box(s, 9.36, ys, 3.28, 0.46, fill=WHITE, line=RULE, radius=0.03)
+    box(s, 9.36, ys, 0.05, 0.46, fill=bcolor, line=None, radius=0.5)
+    badge(s, 11.86, ys + 0.13, 0.72, btext, bcolor)
+    txt(s, 9.50, ys + 0.04, 2.28, 0.16, [(title, 7.5, True, INK)])
+    txt(s, 9.50, ys + 0.23, 2.28, 0.16, [(sub, 6.2, None, GREY)])
+    ys += 0.52
+
+
+txt(s, 9.30, 5.40, 3.40, 0.60,
+    [("Kartu tertua tampil paling atas, diperbarui tiap 30 detik, dan tidak hilang "
+      "sampai ditutup — layar lantai menjadi daftar kerja, bukan hiasan.", 8.5, None, GREY)],
+    spacing=1.18)
 
 label(s, 0.62, 5.94, "YANG TIDAK DIBUAT SEKARANG", 9.30)
 box(s, 0.62, 6.22, 9.30, 0.66, fill=SOFT, line=RULE, radius=0.05)
@@ -871,7 +945,7 @@ s = page("Daftar bahan gambar yang harus di-screenshot", "Bagian 5 · bahan",
 table(s, [
     ["#", "Yang di-screenshot / difoto", "Diambil dari", "Halaman", "Sorotan"],
     ["1", "Papan monitoring line", "lantai produksi", "2, 3", "pencatatan tangan yang dipakai sekarang"],
-    ["2", "Rekap Excel manual", "file rekap per shift", "2, 3", "kolom yang disalin berulang"],
+    ["2", "Rekap Excel manual", "file rekap per shift", "2, 5", "kolom yang disalin berulang"],
     ["3", "Grup WhatsApp laporan harian", "WhatsApp / email group", "2, 3", "alur laporan sekarang"],
     ["4", "Sheet Resume SHE · tiga plant", "workbook Snack, EP, NP", "7, 9", "kolom due date & bukti kosong"],
     ["5", "Sheet Resume QC · tiga plant", "workbook Snack, EP, NP", "7, 9", "baris Close tanpa sebab"],
@@ -882,7 +956,9 @@ table(s, [
     ["10", "Foto rapat pagi", "area meeting line", "6", "langkah 1–2 saat berjalan"],
     ["11", "Foto mesin / area", "Pilus L1, WS L04, WS L11", "9", "sumber downtime terbesar"],
     ["12", "Layar TV area produksi (bila ada)", "area produksi", "11", "pembanding tampilan baru"],
-], [0.50, 3.30, 3.45, 1.25, 3.45], 0.62, 1.22, row_h=0.352, head_h=0.34, fs=9, head_fs=9.5,
+    ["13", "Layar penutupan kasus yang ditolak", "aplikasi / rancangan form", "7", "kolom sebab dan bukti masih kosong"],
+    ["14", "Kartu temuan dan layar L1–L3", "rancangan dasbor", "10, 11", "susunan tiga kartu dan urutannya"],
+], [0.50, 3.30, 3.45, 1.25, 3.45], 0.62, 1.20, row_h=0.302, head_h=0.32, fs=8.6, head_fs=9.2,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
 box(s, 0.62, 6.14, 12.09, 0.68, fill=SOFT, line=RULE, radius=0.05)
