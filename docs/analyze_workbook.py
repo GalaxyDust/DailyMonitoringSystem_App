@@ -182,6 +182,47 @@ def analyse_sheet(wb, sheet_name):
     }
 
 
+def analyse_bulanan(wb):
+    """Jumlah kasus per bulan (YYYY-MM) untuk ketiga sheet kasus."""
+    out = {}
+    for _, sheet in SHEETS.items():
+        if sheet not in wb.sheetnames:
+            continue
+        ws = wb[sheet]
+        hi, heads = find_header(ws)
+        if hi is None:
+            continue
+        c_date = col(heads, "date", "tanggal")
+        if c_date is None:
+            continue
+        for r in ws.iter_rows(min_row=hi + 2, values_only=True):
+            d = parse_date(r[c_date] if c_date < len(r) else None)
+            if d is None:
+                continue
+            key = d.strftime("%Y-%m")
+            out[key] = out.get(key, 0) + 1
+    return dict(sorted(out.items()))
+
+
+def jumlah_line(wb):
+    """Jumlah nama line unik (setelah normalisasi) pada sheet QC dan Prod."""
+    names = set()
+    for sheet in ("Resume QC", "Resume Prod"):
+        if sheet not in wb.sheetnames:
+            continue
+        ws = wb[sheet]
+        hi, heads = find_header(ws)
+        if hi is None:
+            continue
+        c_line = col(heads, "line", exclude=("lbn",))
+        c_lbn = col(heads, "lbn name", "lbn")
+        for r in ws.iter_rows(min_row=hi + 2, values_only=True):
+            for idx in (c_line, c_lbn):
+                if idx is not None and idx < len(r) and norm(r[idx]):
+                    names.add(norm(r[idx]))
+    return len(names)
+
+
 def analyse_index(wb):
     if "DMS_INDEX" not in wb.sheetnames:
         return []
@@ -207,6 +248,8 @@ for plant, path in FILES.items():
     for key, sheet in SHEETS.items():
         d[key] = analyse_sheet(wb, sheet)
     d["index_blok"] = analyse_index(wb)
+    d["bulanan"] = analyse_bulanan(wb)
+    d["jumlah_entitas_line"] = jumlah_line(wb)
     tot = sum(d[k]["kasus"] for k in SHEETS if d[k])
     d["total_kasus"] = tot
     d["close_tanpa_sebab"] = sum(d[k]["close_tanpa_sebab"] for k in SHEETS if d[k])
@@ -219,9 +262,17 @@ for plant, path in FILES.items():
           f"Prod {d['Prod']['kasus']:>5} | close tanpa sebab {d['close_tanpa_sebab']:>4} | "
           f"pola {d['pola_3x']:>3} | overdue {d['overdue']:>3} | error sel {d['error_sel_total']}")
 
-grand = {k: sum(v[k] for v in result.values()) for k in
+bulan_total = {}
+for v in list(result.values()):
+    for k, c in v.get("bulanan", {}).items():
+        bulan_total[k] = bulan_total.get(k, 0) + c
+result["_bulanan_total"] = dict(sorted(bulan_total.items()))
+
+plants = {k: v for k, v in result.items() if not k.startswith("_")}
+grand = {k: sum(v[k] for v in plants.values()) for k in
          ("total_kasus", "close_tanpa_sebab", "pola_3x", "kasus_dalam_pola", "overdue", "error_sel_total")}
 result["_total"] = grand
+print("bulan terakhir:", list(bulan_total.items())[-6:])
 print("TOTAL", grand)
 
 with open("docs/data_plants.json", "w", encoding="utf-8") as f:

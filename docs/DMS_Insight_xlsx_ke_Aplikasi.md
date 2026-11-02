@@ -182,3 +182,26 @@ dari jumlah baris kasus. Kesimpulan untuk aplikasi: **hitung dari baris kasus, j
 | 184 pola / 816 kasus | 729 pola / 5.193 kasus (30,2%) |
 | 22 kasus lewat tenggat | 53 kasus lewat tenggat |
 | 208.848 menit downtime | 508.226 menit (8.470 jam mesin) |
+
+
+### 8.7 Volume 12 bulan terakhir dan beban rekap
+
+| Bulan | Snack | Exist Plant | New Plant | Total |
+|---|---|---|---|---|
+| Nov 2025 | 106 | 124 | 136 | 366 |
+| Des 2025 | 71 | 75 | 98 | 244 |
+| Jan 2026 | 68 | 133 | 45 | 246 |
+| Feb 2026 | 45 | 126 | 36 | 207 |
+| Mar 2026 | 79 | 121 | 24 | 224 |
+| Apr 2026 | 44 | 95 | 20 | 159 |
+| Mei 2026 | 48 | 59 | 19 | 126 |
+| Jun 2026 | 41 | 51 | 40 | 132 |
+| Jul 2026 | 29 | 42 | 26 | 97 |
+| Agu 2026 | 62 | 76 | 38 | 176 |
+| Sep 2026 | 47 | 49 | 32 | 128 |
+| Okt 2026 | 67 | 59 | 41 | 167 |
+| **Total** | **707** | **1.010** | **555** | **2.272** |
+
+Rata-rata **189 kasus/bulan**. Dengan asumsi 2 menit rekap per kasus (≈6 jam) dan
+15 menit per laporan harian per plant (≈16 jam), beban manual sekitar **22 jam/bulan**
+atau **263 jam/tahun** — setara 33 hari kerja. Asumsi ini bisa diubah Admin; angkanya ada di slide 5 deck.

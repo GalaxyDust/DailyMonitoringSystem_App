@@ -460,6 +460,79 @@ txt(s, 0.82, 6.16, 11.70, 0.44,
       "bukan sekadar dipindahkan ke aplikasi.", 9.5, None, GREY)], spacing=1.2)
 
 
+# ================================================================ 5 · BEBAN PER BULAN
+BULAN = list(DATA["_bulanan_total"].keys())
+D12 = BULAN[-12:]
+LBL = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+CATS = [LBL[int(m[5:]) - 1] + " " + m[2:4] for m in D12]
+
+
+def seri(plant):
+    b = DATA[plant]["bulanan"]
+    return [b.get(m, 0) for m in D12]
+
+
+kasus_tahun = sum(DATA["_bulanan_total"][m] for m in D12)
+kasus_bulan = round(kasus_tahun / 12)
+MENIT_REKAP = 2          # asumsi: cari, salin, hitung, tulis per kasus
+MENIT_LAPORAN = 15       # asumsi: menyusun laporan & bahan rapat per plant per hari
+HARI_KERJA = 21
+jam_rekap = kasus_bulan * MENIT_REKAP / 60
+jam_laporan = 3 * HARI_KERJA * MENIT_LAPORAN / 60
+jam_total = jam_rekap + jam_laporan
+jam_setahun = jam_total * 12
+hari_kerja_setara = jam_setahun / 8
+puncak = max(DATA["_bulanan_total"][m] for m in D12)
+_pk = max(D12, key=lambda m: DATA["_bulanan_total"][m])
+puncak_bulan = f"{LBL[int(_pk[5:]) - 1]} {_pk[:4]}"
+
+s = page("Sebagian besar waktu tim habis untuk merekap, bukan memperbaiki",
+         "Bagian 2 · beban manual",
+         note="Volume dari 12 bulan terakhir workbook; waktu per pekerjaan adalah asumsi yang dapat diubah Admin")
+kpi_cards(s, [(n(kasus_tahun), "kasus dalam 12 bulan", f"rata-rata {n(kasus_bulan)} kasus/bulan", NAVY),
+              (f"{jam_rekap:.0f} jam", "merekapitulasi kasus", f"{n(kasus_bulan)} kasus × {MENIT_REKAP} menit", GOLD),
+              (f"{jam_laporan:.0f} jam", "menyusun laporan harian", f"3 plant × {HARI_KERJA} hari × {MENIT_LAPORAN} menit", GOLD),
+              (f"{jam_total:.0f} jam", "per bulan kembali ke tim", f"setara {hari_kerja_setara:.0f} hari kerja per tahun", TEAL)])
+
+label(s, 0.62, 2.44, "KASUS PER BULAN · 12 BULAN TERAKHIR", 7.4)
+chart(s, 0.52, 2.62, 7.60, 2.10,
+      CATS,
+      [("Snack", seri("Snack")), ("Exist Plant", seri("Exist Plant")), ("New Plant", seri("New Plant"))],
+      XL_CHART_TYPE.COLUMN_STACKED, [GOLD, TEAL, NAVY], number_format="#,##0",
+      legend=True, fs=8, gap=45, label_pos=XL_LABEL_POSITION.CENTER, label_color=WHITE,
+      vmax=400)
+txt(s, 0.62, 4.74, 7.50, 0.26,
+    [(f"Puncak {n(puncak)} kasus ({puncak_bulan}) berarti beban rekap naik "
+      f"jadi sekitar {puncak * MENIT_REKAP / 60:.0f} jam pada bulan itu.", 9, None, GREY)])
+
+label(s, 8.42, 2.44, "CARA SISTEM MENGEMBALIKAN WAKTUNYA", 4.3)
+steps_ = [("Rekap hilang", "form tersimpan sendiri, tidak ada salin ulang", TEAL),
+          ("Hitung hilang", "angka jadi saat data dikirim", TEAL),
+          ("Bahan rapat hilang", "kartu temuan tersusun otomatis", NAVY),
+          ("Menagih hilang", "pengingat berjalan sendiri", NAVY)]
+y = 2.66
+for head_, body, col in steps_:
+    box(s, 8.42, y, 4.29, 0.62, fill=SOFT, line=RULE, radius=0.05)
+    box(s, 8.42, y, 0.06, 0.62, fill=col, line=None, radius=0.5)
+    txt(s, 8.60, y + 0.07, 3.95, 0.24, [(head_, 9.5, True, col)])
+    txt(s, 8.60, y + 0.32, 3.95, 0.26, [(body, 8.5, None, GREY)])
+    y += 0.68
+
+txt(s, 8.42, 5.44, 4.29, 0.50,
+    [("Asumsi 2 menit per kasus dan 15 menit per laporan harian dapat diubah Admin; "
+      "angka volume tetap dari workbook.", 8.5, None, GREY)], spacing=1.2)
+
+txt(s, 0.62, 5.18, 7.60, 0.24, [("YANG TIDAK DIHITUNG DALAM JAM, TETAPI LEBIH MAHAL", 9, True, GOLD)])
+mahal = [("3.220", "kasus ditutup tanpa sebab — keputusan diambil tanpa dasar"),
+         ("53", "kasus lewat tenggat, tertua 1.182 hari — masalah menua"),
+         ("153", "sel error di sheet resume — angka bisa salah tanpa diketahui")]
+y = 5.48
+for v, body in mahal:
+    txt(s, 0.62, y, 0.95, 0.28, [(v, 13, True, RED)])
+    txt(s, 1.66, y + 0.03, 6.55, 0.24, [(body, 9, None, GREY)])
+    y += 0.40
+
+
 # ================================================================ 5 · ALUR HARIAN
 s = page("Alur harian: enam langkah dalam satu putaran",
          "Bagian 2 · diagram alir",
@@ -800,15 +873,15 @@ table(s, [
     ["1", "Papan monitoring line", "lantai produksi", "2, 3", "pencatatan tangan yang dipakai sekarang"],
     ["2", "Rekap Excel manual", "file rekap per shift", "2, 3", "kolom yang disalin berulang"],
     ["3", "Grup WhatsApp laporan harian", "WhatsApp / email group", "2, 3", "alur laporan sekarang"],
-    ["4", "Sheet Resume SHE · tiga plant", "workbook Snack, EP, NP", "6, 8", "kolom due date & bukti kosong"],
-    ["5", "Sheet Resume QC · tiga plant", "workbook Snack, EP, NP", "6, 8", "baris Close tanpa sebab"],
-    ["6", "Sheet Resume Prod · tiga plant", "workbook Snack, EP, NP", "8", "kolom DT (min) dan sel #VALUE!"],
-    ["7", "Blok STATUS PICA tiap sheet", "workbook · dalam sheet resume", "7", "angka ringkasan vs isi tabel"],
-    ["8", "Sheet DMS_INDEX", "workbook · DMS_INDEX", "7", "blok 0,6 vs 3,0"],
+    ["4", "Sheet Resume SHE · tiga plant", "workbook Snack, EP, NP", "7, 9", "kolom due date & bukti kosong"],
+    ["5", "Sheet Resume QC · tiga plant", "workbook Snack, EP, NP", "7, 9", "baris Close tanpa sebab"],
+    ["6", "Sheet Resume Prod · tiga plant", "workbook Snack, EP, NP", "9", "kolom DT (min) dan sel #VALUE!"],
+    ["7", "Blok STATUS PICA tiap sheet", "workbook · dalam sheet resume", "8", "angka ringkasan vs isi tabel"],
+    ["8", "Sheet DMS_INDEX", "workbook · DMS_INDEX", "8", "blok 0,6 vs 3,0"],
     ["9", "Form checklist tercetak", "line · dokumen cetak", "3", "penilaian yang masih persepsi"],
-    ["10", "Foto rapat pagi", "area meeting line", "5", "langkah 1–2 saat berjalan"],
-    ["11", "Foto mesin / area", "Pilus L1, WS L04, WS L11", "8", "sumber downtime terbesar"],
-    ["12", "Layar TV area produksi (bila ada)", "area produksi", "10", "pembanding tampilan baru"],
+    ["10", "Foto rapat pagi", "area meeting line", "6", "langkah 1–2 saat berjalan"],
+    ["11", "Foto mesin / area", "Pilus L1, WS L04, WS L11", "9", "sumber downtime terbesar"],
+    ["12", "Layar TV area produksi (bila ada)", "area produksi", "11", "pembanding tampilan baru"],
 ], [0.50, 3.30, 3.45, 1.25, 3.45], 0.62, 1.22, row_h=0.352, head_h=0.34, fs=9, head_fs=9.5,
     aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
@@ -854,7 +927,7 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 3.02, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.74, 3.90, 2.74,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Bahan gambar halaman 12 dikumpulkan maksimal tiga hari kerja.", 9.5, None, INK),
+     ("2. Bahan gambar halaman 13 dikumpulkan maksimal tiga hari kerja.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
      ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
