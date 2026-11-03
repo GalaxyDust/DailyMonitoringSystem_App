@@ -179,7 +179,7 @@ def mock_papan(slide, x, y, w, h):
     bw = w * 0.58
     box(slide, x + 0.14, y + 0.12, bw, h - 0.44, fill=RGBColor(0xE9, 0xF1, 0xEE),
         line=RGBColor(0xB6, 0xC6, 0xC0), radius=0.03)
-    txt(slide, x + 0.20, y + 0.16, bw - 0.16, 0.14, [("PAPAN LINE 3", 6.0, True, RGBColor(0x46, 0x57, 0x52))])
+    txt(slide, x + 0.20, y + 0.16, bw - 0.16, 0.14, [("PAPAN LINE 3", 6.6, True, RGBColor(0x46, 0x57, 0x52))])
     rows = ["Checklist A", "Checklist B", "Defect", "Downtime", "Output"]
     yy = y + 0.33
     for i, r in enumerate(rows):
@@ -195,34 +195,34 @@ def mock_papan(slide, x, y, w, h):
     bw2 = w - bw - 0.38
     box(slide, bx, y + 0.16, bw2, h - 0.48, fill=WHITE, line=RGBColor(0xC9, 0xD0, 0xDB), radius=0.02)
     box(slide, bx, y + 0.16, 0.05, h - 0.48, fill=NAVY, line=None, radius=None)
-    txt(slide, bx + 0.12, y + 0.19, bw2 - 0.20, 0.13, [("BUKU REKAP", 5.4, True, GREY)])
+    txt(slide, bx + 0.12, y + 0.19, bw2 - 0.20, 0.13, [("BUKU REKAP", 6.2, True, GREY)])
     for i in range(6):
         hline(slide, bx + 0.12, y + 0.34 + i * 0.13, bw2 - 0.22, RGBColor(0xE1, 0xE6, 0xEE), 0.012)
     box(slide, bx + 0.10, y + 0.36, bw2 * 0.55, 0.06, fill=RGBColor(0xAE, 0xC2, 0xD8), line=None, radius=None)
     box(slide, bx + 0.10, y + 0.62, bw2 * 0.38, 0.06, fill=RGBColor(0xAE, 0xC2, 0xD8), line=None, radius=None)
     txt(slide, x + 0.14, y + h - 0.28, w - 0.28, 0.20,
-        [("Ilustrasi  ·  satu kejadian dicatat di papan, lalu disalin ke buku rekap", 6.2, None, LGREY)])
+        [("Ilustrasi  ·  satu kejadian dicatat di papan, lalu disalin ke buku rekap", 6.8, None, LGREY)])
 
 
 def mock_excel(slide, x, y, w, h, rows, head="rekap_dms.xlsx · Sheet1"):
     """Potongan kecil spreadsheet rekap manual."""
     box(slide, x, y, w, h, fill=RGBColor(0xEE, 0xF1, 0xF6), line=RGBColor(0xC2, 0xCB, 0xD9), radius=0.04)
-    box(slide, x + 0.06, y + 0.06, w - 0.12, 0.18, fill=RGBColor(0x21, 0x7A, 0x46), line=None, radius=None)
-    txt(slide, x + 0.14, y + 0.075, w - 0.28, 0.15, [(head, 5.8, True, WHITE)])
+    box(slide, x + 0.06, y + 0.06, w - 0.12, 0.20, fill=RGBColor(0x21, 0x7A, 0x46), line=None, radius=None)
+    txt(slide, x + 0.14, y + 0.07, w - 0.28, 0.16, [(head, 6.6, True, WHITE)])
     box(slide, x + 0.06, y + 0.24, w - 0.12, h - 0.30, fill=WHITE, line=None, radius=None)
     cols = ["Bulan", "Kasus", "Diisi tangan", "Selisih"]
     xs = [x + 0.12, x + 1.10, x + 1.95, x + 3.05]
     for c, cx in zip(cols, xs):
-        txt(slide, cx, y + 0.27, 0.90, 0.13, [(c, 5.6, True, GREY)])
+        txt(slide, cx, y + 0.28, 0.90, 0.14, [(c, 6.4, True, GREY)])
     hline(slide, x + 0.10, y + 0.41, w - 0.20, RGBColor(0xD5, 0xDA, 0xE3), 0.012)
     yy = y + 0.43
     for i, (bln, kasus, tgn, sel) in enumerate(rows):
         if i % 2:
             box(slide, x + 0.08, yy - 0.01, w - 0.16, 0.14, fill=RGBColor(0xF4, 0xF6, 0xFA), line=None, radius=None)
-        txt(slide, xs[0], yy, 0.90, 0.13, [(bln, 5.8, None, INK)])
-        txt(slide, xs[1], yy, 0.70, 0.13, [(kasus, 5.8, None, INK)])
-        txt(slide, xs[2], yy, 0.95, 0.13, [(tgn, 5.8, None, GREY)])
-        txt(slide, xs[3], yy, 0.60, 0.13, [(sel, 5.8, True, RED if sel != "0" else GREY)])
+        txt(slide, xs[0], yy, 0.90, 0.14, [(bln, 6.6, None, INK)])
+        txt(slide, xs[1], yy, 0.70, 0.14, [(kasus, 6.6, None, INK)])
+        txt(slide, xs[2], yy, 0.95, 0.14, [(tgn, 6.6, None, GREY)])
+        txt(slide, xs[3], yy, 0.60, 0.14, [(sel, 6.6, True, RED if sel != "0" else GREY)])
         yy += 0.145
 
 
@@ -230,23 +230,23 @@ def mock_ditolak(slide, x, y, w, h):
     """Ilustrasi layar penutupan kasus yang ditolak sistem."""
     box(slide, x, y, w, h, fill=WHITE, line=RGBColor(0xC2, 0xCB, 0xD9), radius=0.04)
     box(slide, x, y, w, 0.26, fill=NAVY, line=None, radius=0.04)
-    txt(slide, x + 0.14, y + 0.06, w - 0.90, 0.16, [("Tutup kasus · DT-0912", 7, True, WHITE)])
+    txt(slide, x + 0.14, y + 0.05, w - 0.90, 0.16, [("Tutup kasus · DT-0912", 7.6, True, WHITE)])
     txt(slide, x + w - 0.72, y + 0.06, 0.60, 0.16, [("DRAF", 6.2, True, GOLD)], align=PP_ALIGN.RIGHT)
     fields = [("Sebab", "", True), ("Bukti foto", "0 berkas", True), ("PIC", "Dhani", False)]
     yy = y + 0.34
     for name, val, empty in fields:
-        txt(slide, x + 0.14, yy + 0.02, 0.98, 0.15, [(name, 6.6, None, GREY)])
+        txt(slide, x + 0.14, yy + 0.02, 0.98, 0.15, [(name, 7.2, None, GREY)])
         if empty:
             box(slide, x + 1.10, yy, w - 1.24, 0.19, fill=RGBColor(0xFD, 0xF3, 0xF3),
                 line=RGBColor(0xD9, 0x9C, 0x9C), lw=0.9, radius=0.02)
-            txt(slide, x + 1.16, yy + 0.03, w - 1.40, 0.14, [(val or "wajib diisi", 6.2, None, RED)])
+            txt(slide, x + 1.16, yy + 0.03, w - 1.40, 0.14, [(val or "wajib diisi", 6.8, None, RED)])
         else:
-            txt(slide, x + 1.14, yy + 0.03, w - 1.36, 0.14, [(val, 6.4, True, INK)])
+            txt(slide, x + 1.14, yy + 0.03, w - 1.36, 0.14, [(val, 7.0, True, INK)])
         yy += 0.215
     box(slide, x + 0.14, y + h - 0.30, 1.36, 0.22, fill=RGBColor(0x8E, 0x99, 0xAC), line=None, radius=0.04)
-    txt(slide, x + 0.14, y + h - 0.26, 1.36, 0.16, [("Simpan & tutup", 6.4, True, WHITE)], align=PP_ALIGN.CENTER)
+    txt(slide, x + 0.14, y + h - 0.26, 1.36, 0.16, [("Simpan & tutup", 7.0, True, WHITE)], align=PP_ALIGN.CENTER)
     txt(slide, x + 1.58, y + h - 0.26, w - 1.72, 0.16,
-        [("tidak aktif sampai 3 kolom terisi", 6.0, None, GREY)])
+        [("tidak aktif sampai kolom terisi", 6.6, None, GREY)])
 
 
 def photo(slide, path, x, y, w, h, frame=True):
@@ -272,8 +272,8 @@ def caption(slide, x, y, w, text):
 
 
 def badge(slide, x, y, w, text, color):
-    box(slide, x, y, w, 0.17, fill=color, line=None, radius=0.5)
-    txt(slide, x, y + 0.015, w, 0.15, [(text, 6.2, True, WHITE)], align=PP_ALIGN.CENTER)
+    box(slide, x, y, w, 0.19, fill=color, line=None, radius=0.5)
+    txt(slide, x, y + 0.010, w, 0.16, [(text, 6.9, True, WHITE)], align=PP_ALIGN.CENTER)
 
 
 def mock_screen(slide, x, y, w, h, head, right="", body_fill=WHITE):
@@ -281,9 +281,9 @@ def mock_screen(slide, x, y, w, h, head, right="", body_fill=WHITE):
     box(slide, x, y, w, h, fill=RGBColor(0x16, 0x1D, 0x2A), line=None, radius=0.04)
     box(slide, x + 0.05, y + 0.05, w - 0.10, h - 0.10, fill=body_fill, line=None, radius=0.03)
     box(slide, x + 0.05, y + 0.05, w - 0.10, 0.22, fill=NAVY, line=None, radius=None)
-    txt(slide, x + 0.13, y + 0.085, w - 0.85, 0.16, [(head, 7, True, WHITE)])
+    txt(slide, x + 0.13, y + 0.085, w - 0.85, 0.16, [(head, 7.6, True, WHITE)])
     if right:
-        txt(slide, x + w - 0.95, y + 0.085, 0.82, 0.16, [(right, 6.5, True, GOLD)],
+        txt(slide, x + w - 0.95, y + 0.085, 0.82, 0.16, [(right, 7, True, GOLD)],
             align=PP_ALIGN.RIGHT)
     return y + 0.31
 
@@ -292,13 +292,13 @@ def mock_card(slide, x, y, w, h, code, title, meta, btext, bcolor, strip=GOLD):
     """Satu kartu temuan di layar lantai."""
     box(slide, x, y, w, h, fill=WHITE, line=RULE, radius=0.04)
     box(slide, x, y, 0.05, h, fill=strip, line=None, radius=0.5)
-    txt(slide, x + 0.14, y + 0.05, w - 1.05, 0.15, [(code, 6.6, True, GREY)])
+    txt(slide, x + 0.14, y + 0.04, w - 1.05, 0.16, [(code, 7.2, True, GREY)])
     if btext:
         badge(slide, x + w - 0.86, y + 0.05, 0.74, btext, bcolor)
-    txt(slide, x + 0.14, y + 0.20, w - 0.26, 0.15, [(title, 7.6, True, INK)], spacing=1.0)
+    txt(slide, x + 0.14, y + 0.20, w - 0.26, 0.16, [(title, 8.3, True, INK)], spacing=1.0)
     if meta:
         txt(slide, x + 0.14, y + h - 0.18, w - 0.26, 0.16,
-            [(meta, 6.2, None, GREY)], spacing=1.0)
+            [(meta, 6.9, None, GREY)], spacing=1.0)
 
 
 def chart(slide, x, y, w, h, cats, series, kind, colors, number_format="0", legend=False,
@@ -544,11 +544,11 @@ SW, SG = 2.10, 0.37
 xs = [0.62 + i * (SW + SG) for i in range(5)]
 
 label(s, 0.62, 1.24, "ALUR SEKARANG · DIKERJAKAN TANGAN", 7.0)
-now = [("Tulis di papan", "leader mencatat manual"),
-       ("Rekap ke Excel", "disalin per shift"),
-       ("Hitung sendiri", "hasil bisa berbeda"),
-       ("Kirim grup WA", "format tidak seragam"),
-       ("Rapat & tindak lanjut", "tidak tercatat siapa-kapan")]
+now = [("Tulis di papan", "leader mencatat manual di papan line, per shift"),
+       ("Rekap ke Excel", "angka disalin ulang ke file rekap harian"),
+       ("Hitung sendiri", "nilai dihitung dengan kalkulator, hasil bisa berbeda"),
+       ("Kirim grup WA", "laporan dikirim ke grup, format tidak seragam"),
+       ("Rapat & tindak lanjut", "tindak lanjut dicatat di papan PICA")]
 for i, (head_, body) in enumerate(now):
     box(s, xs[i], 1.52, SW, 1.32, fill=WHITE, line=RGBColor(0xD9, 0xBE, 0xBE), radius=0.05)
     box(s, xs[i], 1.52, SW, 0.06, fill=RED, line=None, radius=None)
@@ -559,11 +559,11 @@ for i, (head_, body) in enumerate(now):
 
 txt(s, 0.62, 3.24, 12.09, 0.26,
     [("setiap langkah manual digantikan satu langkah sistem", 9, True, GOLD)])
-sysm = [("Isi satu form", "sekali, per item checklist"),
-        ("Sistem periksa", "kolom kurang ditolak"),
-        ("Sistem simpan & olah", "angka langsung jadi"),
-        ("Tayang otomatis", "dasbor L1–L3 dan TV"),
-        ("Sistem menagih", "pengingat sampai ditutup")]
+sysm = [("Isi satu form", "sekali per item checklist, selesai di bawah lima menit"),
+        ("Sistem periksa", "kolom kurang dan sebab kosong ditolak sebelum dikirim"),
+        ("Sistem simpan & olah", "angka jadi saat data disimpan, tanpa rumus ketik ulang"),
+        ("Tayang otomatis", "dasbor L1–L3 dan layar TV membaca catatan yang sama"),
+        ("Sistem menagih", "pengingat dan tenggat berjalan sampai kasus ditutup")]
 for i, (head_, body) in enumerate(sysm):
     box(s, xs[i], 3.56, SW, 1.32, fill=WHITE, line=RGBColor(0xBF, 0xD8, 0xD9), radius=0.05)
     box(s, xs[i], 3.56, SW, 0.06, fill=TEAL, line=None, radius=None)
@@ -700,8 +700,8 @@ mahal = [("3.220", "kasus ditutup tanpa sebab — keputusan diambil tanpa dasar"
          ("153", "sel error di sheet resume — angka bisa salah tanpa diketahui")]
 y = 5.48
 for v, body in mahal:
-    txt(s, 0.62, y, 0.95, 0.28, [(v, 13, True, RED)])
-    txt(s, 1.66, y + 0.02, 6.55, 0.26, [(body, 9.5, None, GREY)])
+    txt(s, 1.10, y, 0.95, 0.28, [(v, 13, True, RED)])
+    txt(s, 2.14, y + 0.02, 6.05, 0.26, [(body, 9.5, None, GREY)])
     y += 0.40
 
 
@@ -841,7 +841,7 @@ chart(s, 0.52, 1.42, 7.10, 3.16,
                         SN["Prod"]["kasus"], EP["Prod"]["kasus"], NP["Prod"]["kasus"]])],
       XL_CHART_TYPE.COLUMN_CLUSTERED, [PALE, NAVY], number_format="#,##0",
       legend=True, fs=8, gap=55, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=3600)
-txt(s, 0.62, 4.66, 7.10, 0.26,
+txt(s, 0.62, 4.60, 7.10, 0.24,
     [("Selisih terbesar di Exist Plant: ringkasan QC 993, tabel kasus 2.338 baris.",
       9.5, None, GREY)])
 
@@ -863,7 +863,7 @@ txt(s, 8.18, 4.08, 4.35, 0.80,
      ("Laporan, dasbor, dan layar TV membaca catatan yang sama — tidak ada sel ringkasan "
       "yang perlu dihitung ulang.", 9, None, GREY)], spacing=1.22)
 
-label(s, 0.62, 5.02, "KEBIASAAN MANUAL YANG IKUT HILANG", 12.0)
+label(s, 0.62, 4.88, "KEBIASAAN MANUAL YANG IKUT HILANG", 12.0)
 pola = [("Ringkasan tanpa tanggal", "blok ringkasan tidak menyimpan periode, jadi tidak bisa dibandingkan antar pekan.", GOLD),
         ("Nilai satu blok 0,6", "Exist Plant punya blok 0,6 sementara blok lain 3,0 — akibat salin manual.", RED),
         ("Kolom PIC berisi tautan foto", "di SHE Exist Plant, kolom PIC memuat URL SharePoint, bukan nama orang.", RED),
@@ -989,7 +989,7 @@ table(s, [
     ["Empat kolom wajib", "Sebab, tindakan, bukti, dan PIC sebelum kasus ditutup"],
     ["Kunci periode", "Periode yang sudah dilaporkan tidak dapat diubah"],
     ["Jejak audit", "Tercatat: siapa, kapan, sebelum–sesudah"],
-], [2.25, 6.35], 0.62, 3.42, row_h=0.42, head_h=0.36, fs=10, bold_first=True)
+], [2.25, 6.35], 0.62, 3.34, row_h=0.42, head_h=0.38, fs=10.5, bold_first=True)
 
 ys = mock_screen(s, 9.30, 3.40, 3.40, 1.92, "TV LANTAI · EXIST PLANT", "TANPA LOGIN")
 tv_rows = [("Downtime WS L02", "menunggu foto bukti", "6 HARI", RED),
@@ -999,17 +999,17 @@ for title, sub, btext, bcolor in tv_rows:
     box(s, 9.36, ys, 3.28, 0.46, fill=WHITE, line=RULE, radius=0.03)
     box(s, 9.36, ys, 0.05, 0.46, fill=bcolor, line=None, radius=0.5)
     badge(s, 11.86, ys + 0.13, 0.72, btext, bcolor)
-    txt(s, 9.50, ys + 0.04, 2.28, 0.16, [(title, 7.5, True, INK)])
-    txt(s, 9.50, ys + 0.23, 2.28, 0.16, [(sub, 6.2, None, GREY)])
+    txt(s, 9.50, ys + 0.04, 2.28, 0.16, [(title, 8, True, INK)])
+    txt(s, 9.50, ys + 0.23, 2.28, 0.16, [(sub, 6.8, None, GREY)])
     ys += 0.52
 
 
-txt(s, 9.30, 5.40, 3.40, 0.60,
+txt(s, 9.30, 5.42, 3.45, 0.62,
     [("Kartu tertua tampil paling atas, diperbarui tiap 30 detik, dan tidak hilang "
       "sampai ditutup — layar lantai menjadi daftar kerja, bukan hiasan.", 8.5, None, GREY)],
     spacing=1.18)
 
-label(s, 0.62, 5.94, "YANG TIDAK DIBUAT SEKARANG", 9.30)
+label(s, 0.62, 6.02, "YANG TIDAK DIBUAT SEKARANG", 9.30)
 box(s, 0.62, 6.22, 9.30, 0.66, fill=SOFT, line=RULE, radius=0.05)
 notes = [("Tanpa aplikasi mobile", "form harian berbasis web pada fase 1"),
          ("Tanpa login TV", "layar lantai hanya menampilkan"),
@@ -1038,7 +1038,7 @@ for wk in range(9):
     if wk < 8:
         txt(s, gx + gw * wk / 8 + gw / 16 - 0.20, 1.26, 0.40, 0.24,
             [(f"P{wk + 1}", 9, True, LGREY)], align=PP_ALIGN.CENTER)
-txt(s, gx + gw / 2 - 0.60, 1.00, 1.20, 0.24, [("PEKAN PELAKSANAAN", 9, True, GOLD)],
+txt(s, 10.62, 0.86, 2.09, 0.22, [("PEKAN PELAKSANAAN", 9, True, GOLD)],
     align=PP_ALIGN.CENTER)
 y = 1.62
 for name, start, end, out, col in phases:
