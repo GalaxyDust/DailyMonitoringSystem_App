@@ -249,6 +249,28 @@ def mock_ditolak(slide, x, y, w, h):
         [("tidak aktif sampai 3 kolom terisi", 6.0, None, GREY)])
 
 
+def photo(slide, path, x, y, w, h, frame=True):
+    """Tempel foto asli, potong otomatis agar tidak gepeng."""
+    from PIL import Image as _Img
+    iw, ih = _Img.open(path).size
+    pic = slide.shapes.add_picture(path, Inches(x), Inches(y), Inches(w), Inches(h))
+    ar_img, ar_box = iw / ih, w / h
+    if ar_img > ar_box:
+        trim = (1 - ar_box / ar_img) / 2
+        pic.crop_left = pic.crop_right = trim
+    else:
+        trim = (1 - ar_img / ar_box) / 2
+        pic.crop_top = pic.crop_bottom = trim
+    if frame:
+        shape(slide, MSO_SHAPE.RECTANGLE, x, y, w, h, fill=None,
+              line=RGBColor(0xC2, 0xCB, 0xD9), lw=0.9)
+    return pic
+
+
+def caption(slide, x, y, w, text):
+    txt(slide, x, y, w, 0.24, [(text, 8, None, LGREY)], spacing=1.15)
+
+
 def badge(slide, x, y, w, text, color):
     box(slide, x, y, w, 0.17, fill=color, line=None, radius=0.5)
     txt(slide, x, y + 0.015, w, 0.15, [(text, 6.2, True, WHITE)], align=PP_ALIGN.CENTER)
@@ -482,7 +504,35 @@ for head_, body, col in band:
     txt(s, x + 0.16, 5.30, 2.24, 1.06, [(body, 9, None, INK)], spacing=1.22)
     x += 2.68
 
-mock_papan(s, 8.72, 4.90, 3.99, 1.54)
+photo(s, "docs/assets/papan/crop_defect.jpg", 8.72, 4.90, 3.99, 1.30)
+caption(s, 8.72, 6.24, 3.80, "Tabel defect di papan: target dan hasil tiap shift ditulis tangan")
+
+
+# ================================================================ 3 · PAPAN DMS (FOTO ASLI)
+s = page("Papan DMS hari ini: empat pilar ditulis tangan setiap pagi",
+         "Bagian 2 · kondisi hari ini",
+         note="Foto papan DMS B.U.E Factory 10, 3 November 2026 · satu papan dibagi empat pilar")
+photo(s, "docs/assets/papan/board_ep_full.jpg", 0.62, 1.30, 7.40, 5.02)
+caption(s, 0.62, 6.38, 7.40,
+        "Papan DMS B.U.E Factory 10 · Safety, Quality, Productivity, Delivery · diisi tangan per shift")
+
+label(s, 8.24, 1.30, "ISI PAPAN DAN YANG DIBACA SISTEM", 4.5)
+pillars = [("Safety", "zero accident, SHE index, KAK terakhir", "SHE · 4.896 kasus", RED),
+           ("Quality", "defect per line, critical point, kontaminasi", "QC · 5.123 kasus", GOLD),
+           ("Productivity", "yield RM dan PM per line, OEE", "Prod · 7.182 kasus", NAVY),
+           ("Delivery", "plan vs real PO, achievement harian", "keterlambatan kasus", TEAL)]
+y = 1.58
+for name, body, count, col in pillars:
+    box(s, 8.24, y, 4.47, 0.98, fill=WHITE, line=RULE, radius=0.05)
+    box(s, 8.24, y, 0.06, 0.98, fill=col, line=None, radius=0.5)
+    txt(s, 8.44, y + 0.10, 4.10, 0.26, [(name.upper(), 11, True, col)])
+    txt(s, 8.44, y + 0.38, 4.10, 0.26, [(body, 9, None, GREY)], spacing=1.1)
+    txt(s, 8.44, y + 0.68, 4.10, 0.24, [(count, 9, True, NAVY)])
+    y += 1.06
+
+txt(s, 8.24, 5.90, 4.47, 0.90,
+    [("Empat pilar ini juga empat kelompok data di workbook. Yang ditulis tangan di papan "
+      "adalah yang nanti diisi sekali di form.", 9, None, INK)], spacing=1.22)
 
 
 # ================================================================ 3 · ALUR MANUAL VS SISTEM
@@ -782,7 +832,7 @@ s = page("Satu catatan dipakai semua layar, tanpa rekap ulang",
          "Bagian 3 · peran sistem",
          note="Dibandingkan: angka ringkasan di dalam sheet versus jumlah baris kasus")
 label(s, 0.62, 1.26, "ANGKA RINGKASAN SHEET VS BARIS KASUS", 6.6)
-chart(s, 0.52, 1.44, 7.10, 2.66,
+chart(s, 0.52, 1.42, 7.10, 3.16,
       ["QC Snack", "QC Exist", "QC New", "Prod Snack", "Prod Exist", "Prod New"],
       [("Ringkasan sheet", [SN["QC"]["ringkasan_sheet"].get("TOTAL", 0), EP["QC"]["ringkasan_sheet"].get("TOTAL", 0),
                             NP["QC"]["ringkasan_sheet"].get("TOTAL", 0), SN["Prod"]["ringkasan_sheet"].get("TOTAL", 0),
@@ -791,9 +841,9 @@ chart(s, 0.52, 1.44, 7.10, 2.66,
                         SN["Prod"]["kasus"], EP["Prod"]["kasus"], NP["Prod"]["kasus"]])],
       XL_CHART_TYPE.COLUMN_CLUSTERED, [PALE, NAVY], number_format="#,##0",
       legend=True, fs=8, gap=55, label_pos=XL_LABEL_POSITION.OUTSIDE_END, vmax=3600)
-txt(s, 0.62, 4.16, 7.00, 0.28,
+txt(s, 0.62, 4.66, 7.10, 0.26,
     [("Selisih terbesar di Exist Plant: ringkasan QC 993, tabel kasus 2.338 baris.",
-      9, None, GREY)])
+      9.5, None, GREY)])
 
 table(s, [
     ["Plant", "QC ringkas", "QC tabel", "Prod ringkas", "Prod tabel"],
@@ -803,26 +853,26 @@ table(s, [
      n(EP["Prod"]["ringkasan_sheet"].get("TOTAL", 0)), n(EP["Prod"]["kasus"])],
     ["New Plant", n(NP["QC"]["ringkasan_sheet"].get("TOTAL", 0)), n(NP["QC"]["kasus"]),
      n(NP["Prod"]["ringkasan_sheet"].get("TOTAL", 0)), n(NP["Prod"]["kasus"])],
-], [1.25, 1.00, 0.90, 1.00, 0.90], 8.00, 1.44, row_h=0.40, head_h=0.34, fs=10, head_fs=9, bold_first=True,
+], [1.25, 1.00, 0.90, 1.00, 0.90], 8.00, 1.42, row_h=0.46, head_h=0.36, fs=10.5, head_fs=9, bold_first=True,
     aligns=[PP_ALIGN.LEFT] + [PP_ALIGN.RIGHT] * 4)
 
-box(s, 8.00, 3.56, 4.71, 1.28, fill=SOFT, line=RULE, radius=0.05)
-txt(s, 8.18, 3.66, 4.35, 0.24, [("YANG DILAKUKAN SISTEM", 9, True, GOLD)])
-txt(s, 8.18, 3.92, 4.35, 0.86,
+box(s, 8.00, 3.72, 4.71, 1.20, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 8.18, 3.82, 4.35, 0.24, [("YANG DILAKUKAN SISTEM", 9, True, GOLD)])
+txt(s, 8.18, 4.08, 4.35, 0.80,
     [("Satu catatan kasus, satu angka.", 9.5, True, NAVY),
      ("Laporan, dasbor, dan layar TV membaca catatan yang sama — tidak ada sel ringkasan "
       "yang perlu dihitung ulang.", 9, None, GREY)], spacing=1.22)
 
-label(s, 0.62, 4.92, "KEBIASAAN MANUAL YANG IKUT HILANG", 12.0)
+label(s, 0.62, 5.02, "KEBIASAAN MANUAL YANG IKUT HILANG", 12.0)
 pola = [("Ringkasan tanpa tanggal", "blok ringkasan tidak menyimpan periode, jadi tidak bisa dibandingkan antar pekan.", GOLD),
         ("Nilai satu blok 0,6", "Exist Plant punya blok 0,6 sementara blok lain 3,0 — akibat salin manual.", RED),
         ("Kolom PIC berisi tautan foto", "di SHE Exist Plant, kolom PIC memuat URL SharePoint, bukan nama orang.", RED),
         ("Nama line tidak seragam", "ws l02 / WS L02 / Line 2 hidup berdampingan di plant yang sama.", GOLD)]
 x = 0.62
 for head_, body, col in pola:
-    box(s, x, 5.20, 2.95, 1.36, fill=SOFT, line=RULE, radius=0.05)
-    txt(s, x + 0.16, 5.30, 2.64, 0.46, [(head_, 10, True, col)], spacing=1.1)
-    txt(s, x + 0.16, 5.76, 2.64, 0.74, [(body, 9.5, None, GREY)], spacing=1.18)
+    box(s, x, 5.30, 2.95, 1.32, fill=SOFT, line=RULE, radius=0.05)
+    txt(s, x + 0.16, 5.40, 2.64, 0.44, [(head_, 10, True, col)], spacing=1.1)
+    txt(s, x + 0.16, 5.86, 2.64, 0.70, [(body, 9.5, None, GREY)], spacing=1.18)
     x += 3.04
 
 
@@ -1057,9 +1107,9 @@ txt(s, 7.10, 4.06, 5.35, 0.62,
 cards_d = [("Contoh, bukan angka baru",
             "Semua potongan di halaman ini dan di sepanjang deck berasal dari tiga workbook; "
             "angka lain tidak dipakai.", NAVY),
-           ("Boleh diganti tangkapan asli",
-            "Gambar pada halaman 2, 5, 7, 10, dan 11 dapat ditukar dengan tangkapan layar asli "
-            "tanpa mengubah susunan.", TEAL),
+           ("Foto asli sudah dipakai",
+            "Papan DMS di halaman 3 dan potongan tabel defect di halaman 2 memakai foto asli "
+            "Factory 10, bukan gambar contoh.", TEAL),
            ("Cara memperbarui",
             "Jalankan analyze_workbook.py lalu build_deck.py; seluruh angka di deck ikut "
             "menyesuaikan.", GOLD)]
@@ -1107,7 +1157,7 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 3.02, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.74, 3.90, 2.74,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Angka halaman 13 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
+     ("2. Angka halaman 14 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
      ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
