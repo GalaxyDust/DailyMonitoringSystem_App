@@ -611,7 +611,7 @@ txt(s, 1.10, 6.38, 11.50, 0.50,
       "DH menyetujui penutupan kasus, Admin menetapkan target plant.", 9.5, None, GREY)], spacing=1.2)
 
 
-# ================================================================ 4 · ILUSTRASI LAYAR (4 halaman)
+# ================================================================ 4 · ILUSTRASI LAYAR (7 halaman)
 def shot(slide, path, x, y, title, sub, col, maxw=7.05, maxh=4.26):
     """Ilustrasi layar besar: gambar mockup dipaskan ke kotak, keterangan di bawah."""
     from PIL import Image as _I
@@ -621,7 +621,6 @@ def shot(slide, path, x, y, title, sub, col, maxw=7.05, maxh=4.26):
     h = w / ar
     px = x + 0.12 + (maxw - w) / 2
     cw = maxw + 0.24
-    ch = 0.68 + h + 0.30
     box(slide, x, y, cw, maxh + 0.98, fill=WHITE, line=RULE, radius=0.05)
     hline(slide, x + 0.01, y, cw - 0.02, col, 0.05)
     txt(slide, x + 0.20, y + 0.14, cw - 0.34, 0.26, [(title, 10.5, True, NAVY)])
@@ -642,25 +641,27 @@ def sides(slide, x, y, w, items, head="APA YANG TERLIHAT DI LAYAR"):
         yy += 1.28
 
 
-s = page("Ilustrasi layar 1: tiap divisi isi bagiannya sendiri",
+# ---- 1 · isi papan per divisi
+s = page("Ilustrasi 1 · isi papan: tiap divisi punya tabnya sendiri",
          "Bagian 3 · ilustrasi sistem",
          note="Satu papan, tab per divisi: SHE, Quality, Produksi, Teknik, Delivery · angka contoh Snack line 9")
 shot(s, "docs/assets/mockup/form.png", 0.62, 1.46,
      "ISI PAPAN · TABLET DI LINE · SNACK LINE 9",
-     "tab divisi di atas, item milik divisi itu, target menempel pada item", NAVY)
+     "app bar, breadcrumb plant › line › tanggal, tab divisi, panel kelengkapan dan absensi", NAVY)
 sides(s, 8.20, 1.46, 4.50, [
     ("Satu tab per divisi", "SHE, Quality, Produksi, Teknik, Delivery mengisi tabnya sendiri; tidak saling menunggu.", NAVY),
-    ("Sebab tidak bisa kosong", "Bila hasil di bawah target, sebab, tindakan, dan PIC wajib diisi.", RED),
-    ("Kirim bagian sendiri saja", "Satu tombol mengirim bagian divisi itu; pilar lain tetap seperti terakhir diisi.", TEAL),
-    ("Downtime langsung ke Teknik", "Sebab teknis jadi work order, bukan pesan pribadi di grup.", GOLD)])
+    ("Layar kerja, bukan formulir", "Papan kecil, status berwarna, dan panel kanan: kelengkapan, absensi, tombol kirim.", TEAL),
+    ("Sebab wajib saat di bawah target", "Satu kolom sebab, tindakan, PIC, dan tenggat; langsung jadi work order Teknik.", RED),
+    ("Kirim bagian sendiri", "Satu tombol mengirim bagian divisi itu; pilar lain tetap seperti terakhir diisi.", GOLD)])
 
 
-s = page("Ilustrasi layar 2: TV berbentuk papan, sama seperti hari ini",
+# ---- 2 · TV berbentuk papan
+s = page("Ilustrasi 2 · TV berbentuk papan, sama seperti hari ini",
          "Bagian 3 · ilustrasi sistem",
          note="Bentuk papan dipertahankan: empat pilar, baris item, kolom shift, warna dibanding target")
 shot(s, "docs/assets/mockup/tv.png", 0.62, 1.46,
      "PAPAN DMS · TV AREA PRODUKSI · SNACK LINE 9",
-     "empat pilar berjajar, kolom shift, sel berwarna sesuai target", TEAL)
+     "kepala papan, legenda warna, empat pilar berjajar, kolom shift", TEAL)
 sides(s, 8.20, 1.46, 4.50, [
     ("Bentuknya papan, bukan kartu", "Orang lapangan langsung mengenali susunannya tanpa diajari ulang.", TEAL),
     ("Kolom shift di tiap pilar", "Shift 1–3 berjajar seperti papan tulis; satu sel satu angka.", NAVY),
@@ -668,34 +669,8 @@ sides(s, 8.20, 1.46, 4.50, [
     ("Tidak pernah kosong", "Bagian yang belum diisi bertanda abu-abu, bukan hilang; TV tidak terlihat mati.", RED)])
 
 
-s = page("Ilustrasi layar 3: dasbor tiga tingkat di laptop",
-         "Bagian 3 · ilustrasi sistem",
-         note="L1 memantau hari ini, L2 menutup kasus, L3 membandingkan plant · satu angka untuk semua")
-shot(s, "docs/assets/mockup/dasbor.png", 0.62, 1.46,
-     "DASBOR L2 · SUPERVISOR · LINE 9",
-     "kartu angka, tren pilar, temuan terbuka, dan daftar lewat tenggat", NAVY)
-sides(s, 8.20, 1.46, 4.50, [
-    ("Empat angka harian", "Kasus hari ini, close lengkap, lewat tenggat, pola berulang.", NAVY),
-    ("Temuan sudah berperingkat", "Sistem yang memilih tiga temuan teratas, bukan orang yang mencari.", TEAL),
-    ("Daftar kerja, bukan laporan", "Setiap baris membawa sebab, PIC, dan sisa hari sebelum tenggat.", RED),
-    ("Tinggal pilih tingkat", "L1 hari ini, L2 kasus, L3 antar plant dan antar line.", GOLD)])
-
-
-s = page("Ilustrasi layar 4: halaman admin penjaga aturan",
-         "Bagian 3 · ilustrasi sistem",
-         note="Hanya Admin yang mengubah target, layar TV, dan kunci periode · semua perubahan masuk jejak audit")
-shot(s, "docs/assets/mockup/admin.png", 0.62, 1.46,
-     "HALAMAN ADMIN · ADMIN PLANT SNACK",
-     "target per versi, layar TV aktif, kunci periode, jejak audit", GOLD)
-sides(s, 8.20, 1.46, 4.50, [
-    ("Target per plant, per versi", "Target dan bobot KPI disimpan sebagai versi; periode lama tidak berubah.", GOLD),
-    ("Layar TV dikelola dari sini", "Admin memilih line dan pilar yang tampil di tiap TV, tanpa menyalakan ulang.", TEAL),
-    ("Periode dikunci", "Periode yang sudah dilaporkan tidak bisa diubah; koreksi dicatat versi baru.", RED),
-    ("Jejak audit terbaca", "Siapa, kapan, dan nilai sebelum–sesudah tersimpan untuk pemeriksaan.", NAVY)])
-
-
-# ================================================================ 3b · ABSENSI DI TV
-s = page("Ilustrasi layar 2b: absensi di TV, lapangan tinggal mengetuk",
+# ---- 3 · absensi di TV
+s = page("Ilustrasi 3 · absensi di TV: lapangan tinggal mengetuk",
          "Bagian 3 · ilustrasi sistem",
          note="Daftar nama, regu, dan shift disiapkan tim admin · lapangan hanya memilih hadir atau tidak")
 shot(s, "docs/assets/mockup/tv_absen.png", 0.62, 1.46,
@@ -703,87 +678,65 @@ shot(s, "docs/assets/mockup/tv_absen.png", 0.62, 1.46,
      "papan tetap terlihat, panel absensi shift berjalan di sisi kanan", GOLD)
 sides(s, 8.20, 1.46, 4.50, [
     ("Admin yang menyiapkan nama", "Nama, regu, shift, dan line diunggah Admin; lapangan tidak mengetik nama.", NAVY),
-    ("Status awal sudah hadir", "Sistem mengisi semua hadir; lapangan hanya menandai yang sakit, izin, alpa, atau terlambat.", TEAL),
-    ("Satu ketukan, bisa diurungkan", "Salah ketuk masih bisa dibatalkan dalam dua menit; setiap ketukan tercatat waktu dan perangkat.", RED),
+    ("Status awal sudah hadir", "Lapangan hanya menandai yang sakit, izin, alpa, atau terlambat.", TEAL),
+    ("Satu ketukan, bisa diurungkan", "Salah ketuk masih bisa dibatalkan dalam dua menit; setiap ketukan tercatat.", RED),
     ("Hasilnya bukan rekap baru", "Absensi yang sama dipakai TV, dasbor, dan laporan; tidak ada absen dua kali.", GOLD)])
 
 
-# ================================================================ 4 · LIMA DIVISI
-s = page("Lima divisi, satu papan: tiap divisi isi bagiannya",
-         "Bagian 3 · aturan pembagian",
-         note="Pengisian berjalan paralel; pilar yang belum diisi diberi tanda, bukan dikosongkan")
-
-label(s, 1.10, 1.20, "PEMILIK BAGIAN PAPAN DAN ISINYA", 12.0)
-table(s, [
-    ["Divisi", "Yang diisi", "Ritme", "Contoh item di papan"],
-    ["SHE", "kecelakaan, near miss, temuan KAK, status tindakan", "per shift",
-     "zero accident, SHE index, tindakan terbuka"],
-    ["Quality", "defect per line, critical point, kontaminasi, hold", "per shift",
-     "defect %, hold/release, kalibrasi alat"],
-    ["Produksi", "checklist, output, downtime menit, OEE", "per shift",
-     "checklist A/B, output, downtime"],
-    ["Teknik", "sebab teknis downtime, PM, spare part, work order", "per kejadian & jadwal",
-     "kategori sebab, status PM, tunggu part"],
-    ["Delivery (PPIC)", "plan vs real PO, keterlambatan, kesiapan muat", "per PO & harian",
-     "plan vs real, on-time, retur"],
-], [1.90, 4.55, 1.85, 3.70], 1.10, 1.50, row_h=0.58, head_h=0.38, fs=10, bold_first=True)
-
-boxes = [("Teknik: sebab. Produksi: menit",
-          "Satu kejadian downtime hanya satu baris, diisi bertahap dua divisi — tidak ada catatan kembar.",
-          NAVY),
-         ("Teknik tidak menunggu surat",
-          "Downtime di atas ambang langsung jadi work order dengan tenggat diagnosis; lewat tenggat naik ke L2.",
-          TEAL),
-         ("Divisi lain tidak bisa menimpa",
-          "Petugas SHE tidak dapat mengubah sel Quality, dan sebaliknya — ini yang mencegah angka ditimpa.",
-          RED)]
-x = 1.10
-for head_, body, col in boxes:
-    box(s, x, 5.18, 3.76, 1.22, fill=SOFT, line=RULE, radius=0.05)
-    box(s, x, 5.18, 0.06, 1.22, fill=col, line=None, radius=0.5)
-    txt(s, x + 0.18, 5.28, 3.42, 0.44, [(head_, 9.5, True, col)], spacing=1.1)
-    txt(s, x + 0.18, 5.74, 3.42, 0.60, [(body, 8.8, None, GREY)], spacing=1.16)
-    x += 3.92
+# ---- 4 · dasbor
+s = page("Ilustrasi 4 · dasbor tiga tingkat dengan kartu angka dan tren",
+         "Bagian 3 · ilustrasi sistem",
+         note="L1 memantau hari ini, L2 menutup kasus, L3 membandingkan plant · satu angka untuk semua")
+shot(s, "docs/assets/mockup/dasbor.png", 0.62, 1.46,
+     "DASBOR L2 · SUPERVISOR · LINE 9",
+     "sidebar, pencarian, rentang waktu, empat kartu KPI dengan tren, temuan, tabel kasus", NAVY)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Empat angka dengan tren", "Kasus hari ini, close lengkap, lewat tenggat, pola berulang — plus arah pergerakannya.", NAVY),
+    ("Temuan sudah berperingkat", "Sistem memilih tiga temuan teratas; bukan orang yang mencari di lembar kerja.", TEAL),
+    ("Daftar kerja, bukan laporan", "Setiap baris membawa sebab, PIC, umur kasus, dan status.", RED),
+    ("Tinggal pilih tingkat", "L1 hari ini, L2 kasus, L3 antar plant dan antar line.", GOLD)])
 
 
-# ================================================================ 5 · SIAPA UBAH APA
-s = page("Siapa boleh mengubah apa: tiga tingkat kunci",
-         "Bagian 3 · aturan koreksi",
-         note="Papan boleh diedit saat rapat, tetapi tidak sembarang orang dan tidak tanpa jejak")
+# ---- 5 · detail kasus
+s = page("Ilustrasi 5 · detail kasus: satu layar sampai PICA",
+         "Bagian 3 · ilustrasi sistem",
+         note="Riwayat, empat kolom wajib, PICA, lampiran, dan dampak ada di satu halaman kasus")
+shot(s, "docs/assets/mockup/kasus.png", 0.62, 1.46,
+     "KASUS SN-DT-0912 · DOWNTIME WS L02",
+     "kepala kasus, riwayat lima tahap, kolom wajib, PICA, lampiran, dampak", RED)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Riwayat terlihat utuh", "Dilaporkan, diagnosis Teknik, perbaikan, verifikasi, penutupan — berurutan.", NAVY),
+    ("Tombol tutup terkunci", "Selama sebab, tindakan, bukti, atau PIC kosong, penutupan tidak bisa diajukan.", RED),
+    ("PICA menempel pada kasus", "Lima pertanyaan dan tindakan pencegahan tersimpan, bukan di lembar terpisah.", TEAL),
+    ("Dampak ikut tercatat", "Menit berhenti, output hilang, dan jumlah berulang dalam satu kartu.", GOLD)])
 
-label(s, 1.10, 1.20, "TIGA TINGKAT SEBELUM DAN SESUDAH RAPAT", 12.0)
-stages = [("DRAF", "selama shift + 30 menit", "Leader dan petugas divisi pemilik",
-           "bebas mengoreksi, otomatis tercatat", TEAL),
-          ("TERKUNCI", "sampai rapat pagi hari kerja berikutnya", "Supervisor, DH, Kepala Divisi",
-           "wajib alasan koreksi; nilai lama tetap tersimpan", GOLD),
-          ("ARSIP", "setelah periode ditutup", "Admin plant",
-           "koreksi menjadi versi baru, bukan menimpa", NAVY)]
-x = 1.10
-for name, when, who, rule, col in stages:
-    box(s, x, 1.50, 3.76, 1.62, fill=WHITE, line=RULE, radius=0.05)
-    hline(s, x + 0.01, 1.50, 3.74, col, 0.06)
-    txt(s, x + 0.20, 1.64, 3.38, 0.30, [(name, 13, True, col)])
-    txt(s, x + 0.20, 1.96, 3.38, 0.24, [(when, 9, True, INK)])
-    txt(s, x + 0.20, 2.20, 3.38, 0.26, [(who, 9, None, GREY)])
-    txt(s, x + 0.20, 2.56, 3.38, 0.48, [(rule, 8.8, None, GREY)], spacing=1.16)
-    x += 3.92
 
-label(s, 1.10, 3.34, "YANG TIDAK BOLEH: MENGEDIT DARI TV DAN MENGHAPUS DATA", 12.0)
-table(s, [
-    ["Pertanyaan", "Aturan", "Alasannya"],
-    ["Bisakah angka papan diubah dari TV?", "Tidak — TV hanya menampilkan dan menerima absensi",
-     "mengetik di TV lambat dan rawan salah"],
-    ["Bisakah data dihapus?", "Tidak ada hapus — hanya batal dan arsip, dengan alasan",
-     "sejarah angka tetap utuh saat diperiksa"],
-    ["Bisakah periode lalu diubah?", "Hanya Admin plant, dengan alasan, tercatat di jejak audit",
-     "laporan yang disahkan tidak bergerak sendiri"],
-    ["Saat angka disengketakan?", "Bukti foto/work order, catatan mesin, kesepakatan plant head",
-     "koreksi lewat jalur resmi, bukan angka baru"],
-], [3.05, 4.55, 3.30], 1.10, 3.62, row_h=0.52, head_h=0.34, fs=9.4, bold_first=True)
+# ---- 6 · laporan & KPI
+s = page("Ilustrasi 6 · laporan dan skor KPI siap dibawa ke rapat",
+         "Bagian 3 · ilustrasi sistem",
+         note="Skor proses dan skor hasil dipisah · KPI V/O biner · periode terkunci sebelum laporan dibagikan")
+shot(s, "docs/assets/mockup/laporan.png", 0.62, 1.46,
+     "LAPORAN & SKOR KPI · OKTOBER 2026",
+     "filter plant/periode/shift, tiga kartu skor, tren enam bulan, skor per line", TEAL)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Dua skor, tidak digabung", "Skor proses (kelengkapan) dan skor hasil (target pilar) dilaporkan berdampingan.", NAVY),
+    ("KPI dihitung biner", "Tercapai atau tidak: 18 dari 24, tanpa nilai antara yang bisa ditawar.", GOLD),
+    ("Satu klik untuk rapat", "Filter plant, periode, dan shift; unduh atau kirim ke Group tanpa menyusun ulang.", TEAL),
+    ("Koreksi berversi", "Angka periode terkunci tidak berubah; koreksi tercatat sebagai versi baru.", RED)])
 
-txt(s, 1.10, 6.20, 10.60, 0.30,
-    [("Kesimpulan · papan boleh dikoreksi sampai rapat selesai; sesudah itu hanya lewat jalur resmi "
-      "dan jejaknya tetap ada.", 9.5, True, NAVY)])
+
+# ---- 7 · admin
+s = page("Ilustrasi 7 · halaman admin: tempat aturan dan data diubah",
+         "Bagian 3 · ilustrasi sistem",
+         note="Hanya Admin yang mengubah target, profil layar TV, kunci periode, dan daftar nama absensi")
+shot(s, "docs/assets/mockup/admin.png", 0.62, 1.46,
+     "HALAMAN ADMIN · ADMIN PLANT SNACK",
+     "tab pengaturan, target per versi, profil TV, kunci periode, jejak audit", GOLD)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Target per plant, per versi", "Target dan bobot KPI disimpan sebagai versi; periode lama tidak berubah.", GOLD),
+    ("Profil TV dikelola dari sini", "Admin memilih pilar, urutan, rotasi, dan mode layar untuk tiap TV.", TEAL),
+    ("Periode dikunci", "Periode yang sudah dilaporkan tidak bisa diubah; koreksi dicatat versi baru.", RED),
+    ("Jejak audit terbaca", "Siapa, kapan, dan nilai sebelum–sesudah tersimpan untuk pemeriksaan.", NAVY)])
 
 
 # ================================================================ 4 · TABEL AMBIL ALIH
@@ -1158,8 +1111,8 @@ txt(s, 9.28, 4.06, 3.24, 1.74,
 
 
 # ================================================================ 10 · KANAL
-s = page("Empat kanal tampilan dan batasannya", "Bagian 6 · tampilan",
-         note="Mockup layar adalah ilustrasi rancangan; tangkapan aplikasi asli menyusul saat dibangun")
+s = page("Kanal tampilan, batasannya, dan layar aplikasinya", "Bagian 6 · tampilan",
+         note="Tujuh layar ilustrasi di halaman 5–11 mengikuti kanal dan batasan di halaman ini")
 cards = [("Isi papan (tablet)", "Tiap divisi", "satu tab per divisi",
           "SHE, Quality, Produksi, Teknik, Delivery mengisi bagiannya; di bawah 5 menit per shift.", NAVY),
          ("Dasbor L1–L3", "Supervisor, plant head", "tiga tingkat audiens",
@@ -1184,9 +1137,10 @@ table(s, [
     ["Satu sumber angka", "Semua kanal membaca dari catatan yang sama"],
     ["Empat kolom wajib", "Sebab, tindakan, bukti, dan PIC sebelum kasus ditutup"],
     ["Lima divisi", "SHE, Quality, Produksi, Teknik, Delivery; tiap divisi ubah bagiannya sendiri"],
+    ["Satu catatan kasus", "Detail kasus, PICA, lampiran, dan dampak ada di satu halaman"],
     ["Kunci periode", "Periode yang sudah dilaporkan tidak dapat diubah"],
     ["Jejak audit", "Tercatat: siapa, kapan, sebelum–sesudah"],
-], [2.25, 6.35], 0.62, 3.06, row_h=0.37, head_h=0.36, fs=9.8, bold_first=True)
+], [2.25, 6.35], 0.62, 3.02, row_h=0.35, head_h=0.34, fs=9.6, bold_first=True)
 
 # TV kecil: papan empat pilar dengan sel shift
 ys = mock_screen(s, 9.30, 3.12, 3.40, 2.06, "PAPAN · EXIST PLANT", "TANPA LOGIN")

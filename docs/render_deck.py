@@ -266,6 +266,12 @@ for i, s in enumerate(p.slides, 1):
         if st == 13:
             try:
                 im = Image.open(io.BytesIO(sh.image.blob)).convert('RGB')
+                iw, ih = im.size
+                l, rr = sh.crop_left or 0, sh.crop_right or 0
+                tp, bt = sh.crop_top or 0, sh.crop_bottom or 0
+                bb = (int(l * iw), int(tp * ih), int(iw - rr * iw), int(ih - bt * ih))
+                if bb[2] > bb[0] and bb[3] > bb[1]:
+                    im = im.crop(bb)
                 img.paste(im.resize((max(int(w), 1), max(int(h), 1))), (int(x), int(y)))
             except Exception:
                 pass
