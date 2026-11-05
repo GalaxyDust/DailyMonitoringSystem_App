@@ -71,65 +71,75 @@ def form():
     shadow(im, (66, 76, 1534, 944))
     d = ImageDraw.Draw(im)
     rr(d, (60, 70, 1540, 938), 34, fill=DARK)
-    # kamera depan
     d.ellipse((790, 82, 810, 102), fill=(0x3A, 0x42, 0x52))
     rr(d, (82, 116, 1518, 916), 12, fill=WHITE)
 
-    # kepala
     d.rectangle((82, 116, 1518, 186), fill=NAVY)
-    t(d, (112, 138), "FORM HARIAN  ·  SNACK  ·  LINE 9", 26, WHITE, True)
+    t(d, (112, 138), "ISI PAPAN  ·  SNACK  ·  LINE 9", 26, WHITE, True)
     t(d, (1488, 140), "Sen, 3 Nov 2026 · Shift 1", 21, (0xC9, 0xD3, 0xE6), anchor="ra")
 
-    # sub kepala
-    t(d, (112, 202), "Isi harian", 24, NAVY, True)
-    t(d, (300, 206), "12 dari 15 item terisi · sisa 4 menit", 20, GREY)
-    chip(d, 1300, 198, 196, 36, "DRAF TERSIMPAN", PALE, 15, GREY)
+    # tab divisi: tiap divisi mengisi bagiannya sendiri
+    tabs = [("SHE", False), ("QUALITY", False), ("PRODUKSI", True), ("TEKNIK", False),
+            ("DELIVERY", False)]
+    x = 100
+    for name, on in tabs:
+        tw = 26 + len(name) * 12
+        if on:
+            rr(d, (x, 196, x + tw, 244), 8, fill=NAVY)
+            t(d, (x + tw / 2, 220), name, 18, WHITE, True, "mm")
+        else:
+            rr(d, (x, 196, x + tw, 244), 8, fill=(0xF2, 0xF4, 0xF8), line=RULE, w=2)
+            t(d, (x + tw / 2, 220), name, 18, GREY, True, "mm")
+        x += tw + 10
+    t(d, (1488, 210), "draf tersimpan 07.08", 18, GREY, anchor="ra")
+    t(d, (1488, 232), "tab lain: milik divisi lain", 16, LGREY, anchor="ra")
 
-    # tabel
-    cols = [(112, 620), (620, 790), (790, 960), (960, 1230), (1230, 1490)]
-    head = ["ITEM CHECKLIST", "TARGET", "HASIL", "STATUS", "SEBAB / BUKTI"]
-    d.rectangle((112, 250, 1490, 292), fill=SOFT)
+    cols = [(112, 600), (600, 770), (770, 940), (940, 1200), (1200, 1490)]
+    head = ["ITEM · PRODUKSI", "TARGET", "HASIL", "STATUS", "SEBAB / BUKTI"]
+    d.rectangle((112, 258, 1490, 296), fill=SOFT)
     for (x0, x1), h_ in zip(cols, head):
-        t(d, (x0 + 12, 264), h_, 17, LGREY, True)
+        t(d, (x0 + 12, 268), h_, 16, LGREY, True)
 
     rows = [("Checklist A · critical point", "100%", "100%", "SESUAI", "", TEAL),
             ("Checklist B · suhu ruang", "≤ 18 °C", "16 °C", "SESUAI", "", TEAL),
-            ("Defect visual · packing", "≤ 0,6%", "0,9%", "DI ATAS TARGET", "film roll WS L02", RED),
-            ("Downtime mesin", "≤ 20 mnt", "48 mnt", "LEWAT BATAS", "belt aus · 1 foto", RED),
-            ("Output shift", "8.400 pcs", "8.120 pcs", "DI BAWAH TARGET", "tunggu material", GOLD)]
-    y = 292
+            ("Output shift", "8.400 pcs", "8.120 pcs", "DI BAWAH TARGET", "tunggu material", GOLD),
+            ("Downtime · WS L02", "≤ 20 mnt", "48 mnt", "LEWAT BATAS", "belt aus · ke teknik", RED),
+            ("OEE line", "≥ 85%", "78%", "DI BAWAH TARGET", "ikut downtime", GOLD)]
+    y = 296
     for i, (item, tg, hs, st, sb, col) in enumerate(rows):
         if i % 2:
-            d.rectangle((112, y, 1490, y + 78), fill=(0xFA, 0xFB, 0xFD))
-        d.line((112, y + 78, 1490, y + 78), fill=RULE, width=1)
-        t(d, (124, y + 26), item, 22, INK)
-        t(d, (632, y + 26), tg, 22, GREY)
-        t(d, (802, y + 26), hs, 22, INK, True)
-        cw = 26 + len(st) * 11
-        chip(d, 968, y + 22, cw, 34, st, col, 15)
-        t(d, (1243, y + 26), sb if sb else "—", 18, GREY)
-        y += 78
+            d.rectangle((112, y, 1490, y + 72), fill=(0xFA, 0xFB, 0xFD))
+        d.line((112, y + 72, 1490, y + 72), fill=RULE, width=1)
+        t(d, (124, y + 24), item, 21, INK)
+        t(d, (612, y + 24), tg, 21, GREY)
+        t(d, (782, y + 24), hs, 21, INK, True)
+        cw = 22 + len(st) * 10
+        chip(d, 950, y + 20, cw, 34, st, col, 14)
+        t(d, (1213, y + 24), sb if sb else "—", 17, GREY)
+        y += 72
 
-    # kolom sebab + bukti + tombol
-    rr(d, (112, 700, 780, 884), 12, fill=(0xFD, 0xF3, 0xF3), line=(0xD9, 0x9C, 0x9C), w=2)
-    t(d, (132, 716), "SEBAB WAJIB DIISI", 16, RED, True)
-    t(d, (132, 748), "Belt WS L02 aus, diganti", 24, INK)
-    t(d, (132, 786), "Tindakan: ganti belt, cek sebelum shift 2", 19, GREY)
-    t(d, (132, 816), "PIC: Dhani  ·  tenggat 3 Nov 16.00", 19, GREY)
+    rr(d, (112, 668, 700, 884), 12, fill=(0xFD, 0xF3, 0xF3), line=(0xD9, 0x9C, 0x9C), w=2)
+    t(d, (132, 684), "SEBAB WAJIB DIISI · DI BAWAH TARGET", 16, RED, True)
+    t(d, (132, 714), "Belt WS L02 aus, diganti", 24, INK)
+    t(d, (132, 756), "Tindakan: ganti belt, cek sebelum shift 2", 18, GREY)
+    t(d, (132, 784), "PIC: Dhani  ·  tenggat 3 Nov 16.00", 18, GREY)
+    t(d, (132, 818), "Sudah dikirim ke Teknik sebagai WO EP-TK-0031", 17, TEAL, True)
 
-    rr(d, (798, 700, 1230, 884), 12, fill=SOFT, line=RULE, w=2)
-    t(d, (818, 716), "BUKTI FOTO · 1 BERKAS", 16, LGREY, True)
+    rr(d, (716, 668, 1200, 884), 12, fill=SOFT, line=RULE, w=2)
+    t(d, (736, 684), "BUKTI FOTO · 1 BERKAS", 16, LGREY, True)
     for i in range(3):
-        x0 = 818 + i * 136
-        rr(d, (x0, 748, x0 + 120, 832), 8,
-           fill=(0xE3, 0xE8, 0xF0) if i else (0xD8, 0xE4, 0xDD),
+        x0 = 736 + i * 148
+        rr(d, (x0, 716, x0 + 130, 828), 8,
+           fill=(0xD8, 0xE4, 0xDD) if i == 0 else (0xE3, 0xE8, 0xF0),
            line=(0xC2, 0xCB, 0xD9), w=2)
-        t(d, (x0 + 60, 790), "foto" if i == 0 else "+", 18, GREY, False, "mm")
+        t(d, (x0 + 65, 772), "foto" if i == 0 else "+", 18, GREY, False, "mm")
+    t(d, (736, 844), "foto menempel pada kasus, bukan di ponsel", 16, GREY)
 
-    rr(d, (1252, 700, 1490, 776), 12, fill=NAVY)
-    t(d, (1371, 738), "Kirim ke dasbor", 23, WHITE, True, "mm")
-    t(d, (1252, 796), "angka langsung jadi", 18, GREY)
-    t(d, (1252, 822), "di dasbor & TV", 18, GREY)
+    rr(d, (1218, 668, 1490, 748), 12, fill=NAVY)
+    t(d, (1354, 708), "Kirim bagian produksi", 21, WHITE, True, "mm")
+    t(d, (1218, 762), "angka langsung masuk", 18, GREY)
+    t(d, (1218, 788), "papan, TV, dan dasbor", 18, GREY)
+    t(d, (1218, 824), "tidak ada salinan kedua", 17, TEAL, True)
 
     im.save(f"{OUT}/form.png")
 
@@ -223,36 +233,171 @@ def dasbor():
 
 
 # --------------------------------------------------------------- 3 · layar TV
+def board(d, x, y, w, h, scale=1.0, cell=46, vf=13, shifts=("S1", "S2", "S3")):
+    """Papan empat pilar bergaya papan hari ini: kolom pilar, baris item, kolom shift."""
+    pillars = [
+        ("SAFETY", (0xB0, 0x2F, 0x2F),
+         [("zero accident", "0", "0", "0"),
+          ("near miss", "1", "0", "2"),
+          ("temuan KAK", "3", "1", "2"),
+          ("tindakan buka", "2", "2", "1")]),
+        ("QUALITY", (0xC8, 0xA5, 0x2B),
+         [("defect visual %", "0,9", "0,5", "0,6"),
+          ("critical point", "1", "0", "0"),
+          ("hold / release", "2", "1", "0"),
+          ("kalibrasi alat", "ok", "ok", "ok")]),
+        ("PRODUCTIVITY", (0x1F, 0x33, 0x64),
+         [("output shift", "8.120", "8.360", "8.400"),
+          ("downtime (mnt)", "48", "22", "15"),
+          ("checklist A/B", "ok", "ok", "ok"),
+          ("OEE %", "78", "81", "84")]),
+        ("DELIVERY", (0x2E, 0x86, 0x8C),
+         [("plan vs real PO", "6/6", "5/6", "6/6"),
+          ("keterlambatan", "1", "0", "0"),
+          ("kesiapan muat", "ok", "ok", "ok"),
+          ("retur kirim", "0", "0", "0")]),
+    ]
+    gap = 14 * scale
+    cw = (w - gap * 3) / 4
+    for i, (name, col, rows) in enumerate(pillars):
+        cx = x + i * (cw + gap)
+        d.rectangle((cx, y, cx + cw, y + 34 * scale), fill=col)
+        t(d, (cx + cw / 2, y + 17 * scale), name, int(17 * scale), WHITE, True, "mm")
+        hy = y + 34 * scale
+        d.rectangle((cx, hy, cx + cw, hy + 26 * scale), fill=(0xF2, 0xF4, 0xF8))
+        t(d, (cx + 10 * scale, hy + 13 * scale), "ITEM", int(12 * scale), GREY, True, "lm")
+        ns = len(shifts)
+        for k, sh in enumerate(shifts):
+            cxx = cx + cw - (ns - k) * cell * scale
+            t(d, (cxx + (cell / 2 - 1) * scale, hy + 13 * scale), sh, int(12 * scale), GREY, True, "mm")
+        ry = hy + 26 * scale
+        rh = (h - (ry - y)) / len(rows)
+        for j, (item, a, b, c_) in enumerate(rows):
+            if j % 2:
+                d.rectangle((cx, ry, cx + cw, ry + rh), fill=(0xFA, 0xFB, 0xFD))
+            d.line((cx, ry + rh, cx + cw, ry + rh), fill=RULE, width=1)
+            t(d, (cx + 10 * scale, ry + rh / 2), item, int(13 * scale), INK, anchor="lm")
+            for k, val in enumerate((a, b, c_)[:ns]):
+                cxx = cx + cw - (ns - k) * cell * scale
+                hit = hit_test(item, val)
+                cell_col = {0: (0xE3, 0xF1, 0xE7), 1: (0xFB, 0xF0, 0xD6),
+                            2: (0xF8, 0xE0, 0xE0), 3: (0xEF, 0xF1, 0xF5)}[hit]
+                d.rectangle((cxx + 2 * scale, ry + 5 * scale,
+                             cxx + (cell - 3) * scale, ry + rh - 5 * scale), fill=cell_col)
+                tcol = {0: (0x1E, 0x6B, 0x3A), 1: (0x8A, 0x6C, 0x10),
+                        2: RED, 3: LGREY}[hit]
+                t(d, (cxx + (cell / 2 - 1) * scale, ry + rh / 2), val, int(vf * scale), tcol, True, "mm")
+            ry += rh
+
+
+def hit_test(item, val):
+    """0 sesuai · 1 di bawah target · 2 lewat batas · 3 belum diisi."""
+    if val == "—":
+        return 3
+    if item.startswith("output"):
+        return 2 if val == "8.120" else 0
+    if item.startswith("downtime"):
+        return 2 if val == "48" else 0
+    if item.startswith("defect"):
+        return 1 if val == "0,9" else 0
+    if item == "near miss" and val == "2":
+        return 1
+    if item == "plan vs real PO":
+        return 1 if val == "5/6" else 0
+    if item in ("tindakan buka", "hold / release") and val == "2":
+        return 1
+    if item == "keterlambatan" and val == "1":
+        return 1
+    return 0
+
+
+def legend(d, x, y):
+    items = [("sesuai target", (0xE3, 0xF1, 0xE7), (0x1E, 0x6B, 0x3A)),
+             ("di bawah target", (0xFB, 0xF0, 0xD6), (0x8A, 0x6C, 0x10)),
+             ("lewat batas", (0xF8, 0xE0, 0xE0), RED),
+             ("belum diisi", (0xEF, 0xF1, 0xF5), GREY)]
+    for name, fillc, tc in items:
+        d.rectangle((x, y, x + 26, y + 22), fill=fillc)
+        t(d, (x + 34, y + 11), name, 16, tc, True, "lm")
+        x += 210
+
+
 def tv():
+    """Layar lantai berbentuk papan (bukan kartu)."""
     im, d = canvas()
-    shadow(im, (60, 60, 1540, 900))
+    shadow(im, (50, 50, 1550, 900))
     d = ImageDraw.Draw(im)
-    rr(d, (54, 54, 1546, 906), 16, fill=DARK)
-    rr(d, (78, 78, 1522, 882), 6, fill=WHITE)
+    rr(d, (44, 44, 1556, 906), 16, fill=DARK)
+    rr(d, (68, 68, 1532, 882), 6, fill=WHITE)
 
-    d.rectangle((78, 78, 1522, 156), fill=NAVY)
-    t(d, (108, 104), "LAYAR LANTAI  ·  EXIST PLANT  ·  LINE WS L02", 27, WHITE, True)
-    t(d, (1492, 106), "07.10  ·  TANPA LOGIN", 19, GOLD, True, "ra")
+    d.rectangle((68, 68, 1532, 150), fill=NAVY)
+    t(d, (100, 94), "PAPAN DMS  ·  SNACK  ·  LINE 9", 30, WHITE, True)
+    t(d, (1500, 96), "Sen, 3 Nov 2026  ·  SHIFT 1", 21, GOLD, True, "ra")
 
-    t(d, (108, 178), "Kartu tertua tampil paling atas · berganti tiap 30 detik", 20, GREY)
+    t(d, (100, 168), "Empat pilar, kolom shift, warna dibanding target  —  sama seperti papan hari ini",
+      18, GREY)
+    legend(d, 100, 200)
 
-    cards = [("I-02 · LEWAT TENGGAT", "Downtime WS L02", "montir sudah ditunjuk", "6 HARI", RED, "6 hari"),
-             ("I-03 · BERULANG", "BCT WS L04 P02", "sebab sama 134× di plant ini", "BERULANG", GOLD, "134×"),
-             ("I-10 · MENUMPUK", "Satu line menumpuk kasus", "96,9% kasus ada di line 9", "L3", TEAL, "96,9%")]
-    y = 224
-    for code, title, sub, badge, col, big in cards:
-        rr(d, (108, y, 1492, y + 186), 10, fill=(0xFA, 0xFB, 0xFD), line=RULE, w=2)
-        d.rectangle((108, y, 120, y + 186), fill=col)
-        t(d, (140, y + 20), code, 17, GREY, True)
-        t(d, (140, y + 50), title, 34, INK, True)
-        t(d, (140, y + 100), sub, 21, GREY)
-        chip(d, 1226, y + 24, 226, 42, badge, col, 18)
-        t(d, (1492 - 26, y + 96), big, 46, col, True, "ra")
-        t(d, (1492 - 26, y + 150), "angka pemicu", 16, LGREY, anchor="ra")
-        y += 202
+    board(d, 92, 244, 1416, 520, scale=1.35)
 
-    t(d, (108, 842), "Sumber: satu catatan kasus, sama dengan dasbor dan form harian", 18, LGREY)
+    d.rectangle((68, 800, 1532, 882), fill=(0xF4, 0xF6, 0xFA))
+    t(d, (100, 826), "Pembaruan terakhir 07.12  ·  absensi shift 1: 25 dari 28 hadir", 20, NAVY, True)
+    t(d, (1500, 826), "TANPA LOGIN  ·  BERGANTI PILAR TIAP 20 DETIK", 17, LGREY, True, "ra")
     im.save(f"{OUT}/tv.png")
+
+
+def tv_absen():
+    """Papan + panel absensi di layar yang sama (lapangan tinggal ketuk)."""
+    im, d = canvas()
+    shadow(im, (50, 50, 1550, 900))
+    d = ImageDraw.Draw(im)
+    rr(d, (44, 44, 1556, 906), 16, fill=DARK)
+    rr(d, (68, 68, 1532, 882), 6, fill=WHITE)
+
+    d.rectangle((68, 68, 1532, 150), fill=NAVY)
+    t(d, (100, 94), "PAPAN DMS  ·  SNACK  ·  LINE 9", 30, WHITE, True)
+    t(d, (1500, 96), "Sen, 3 Nov 2026  ·  SHIFT 1", 21, GOLD, True, "ra")
+
+    legend(d, 100, 176)
+    board(d, 92, 216, 900, 560, scale=0.98, cell=72, vf=15, shifts=("SHIFT 1",))
+
+    # panel absensi
+    px, py, pw = 1010, 176, 466
+    rr(d, (px, py, px + pw, py + 600), 14, fill=(0xFA, 0xFB, 0xFD), line=RULE, w=2)
+    d.rectangle((px, py, px + pw, py + 46), fill=TEAL)
+    t(d, (px + 20, py + 23), "ABSENSI SHIFT 1", 22, WHITE, True, "lm")
+    t(d, (px + pw - 20, py + 23), "TANPA LOGIN", 15, (0xD8, 0xEE, 0xEA), True, "rm")
+
+    t(d, (px + 20, py + 66), "25 hadir", 34, (0x1E, 0x6B, 0x3A), True)
+    t(d, (px + 190, py + 66), "· 2 sakit · 1 izin", 24, GREY)
+    t(d, (px + 20, py + 112), "4 nama belum dikonfirmasi — ketuk namanya", 17, GREY)
+
+    names = [("Rani", "hadir", 0), ("Dhani", "hadir", 0), ("Sigit", "sakit", 1),
+             ("Asep", "?", 2), ("Yanti", "hadir", 0), ("Budi", "izin", 3),
+             ("Wawan", "?", 2), ("Lina", "hadir", 0)]
+    y = py + 148
+    fills = {0: WHITE, 1: (0xFB, 0xF0, 0xD6), 2: (0xFF, 0xFF, 0xFF), 3: (0xF2, 0xF4, 0xF8)}
+    for i, (name, st, kind) in enumerate(names):
+        hh = 44 if kind != 2 else 52
+        d.rectangle((px + 20, y, px + pw - 20, y + hh), fill=fills[kind],
+                    outline=(0xE0, 0xC9, 0x8C) if kind == 2 else RULE, width=3 if kind == 2 else 1)
+        t(d, (px + 34, y + hh / 2), name, 21, INK, kind == 2, "lm")
+        if kind == 0:
+            chip(d, px + 330, y + 8, 108, 28, "HADIR", (0x1E, 0x6B, 0x3A), 13)
+        elif kind == 1:
+            chip(d, px + 330, y + 8, 108, 28, "SAKIT", GOLD, 13)
+        elif kind == 3:
+            chip(d, px + 330, y + 8, 108, 28, "IZIN", LGREY, 13)
+        else:
+            chip(d, px + 322, y + 10, 124, 32, "KETUK", TEAL, 14)
+        y += hh + 6
+
+    t(d, (px + 20, py + 566), "Urungkan 2 menit tersedia bila salah ketuk", 15, LGREY)
+
+    d.rectangle((68, 800, 1532, 882), fill=(0xF4, 0xF6, 0xFA))
+    t(d, (100, 826), "Absensi tampil berdampingan dengan papan  ·  hasilnya langsung dipakai dasbor",
+      19, NAVY, True)
+    im.save(f"{OUT}/tv_absen.png")
 
 
 # --------------------------------------------------------------- 4 · admin
@@ -347,8 +492,9 @@ if __name__ == "__main__":
     form()
     dasbor()
     tv()
+    tv_absen()
     admin()
-    for name in ("form", "dasbor", "tv", "admin"):
+    for name in ("form", "dasbor", "tv", "tv_absen", "admin"):
         trim(name)
         p = f"{OUT}/{name}.png"
         print(p, Image.open(p).size, f"{os.path.getsize(p) / 1024:.0f} KB")
