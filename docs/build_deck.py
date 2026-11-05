@@ -1121,7 +1121,129 @@ table(s, [
     aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
 
-# ================================================================ 12 · CONTOH DATA
+# ================================================================ 12 · ALUR WAKTU
+s = page("Alur waktu: empat gerbang sebelum sistem dipakai semua plant",
+         "Bagian 5 · rencana",
+         note="Gerbang diperiksa bersama plant head; bila tidak lulus, pekan berikutnya dipakai untuk memperbaiki")
+
+label(s, 0.62, 1.22, "ENAM TAHAP PENGERJAAN", 6.0)
+flow = [("Tahap 0\nFondasi", "pekan 1–2", "master line, mesin, hak akses", NAVY),
+        ("Tahap 1\nCapture", "pekan 1–3", "form harian dan form kasus", NAVY),
+        ("Tahap 2\nMeasure", "pekan 3–5", "angka otomatis dan dasbor line", TEAL),
+        ("Tahap 3\nInsight", "pekan 5–6", "delapan aturan pertama aktif", TEAL),
+        ("Tahap 4\nDisplay", "pekan 7", "layar lantai satu area", GOLD),
+        ("Tahap 5\nAnalitik", "pekan 7–8", "dasbor plant dan ekspor", GOLD)]
+BW, BG = 1.78, 0.28
+xs = [0.62 + i * (BW + BG) for i in range(6)]
+for i, (name, wk, out, col) in enumerate(flow):
+    x = xs[i]
+    box(s, x, 1.48, BW, 1.52, fill=WHITE, line=RULE, radius=0.05)
+    box(s, x, 1.48, BW, 0.06, fill=col, line=None, radius=None)
+    txt(s, x + 0.12, 1.58, BW - 0.24, 0.30, [(name.split("\n")[0], 8.2, True, GREY)])
+    txt(s, x + 0.12, 1.80, BW - 0.24, 0.28, [(name.split("\n")[1], 11.5, True, NAVY)])
+    txt(s, x + 0.12, 2.10, BW - 0.24, 0.22, [(wk, 8.5, True, col)])
+    txt(s, x + 0.12, 2.36, BW - 0.24, 0.56, [(out, 8.4, None, GREY)], spacing=1.14)
+    if i < 5:
+        arrow(s, x + BW + 0.03, 2.12, BG - 0.06, 0.24, "right", PALE)
+
+# garis gerbang
+hline(s, 0.62, 3.22, 12.09, RGBColor(0xD9, 0xDE, 0xE7), 0.014)
+gates_at = [(xs[1] - BG / 2, "G1"), (xs[3] - BG / 2, "G2"),
+            (xs[4] - BG / 2, "G3"), (xs[5] + BW - 0.55, "G4")]
+for gx, g in gates_at:
+    shape(s, MSO_SHAPE.DIAMOND, gx - 0.13, 3.06, 0.26, 0.32, fill=GOLD, line=None)
+    txt(s, gx - 0.40, 3.40, 0.80, 0.20, [(g, 8.5, True, GOLD)], align=PP_ALIGN.CENTER)
+
+label(s, 1.10, 3.62, "EMPAT GERBANG · LULUS ATAU ULANG", 7.0)
+gates = [("G1 · Kesiapan data",
+          "master line dan mesin cocok dengan laporan lama; nama line sudah seragam.",
+          "bila gagal: rapikan master line dulu, jangan mulai form.", NAVY),
+         ("G2 · Angka cocok",
+          "total kasus sistem = jumlah baris workbook tiga plant pada bulan uji.",
+          "bila gagal: selisih ditelusuri sebelum dasbor dibuka.", TEAL),
+         ("G3 · Aturan jalan",
+          "delapan aturan pertama memunculkan kartu dengan pemilik dan tenggat.",
+          "bila gagal: aturan dipertajam, layar lantai ditunda.", TEAL),
+         ("G4 · Siap replikasi",
+          "lima ukuran terpenuhi di Snack; template KPI siap dipakai plant lain.",
+          "bila gagal: perbaikan satu putaran, replikasi digeser dua pekan.", GOLD)]
+x = 1.10
+for name, ok, fail, col in gates:
+    box(s, x, 3.92, 2.70, 1.66, fill=WHITE, line=RULE, radius=0.05)
+    box(s, x, 3.92, 0.05, 1.66, fill=col, line=None, radius=0.5)
+    txt(s, x + 0.18, 4.02, 2.40, 0.24, [(name.upper(), 9, True, col)])
+    txt(s, x + 0.18, 4.28, 2.38, 0.72, [(ok, 8.6, None, INK)], spacing=1.14)
+    txt(s, x + 0.18, 5.06, 2.38, 0.44, [(fail, 8.2, None, GREY)], spacing=1.12)
+    x += 2.75
+
+box(s, 1.10, 5.76, 11.61, 0.72, fill=SOFT, line=RULE, radius=0.05)
+box(s, 1.10, 5.76, 0.06, 0.72, fill=RED, line=None, radius=0.5)
+txt(s, 1.32, 5.86, 11.20, 0.52,
+    [("Kalau sebuah gerbang tidak lulus, jadwal digeser — bukan gerbangnya yang diturunkan. "
+      "Lima ukuran di halaman sebelumnya adalah alat ujinya.", 9.5, None, INK)], spacing=1.2)
+
+
+# ================================================================ 13 · ALUR PENYEBARAN
+s = page("Alur penyebaran: satu plant jadi contoh, tiga plant menyusul",
+         "Bagian 5 · rencana",
+         note="Urutan ini mengikuti kesiapan data: Snack paling rapi, Dairy menyusul terakhir")
+
+label(s, 0.62, 1.24, "URUTAN PENYEBARAN", 6.0)
+plants = [("SNACK", "pilot · 8 pekan", "data 5.815 kasus, 20 line", NAVY, True),
+          ("EXIST PLANT", "replikasi · 4 pekan", "6.774 kasus, 59 line", TEAL, False),
+          ("NEW PLANT", "replikasi · 4 pekan", "4.612 kasus, 45 line", TEAL, False),
+          ("DAIRY", "replikasi · 4 pekan", "menyusul setelah tiga plant", GOLD, False)]
+PW, PG = 2.62, 0.60
+px = [0.62 + i * (PW + PG) for i in range(4)]
+for i, (name, phase, body, col, first) in enumerate(plants):
+    x = px[i]
+    box(s, x, 1.54, PW, 1.22, fill=WHITE if not first else SOFT, line=col if first else RULE,
+        lw=1.4 if first else 1.0, radius=0.05)
+    box(s, x, 1.54, PW, 0.06, fill=col, line=None, radius=None)
+    txt(s, x + 0.16, 1.66, PW - 0.32, 0.26, [(name, 11, True, col)])
+    txt(s, x + 0.16, 1.94, PW - 0.32, 0.24, [(phase, 8.5, True, INK)])
+    txt(s, x + 0.16, 2.22, PW - 0.32, 0.40, [(body, 8.5, None, GREY)], spacing=1.16)
+    if i < 3:
+        hline(s, x + PW + 0.04, 2.14, PG - 0.08, PALE)
+        shape(s, MSO_SHAPE.DIAMOND, x + PW + PG / 2 - 0.11, 2.00, 0.22, 0.28,
+              fill=WHITE, line=GOLD, lw=1.2)
+
+for i in range(3):
+    txt(s, px[i] + PW + 0.01, 2.32, PG - 0.02, 0.22,
+        [("lulus uji", 6.4, True, GOLD)], align=PP_ALIGN.CENTER, spacing=1.0)
+
+label(s, 1.10, 3.14, "YANG DIBAWA SAAT REPLIKASI", 5.6)
+bring = [("Master line & mesin", "kode line, mesin, dan pemilik shift", NAVY),
+         ("Template KPI versi", "target dan bobot per plant, berlaku per periode", NAVY),
+         ("Aturan insight", "dua belas aturan yang sama, pemicu dibaca dari data", TEAL)]
+y = 3.44
+for head_, body, col in bring:
+    box(s, 1.10, y, 5.55, 0.66, fill=WHITE, line=RULE, radius=0.05)
+    box(s, 1.10, y, 0.05, 0.66, fill=col, line=None, radius=0.5)
+    txt(s, 1.30, y + 0.07, 5.20, 0.22, [(head_, 9, True, col)])
+    txt(s, 1.30, y + 0.31, 5.20, 0.28, [(body, 8.5, None, GREY)])
+    y += 0.72
+
+label(s, 7.16, 3.14, "YANG TETAP LOKAL DI TIAP PLANT", 5.5)
+local = [("Target plant", "ditetapkan plant head, tidak dibawa dari Snack"),
+         ("Kalender libur", "hari wajib mengikuti libur daerah masing-masing"),
+         ("PIC dan approval", "nama pemilik kasus dan penyetuju lokal")]
+y = 3.44
+for head_, body in local:
+    box(s, 7.16, y, 5.55, 0.66, fill=SOFT, line=RULE, radius=0.05)
+    txt(s, 7.34, y + 0.07, 5.20, 0.22, [(head_, 9, True, NAVY)])
+    txt(s, 7.34, y + 0.31, 5.20, 0.28, [(body, 8.5, None, GREY)])
+    y += 0.72
+
+box(s, 1.10, 5.62, 11.61, 0.52, fill=WHITE, line=RULE, radius=0.05)
+box(s, 1.10, 5.62, 0.06, 0.52, fill=GOLD, line=None, radius=0.5)
+txt(s, 1.40, 5.84, 3.30, 0.22,
+    [("20 pekan · empat plant", 9, True, NAVY)])
+txt(s, 5.00, 5.84, 7.50, 0.22,
+    [("Gerbang G4 di Snack adalah syarat mulai replikasi pertama.", 9, None, INK)])
+
+
+# ================================================================ 14 · CONTOH DATA
 s = page("Potongan data yang dipakai di deck, semuanya dari tiga workbook",
          "Bagian 5 · data",
          note="Angka diambil langsung dari workbook Snack, Exist Plant, New Plant; tidak ada contoh yang dikarang")
@@ -1167,8 +1289,8 @@ cards_d = [("Contoh, bukan angka baru",
             "Semua potongan di halaman ini dan di sepanjang deck berasal dari tiga workbook; "
             "angka lain tidak dipakai.", NAVY),
            ("Foto asli sudah dipakai",
-            "Papan DMS di halaman 3, kunjungan Dairy di halaman 4, dan potongan tabel defect "
-            "di halaman 2 memakai foto asli "
+            "Papan DMS di halaman 3, kunjungan Dairy di halaman 4, potongan tabel defect di "
+            "halaman 2, dan papan PICA di halaman 9 memakai foto asli "
             "Factory 10, bukan gambar contoh.", TEAL),
            ("Cara memperbarui",
             "Jalankan analyze_workbook.py lalu build_deck.py; seluruh angka di deck ikut "
@@ -1217,7 +1339,7 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 2.30, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.70, 3.90, 2.10,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Angka halaman 15 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
+     ("2. Angka halaman 17 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
      ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
