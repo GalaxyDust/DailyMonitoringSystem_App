@@ -550,7 +550,48 @@ txt(s, 7.02, 6.02, 5.70, 0.44,
       "adalah yang nanti diisi sekali di form.", 9, None, INK)], spacing=1.18)
 
 
-# ================================================================ 3 · ALUR MANUAL VS SISTEM
+# ================================================================ 3b · KUNJUNGAN PAPAN DAIRY
+s = page("Kunjungan papan: empat tahap, semua masih tangan",
+         "Bagian 2 · kondisi hari ini",
+         note="Foto kunjungan papan DMS Dairy, 5 November 2026 · dokumentasi diambil dari ponsel dan dicatat manual")
+
+label(s, 0.62, 1.24, "URUTAN KUNJUNGAN PAPAN · DMS DAIRY", 6.2)
+visit = [("docs/assets/papan/dairy_1.jpg", "Before",
+          "tim berkumpul di depan papan sebelum shift"),
+         ("docs/assets/papan/dairy_2.jpg", "Observation",
+          "papan dibaca baris per baris, dicocokkan dengan angka shift"),
+         ("docs/assets/papan/dairy_3.jpg", "Documentation",
+          "temuan difoto dan ditulis tangan di lembar kunjungan"),
+         ("docs/assets/papan/dairy_4.jpg", "After & orientasi",
+          "temuan dibahas bersama tim line, tindak lanjut dicatat")]
+x = 0.62
+for path, name, body in visit:
+    box(s, x, 1.52, 2.95, 3.06, fill=WHITE, line=RULE, radius=0.05)
+    photo(s, path, x + 0.10, 1.62, 2.75, 1.90, frame=False)
+    box(s, x, 1.52, 2.95, 0.05, fill=TEAL, line=None, radius=None)
+    txt(s, x + 0.16, 3.62, 2.64, 0.24, [(name.upper(), 10, True, TEAL)])
+    txt(s, x + 0.16, 3.90, 2.64, 0.60, [(body, 9, None, GREY)], spacing=1.18)
+    x += 3.04
+
+label(s, 0.62, 4.86, "YANG MASIH DIKERJAKAN TANGAN SAAT KUNJUNGAN", 12.0)
+manual = [("Mencocokkan angka", "angka papan dibandingkan manual dengan rekap shift", NAVY),
+          ("Memotret papan", "foto disimpan di ponsel, tidak menempel pada kasus", GOLD),
+          ("Menulis temuan", "lembar kunjungan diisi tangan, lalu disalin lagi", GOLD),
+          ("Menagih tindak lanjut", "status hanya diketahui dari kunjungan berikutnya", RED)]
+x = 0.62
+for head_, body, col in manual:
+    box(s, x, 5.16, 2.95, 1.04, fill=SOFT, line=RULE, radius=0.05)
+    box(s, x, 5.16, 0.06, 1.04, fill=col, line=None, radius=0.5)
+    txt(s, x + 0.18, 5.25, 2.60, 0.26, [(head_, 9.5, True, col)])
+    txt(s, x + 0.18, 5.54, 2.60, 0.60, [(body, 9, None, GREY)], spacing=1.16)
+    x += 3.04
+
+txt(s, 1.10, 6.34, 11.40, 0.26,
+    [("Sistem menggantikan empat pekerjaan itu: temuan langsung menjadi kartu dengan pemilik, "
+      "foto bukti, dan tenggat.", 9.5, True, NAVY)])
+
+
+# ================================================================ 4 · ALUR MANUAL VS SISTEM
 s = page("Alur kerja berubah: dari lima langkah tangan ke satu input",
          "Bagian 2 · diagram alir",
          note="Perbandingan putaran harian sekarang dan setelah sistem dipakai")
@@ -1123,7 +1164,8 @@ cards_d = [("Contoh, bukan angka baru",
             "Semua potongan di halaman ini dan di sepanjang deck berasal dari tiga workbook; "
             "angka lain tidak dipakai.", NAVY),
            ("Foto asli sudah dipakai",
-            "Papan DMS di halaman 3 dan potongan tabel defect di halaman 2 memakai foto asli "
+            "Papan DMS di halaman 3, kunjungan Dairy di halaman 4, dan potongan tabel defect "
+            "di halaman 2 memakai foto asli "
             "Factory 10, bukan gambar contoh.", TEAL),
            ("Cara memperbarui",
             "Jalankan analyze_workbook.py lalu build_deck.py; seluruh angka di deck ikut "
@@ -1172,7 +1214,7 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 2.30, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.70, 3.90, 2.10,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Angka halaman 14 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
+     ("2. Angka halaman 15 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
      ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
