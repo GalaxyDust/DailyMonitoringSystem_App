@@ -511,28 +511,43 @@ caption(s, 8.72, 6.24, 3.80, "Tabel defect di papan: target dan hasil tiap shift
 # ================================================================ 3 · PAPAN DMS (FOTO ASLI)
 s = page("Papan DMS hari ini: empat pilar ditulis tangan setiap pagi",
          "Bagian 2 · kondisi hari ini",
-         note="Foto papan DMS B.U.E Factory 10, 3 November 2026 · satu papan dibagi empat pilar")
-photo(s, "docs/assets/papan/board_ep_full.jpg", 0.62, 1.30, 7.40, 5.02)
-caption(s, 0.62, 6.38, 7.40,
-        "Papan DMS B.U.E Factory 10 · Safety, Quality, Productivity, Delivery · diisi tangan per shift")
+         note="Foto papan DMS B.U.E Factory 10, 3 November 2026 · diisi tangan per shift")
 
-label(s, 8.24, 1.30, "ISI PAPAN DAN YANG DIBACA SISTEM", 4.5)
-pillars = [("Safety", "zero accident, SHE index, KAK terakhir", "SHE · 4.896 kasus", RED),
-           ("Quality", "defect per line, critical point, kontaminasi", "QC · 5.123 kasus", GOLD),
-           ("Productivity", "yield RM dan PM per line, OEE", "Prod · 7.182 kasus", NAVY),
-           ("Delivery", "plan vs real PO, achievement harian", "keterlambatan kasus", TEAL)]
-y = 1.58
-for name, body, count, col in pillars:
-    box(s, 8.24, y, 4.47, 0.98, fill=WHITE, line=RULE, radius=0.05)
-    box(s, 8.24, y, 0.06, 0.98, fill=col, line=None, radius=0.5)
-    txt(s, 8.44, y + 0.10, 4.10, 0.26, [(name.upper(), 11, True, col)])
-    txt(s, 8.44, y + 0.38, 4.10, 0.26, [(body, 9, None, GREY)], spacing=1.1)
-    txt(s, 8.44, y + 0.68, 4.10, 0.24, [(count, 9, True, NAVY)])
-    y += 1.06
+photo(s, "docs/assets/papan/board_ep_full.jpg", 0.62, 1.26, 6.16, 4.10)
+caption(s, 1.12, 5.40, 5.66,
+        "Satu papan, empat pilar: Safety, Quality, Productivity, Delivery")
 
-txt(s, 8.24, 5.90, 4.47, 0.90,
-    [("Empat pilar ini juga empat kelompok data di workbook. Yang ditulis tangan di papan "
-      "adalah yang nanti diisi sekali di form.", 9, None, INK)], spacing=1.22)
+box(s, 0.62, 5.66, 6.16, 1.08, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 0.80, 5.74, 5.80, 0.26,
+    [("Yang ditulis tangan tiap pagi", 9.5, True, NAVY)])
+txt(s, 0.80, 6.00, 5.80, 0.70,
+    [("Angka per line dan per shift disalin dari papan ke rekap, lalu dibahas di "
+      "rapat pagi pukul 08.30.", 9, None, GREY),
+     ("Alur kunjungan papan: Before → Observation → Documentation → After → Team orientation.",
+      9, None, GREY)], spacing=1.16)
+
+label(s, 7.02, 1.26, "EMPAT PILAR · FOTO POTONGAN PAPAN", 5.6)
+pillars = [("docs/assets/papan/tile_safety.jpg", "SAFETY",
+            "zero accident, SHE index, KAK terakhir", "SHE · 4.896 kasus", RED),
+           ("docs/assets/papan/tile_quality.jpg", "QUALITY",
+            "defect per line, critical point, kontaminasi", "QC · 5.123 kasus", GOLD),
+           ("docs/assets/papan/tile_prod.jpg", "PRODUCTIVITY",
+            "yield RM dan PM per line, OEE", "Prod · 7.182 kasus", NAVY),
+           ("docs/assets/papan/tile_delivery.jpg", "DELIVERY",
+            "plan vs real PO, achievement harian", "keterlambatan kasus", TEAL)]
+y = 1.50
+for path, name, body, count, col in pillars:
+    box(s, 7.02, y, 5.70, 1.06, fill=WHITE, line=RULE, radius=0.05)
+    photo(s, path, 7.12, y + 0.09, 1.30, 0.88, frame=False)
+    box(s, 7.02, y, 0.05, 1.06, fill=col, line=None, radius=0.5)
+    txt(s, 8.56, y + 0.10, 4.00, 0.22, [(name, 9.5, True, col)])
+    txt(s, 8.56, y + 0.34, 4.00, 0.34, [(body, 8.5, None, GREY)], spacing=1.08)
+    txt(s, 8.56, y + 0.74, 4.00, 0.22, [(count, 8.5, True, NAVY)])
+    y += 1.12
+
+txt(s, 7.02, 6.02, 5.70, 0.44,
+    [("Empat pilar ini juga empat kelompok data di workbook: yang ditulis tangan di papan "
+      "adalah yang nanti diisi sekali di form.", 9, None, INK)], spacing=1.18)
 
 
 # ================================================================ 3 · ALUR MANUAL VS SISTEM
