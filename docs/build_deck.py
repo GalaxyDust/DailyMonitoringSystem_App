@@ -5,8 +5,11 @@ Snack, Exist Plant, New Plant (angka dibaca dari docs/data_plants.json).
 
 slide 1 template -> cover · slide 2 template -> halaman isi · slide 3 template -> penutup
 
-Jalankan: python3 docs/analyze_workbook.py && python3 docs/build_deck.py
+Jalankan: python3 docs/analyze_workbook.py && python3 docs/make_mockups.py && python3 docs/build_deck.py
 Hasil  : docs/DMS_Digitalisasi_v1.pptx
+
+Template tidak disimpan di repo: taruh template_master.pptx di root sebelum build.
+Foto papan dan ilustrasi layar sudah tersimpan di docs/assets/ (papan, mockup).
 """
 import json
 
@@ -550,47 +553,6 @@ txt(s, 7.02, 6.02, 5.70, 0.44,
       "adalah yang nanti diisi sekali di form.", 9, None, INK)], spacing=1.18)
 
 
-# ================================================================ 3b · KUNJUNGAN PAPAN DAIRY
-s = page("Kunjungan papan: empat tahap, semua masih tangan",
-         "Bagian 2 · kondisi hari ini",
-         note="Foto kunjungan papan DMS Dairy, 5 November 2026 · dokumentasi diambil dari ponsel dan dicatat manual")
-
-label(s, 0.62, 1.24, "URUTAN KUNJUNGAN PAPAN · DMS DAIRY", 6.2)
-visit = [("docs/assets/papan/dairy_1.jpg", "Before",
-          "tim berkumpul di depan papan sebelum shift"),
-         ("docs/assets/papan/dairy_2.jpg", "Observation",
-          "papan dibaca baris per baris, dicocokkan dengan angka shift"),
-         ("docs/assets/papan/dairy_3.jpg", "Documentation",
-          "temuan difoto dan ditulis tangan di lembar kunjungan"),
-         ("docs/assets/papan/dairy_4.jpg", "After & orientasi",
-          "temuan dibahas bersama tim line, tindak lanjut dicatat")]
-x = 0.62
-for path, name, body in visit:
-    box(s, x, 1.52, 2.95, 2.82, fill=WHITE, line=RULE, radius=0.05)
-    photo(s, path, x + 0.10, 1.62, 2.75, 1.90, frame=False)
-    box(s, x, 1.52, 2.95, 0.05, fill=TEAL, line=None, radius=None)
-    txt(s, x + 0.16, 3.62, 2.64, 0.24, [(name.upper(), 10, True, TEAL)])
-    txt(s, x + 0.16, 3.90, 2.64, 0.60, [(body, 9, None, GREY)], spacing=1.18)
-    x += 3.04
-
-label(s, 0.62, 4.68, "YANG MASIH DIKERJAKAN TANGAN SAAT KUNJUNGAN", 12.0)
-manual = [("Mencocokkan angka", "angka papan dicocokkan manual ke rekap shift", NAVY),
-          ("Memotret papan", "foto disimpan di ponsel, tidak menempel pada kasus", GOLD),
-          ("Menulis temuan", "lembar kunjungan diisi tangan, lalu disalin lagi", GOLD),
-          ("Menagih tindak lanjut", "status hanya diketahui dari kunjungan berikutnya", RED)]
-x = 0.62
-for head_, body, col in manual:
-    box(s, x, 4.96, 2.95, 1.10, fill=SOFT, line=RULE, radius=0.05)
-    box(s, x, 4.96, 0.06, 1.10, fill=col, line=None, radius=0.5)
-    txt(s, x + 0.18, 5.06, 2.60, 0.26, [(head_, 9.5, True, col)])
-    txt(s, x + 0.18, 5.36, 2.60, 0.62, [(body, 9, None, GREY)], spacing=1.16)
-    x += 3.04
-
-txt(s, 0.82, 6.24, 11.80, 0.26,
-    [("Sistem menggantikan empat pekerjaan itu: temuan langsung menjadi kartu dengan pemilik, "
-      "foto bukti, dan tenggat.", 9.5, True, NAVY)])
-
-
 # ================================================================ 4 · ALUR MANUAL VS SISTEM
 s = page("Alur kerja berubah: dari lima langkah tangan ke satu input",
          "Bagian 2 · diagram alir",
@@ -647,6 +609,89 @@ for head_, body, col in gains:
 txt(s, 1.10, 6.38, 11.50, 0.50,
     [("Yang tidak berubah  ·  keputusan tetap di manusia: plant head menetapkan prioritas, "
       "DH menyetujui penutupan kasus, Admin menetapkan target plant.", 9.5, None, GREY)], spacing=1.2)
+
+
+# ================================================================ 4 · ILUSTRASI LAYAR (4 halaman)
+def shot(slide, path, x, y, title, sub, col, maxw=7.05, maxh=4.26):
+    """Ilustrasi layar besar: gambar mockup dipaskan ke kotak, keterangan di bawah."""
+    from PIL import Image as _I
+    iw, ih = _I.open(path).size
+    ar = iw / ih
+    w = maxw if maxw / maxh <= ar else maxh * ar
+    h = w / ar
+    px = x + 0.12 + (maxw - w) / 2
+    cw = maxw + 0.24
+    ch = 0.68 + h + 0.30
+    box(slide, x, y, cw, maxh + 0.98, fill=WHITE, line=RULE, radius=0.05)
+    hline(slide, x + 0.01, y, cw - 0.02, col, 0.05)
+    txt(slide, x + 0.20, y + 0.14, cw - 0.34, 0.26, [(title, 10.5, True, NAVY)])
+    txt(slide, x + 0.20, y + 0.40, cw - 0.34, 0.22, [(sub, 9, None, GREY)])
+    slide.shapes.add_picture(path, Inches(px), Inches(y + 0.68), Inches(w), Inches(h))
+    txt(slide, x + 0.20, y + maxh + 0.72, cw - 0.34, 0.20,
+        [("Ilustrasi rancangan layar · bukan tangkapan aplikasi asli", 8, None, LGREY)])
+
+
+def sides(slide, x, y, w, items, head="APA YANG TERLIHAT DI LAYAR"):
+    txt(slide, x, y, w, 0.26, [(head, 10, True, GOLD)])
+    yy = y + 0.28
+    for head_, body, col in items:
+        box(slide, x, yy, w, 1.16, fill=SOFT, line=RULE, radius=0.05)
+        box(slide, x, yy, 0.06, 1.16, fill=col, line=None, radius=0.5)
+        txt(slide, x + 0.20, yy + 0.12, w - 0.40, 0.26, [(head_, 10, True, col)])
+        txt(slide, x + 0.20, yy + 0.42, w - 0.40, 0.66, [(body, 9, None, GREY)], spacing=1.16)
+        yy += 1.28
+
+
+s = page("Ilustrasi layar 1: form harian di tablet line",
+         "Bagian 3 · ilustrasi sistem",
+         note="Angka contoh di layar memakai ukuran workbook Snack · line 9 · 96,9% kasus ada di line ini")
+shot(s, "docs/assets/mockup/form.png", 0.62, 1.46,
+     "FORM HARIAN · TABLET DI LINE · SNACK LINE 9",
+     "satu layar per shift: item checklist, target, hasil, status, sebab", NAVY)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Satu isian per item", "Leader hanya mengisi hasil; target sudah menempel pada item checklist.", NAVY),
+    ("Sebab tidak bisa kosong", "Bila hasil di bawah target, kolom sebab dan tindakan wajib diisi.", RED),
+    ("Selesai di bawah lima menit", "12 dari 15 item, sisa waktu tampil di layar; draf tersimpan otomatis.", TEAL),
+    ("Kirim sekali, langsung tayang", "Satu tombol: angka masuk dasbor dan layar lantai, tanpa salin ulang.", GOLD)])
+
+
+s = page("Ilustrasi layar 2: layar lantai TV tanpa login",
+         "Bagian 3 · ilustrasi sistem",
+         note="TV membaca catatan yang sama dengan form harian dan dasbor · kartu tertua tampil paling atas")
+shot(s, "docs/assets/mockup/tv.png", 0.62, 1.46,
+     "LAYAR LANTAI · TV AREA PRODUKSI · EXIST PLANT",
+     "tanpa interaksi, berganti tiap 30 detik, dibaca dari jauh", TEAL)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Tiga kartu per layar", "Kartu paling mendesak di atas; sisanya diputar bergiliran tiap 30 detik.", TEAL),
+    ("Angka pemicu ikut tampil", "Umur kasus, jumlah berulang, dan porsi kasus terlihat tanpa membuka dasbor.", RED),
+    ("Dibaca dari jauh", "Huruf besar, satu warna per status; tidak perlu login dan tidak bisa diubah.", GOLD),
+    ("Tidak pernah hilang", "Kartu tetap tampil sampai kasus ditutup, bukan sekali lalu lewat.", NAVY)])
+
+
+s = page("Ilustrasi layar 3: dasbor tiga tingkat di laptop",
+         "Bagian 3 · ilustrasi sistem",
+         note="L1 memantau hari ini, L2 menutup kasus, L3 membandingkan plant · satu angka untuk semua")
+shot(s, "docs/assets/mockup/dasbor.png", 0.62, 1.46,
+     "DASBOR L2 · SUPERVISOR · LINE 9",
+     "kartu angka, tren pilar, temuan terbuka, dan daftar lewat tenggat", NAVY)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Empat angka harian", "Kasus hari ini, close lengkap, lewat tenggat, pola berulang.", NAVY),
+    ("Temuan sudah berperingkat", "Sistem yang memilih tiga temuan teratas, bukan orang yang mencari.", TEAL),
+    ("Daftar kerja, bukan laporan", "Setiap baris membawa sebab, PIC, dan sisa hari sebelum tenggat.", RED),
+    ("Tinggal pilih tingkat", "L1 hari ini, L2 kasus, L3 antar plant dan antar line.", GOLD)])
+
+
+s = page("Ilustrasi layar 4: halaman admin penjaga aturan",
+         "Bagian 3 · ilustrasi sistem",
+         note="Hanya Admin yang mengubah target, layar TV, dan kunci periode · semua perubahan masuk jejak audit")
+shot(s, "docs/assets/mockup/admin.png", 0.62, 1.46,
+     "HALAMAN ADMIN · ADMIN PLANT SNACK",
+     "target per versi, layar TV aktif, kunci periode, jejak audit", GOLD)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Target per plant, per versi", "Target dan bobot KPI disimpan sebagai versi; periode lama tidak berubah.", GOLD),
+    ("Layar TV dikelola dari sini", "Admin memilih line dan pilar yang tampil di tiap TV, tanpa menyalakan ulang.", TEAL),
+    ("Periode dikunci", "Periode yang sudah dilaporkan tidak bisa diubah; koreksi dicatat versi baru.", RED),
+    ("Jejak audit terbaca", "Siapa, kapan, dan nilai sebelum–sesudah tersimpan untuk pemeriksaan.", NAVY)])
 
 
 # ================================================================ 4 · TABEL AMBIL ALIH
@@ -888,7 +933,7 @@ txt(s, 9.28, 4.32, 3.18, 0.84,
 
 # ================================================================ 7 · SATU SUMBER ANGKA
 s = page("Satu catatan dipakai semua layar, tanpa rekap ulang",
-         "Bagian 3 · peran sistem",
+         "Bagian 5 · peran sistem",
          note="Dibandingkan: angka ringkasan di dalam sheet versus jumlah baris kasus")
 label(s, 0.62, 1.26, "ANGKA RINGKASAN SHEET VS BARIS KASUS", 6.6)
 chart(s, 0.52, 1.42, 7.10, 3.16,
@@ -937,7 +982,7 @@ for head_, body, col in pola:
 
 # ================================================================ 8 · MUTU DATA
 s = page("Data yang belum lengkap ditandai sistem, bukan dicari manual",
-         "Bagian 3 · data",
+         "Bagian 4 · data",
          note="Sumber: Resume SHE, QC, Prod pada tiga workbook; downtime dari kolom DT (min)")
 label(s, 0.62, 1.26, "SEBAB TERISI PER SHEET DAN PLANT (%)", 7.0)
 chart(s, 0.52, 1.44, 7.30, 2.64,
@@ -976,7 +1021,7 @@ for v, body, col in findings:
 
 # ================================================================ 9 · INSIGHT
 s = page("Sistem memilih temuan dan mengingatkan pemiliknya",
-         "Bagian 4 · peran sistem",
+         "Bagian 5 · peran sistem",
          note="Setiap temuan membawa bukti, sebab, dampak, rekomendasi, dan pemilik")
 table(s, [
     ["Kode", "Yang dipantau sistem", "Contoh keluaran (tiga workbook)", "Kanal"],
@@ -1021,7 +1066,7 @@ txt(s, 9.28, 4.06, 3.24, 1.74,
 
 
 # ================================================================ 10 · KANAL
-s = page("Empat kanal tampilan dan batasannya", "Bagian 5 · tampilan",
+s = page("Empat kanal tampilan dan batasannya", "Bagian 6 · tampilan",
          note="Mockup layar adalah ilustrasi rancangan; tangkapan aplikasi asli menyusul saat dibangun")
 cards = [("Form harian", "Leader & DH", "satu layar, di bawah 5 menit",
           "Isi harian per line: item checklist, status, sebab bila di bawah target.", NAVY),
@@ -1082,7 +1127,7 @@ for head_, body in notes:
 
 # ================================================================ 11 · RENCANA
 s = page("Rencana 8 pekan: rapikan data dulu, tampilan terakhir",
-         "Bagian 5 · rencana",
+         "Bagian 7 · rencana",
          note="Mulai Snack, lalu Exist Plant dan New Plant; Dairy menyusul dengan pola yang sama")
 
 phases = [("0 · Fondasi", 1, 2, "master line & mesin, hak akses", NAVY),
@@ -1123,7 +1168,7 @@ table(s, [
 
 # ================================================================ 12 · ALUR WAKTU
 s = page("Alur waktu: empat gerbang sebelum sistem dipakai semua plant",
-         "Bagian 5 · rencana",
+         "Bagian 7 · rencana",
          note="Gerbang diperiksa bersama plant head; bila tidak lulus, pekan berikutnya dipakai untuk memperbaiki")
 
 label(s, 0.62, 1.22, "ENAM TAHAP PENGERJAAN", 6.0)
@@ -1185,7 +1230,7 @@ txt(s, 1.32, 5.86, 11.20, 0.52,
 
 # ================================================================ 13 · ALUR PENYEBARAN
 s = page("Alur penyebaran: satu plant jadi contoh, tiga plant menyusul",
-         "Bagian 5 · rencana",
+         "Bagian 7 · rencana",
          note="Urutan ini mengikuti kesiapan data: Snack paling rapi, Dairy menyusul terakhir")
 
 label(s, 0.62, 1.24, "URUTAN PENYEBARAN", 6.0)
@@ -1245,7 +1290,7 @@ txt(s, 5.00, 5.84, 7.50, 0.22,
 
 # ================================================================ 14 · CONTOH DATA
 s = page("Potongan data yang dipakai di deck, semuanya dari tiga workbook",
-         "Bagian 5 · data",
+         "Bagian 7 · data",
          note="Angka diambil langsung dari workbook Snack, Exist Plant, New Plant; tidak ada contoh yang dikarang")
 
 # panel kiri · ringkasan vs isi tabel
@@ -1289,8 +1334,8 @@ cards_d = [("Contoh, bukan angka baru",
             "Semua potongan di halaman ini dan di sepanjang deck berasal dari tiga workbook; "
             "angka lain tidak dipakai.", NAVY),
            ("Foto asli sudah dipakai",
-            "Papan DMS di halaman 3, kunjungan Dairy di halaman 4, potongan tabel defect di "
-            "halaman 2, dan papan PICA di halaman 9 memakai foto asli "
+            "Papan DMS di halaman 3, potongan tabel defect di halaman 2, dan papan PICA di "
+            "halaman 12 memakai foto asli "
             "Factory 10, bukan gambar contoh.", TEAL),
            ("Cara memperbarui",
             "Jalankan analyze_workbook.py lalu build_deck.py; seluruh angka di deck ikut "
@@ -1339,7 +1384,7 @@ label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 2.30, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.70, 3.90, 2.10,
     [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
-     ("2. Angka halaman 17 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
+     ("2. Angka halaman 20 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),
      ("5. Hasil keputusan dicatat pada berita acara dan disosialisasikan ke tiap plant.",
