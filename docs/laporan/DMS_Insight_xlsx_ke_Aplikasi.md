@@ -118,7 +118,7 @@ Kelima hal ini yang membuat aplikasi bernilai lebih daripada workbook — bukan 
 
 Angka di bagian ini yang dipakai deck `DMS_Digitalisasi_v1.pptx` versi terbaru.
 Definisi baris kasus: satu baris pada tabel kasus yang punya tanggal valid (dihitung ulang dengan
-`docs/analyze_workbook.py`, hasil mentah di `docs/data_plants.json`).
+`docs/scripts/analyze_workbook.py`, hasil mentah di `docs/data/data_plants.json`).
 
 ### 8.1 Volume per plant dan per sheet
 
@@ -168,7 +168,7 @@ dari jumlah baris kasus. Kesimpulan untuk aplikasi: **hitung dari baris kasus, j
 | Snack | Satu line mendominasi | Line 9 = 96,9% kasus Produksi (3.014) |
 | Exist Plant | Satu line + satu LBN mendominasi QC | WS L02 535 kasus; WS L04 P02 BCT 134× |
 | New Plant | Pola terkonsentrasi di dua line | WS L11 615 kasus QC (48,6%) |
-| Exist Plant | Kolom PIC berisi tautan foto | Puluhan sel berisi URL SharePoint, bukan nama PIC |
+| Exist Plant | Kolom PIC berisi tautan foto | 831 sel Resume SHE berisi URL SharePoint, bukan nama PIC |
 | Exist Plant | DMS Index satu blok 0,6 | Blok lain 3,0 → indikasi salah input |
 | Semua | Prioritas tidak membedakan | High = 100% kasus |
 | Semua | Healthy Check konstan | 0,80 di semua blok → kontribusi tetap 0,6 |

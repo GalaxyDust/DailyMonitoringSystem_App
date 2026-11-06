@@ -71,7 +71,7 @@ Kalau ada aturan yang bertentangan, yang menang adalah nomor yang lebih kecil di
 | Kemampuan | Leader | Petugas Divisi | Supervisor | DH | Kepala Divisi | Plant Head | Admin | Auditor | TV |
 |---|---|---|---|---|---|---|---|---|---|
 | Isi catatan papan divisi sendiri | ✅ line sendiri | ✅ wilayahnya | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Isi catatan papan divisi lain | ❌ | ❌ | ✅ koreksi | ✅ koreksi | ✅ koreksi | ❌ | ✅ | ❌ | ❌ |
+| Isi catatan papan divisi lain | ⚠️ hanya item bertanda "boleh diisi leader" (R-13) | ❌ | ✅ koreksi | ✅ koreksi | ✅ koreksi | ❌ | ✅ | ❌ | ❌ |
 | Ketuk absensi | ✅ shift berjalan | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ shift berjalan |
 | Buka kasus | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
 | Isi sebab & tindakan kasus | ✅ miliknya | ✅ miliknya | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
@@ -187,6 +187,8 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 - **R-35 · WAJIB — setiap ketukan tercatat**: waktu, perangkat, dan (bila login) nama pengguna.
   Tersedia **Urungkan 2 menit** untuk salah ketuk.
 - **R-36 · BAKU — absensi menutup otomatis** pada cut-off shift; setelah itu hanya Supervisor/DH/Admin.
+  Shift yang tidak pernah dikonfirmasi sampai cut-off ditandai **"belum dikonfirmasi"** — tidak
+  dianggap hadir semua; penjelas output (R-37) hanya memakai absensi terkonfirmasi.
 - **R-37 · BAKU — absensi menjadi penjelas otomatis:** bila output di bawah target, sistem menampilkan
   jumlah hadir/total di samping angka output pada TV dan dasbor. Tidak perlu menulis sebab "orang kurang"
   secara manual — tetapi alasannya tetap bisa ditambahkan bila penyebabnya lain.
@@ -202,12 +204,13 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 | Status | Siapa yang boleh ubah | Kapan | Syarat |
 |---|---|---|---|
 | **Draf** | Leader / petugas divisi pemilik | selama shift + 30 menit | bebas, otomatis tercatat |
-| **Terkunci** | Supervisor, DH, Kepala Divisi | sampai rapat pagi hari kerja berikutnya (BAKU 10.00) | wajib **alasan koreksi**; nilai lama tetap tersimpan |
+| **Terkunci** | Supervisor, DH, Kepala Divisi | sampai rapat pagi hari kerja berikutnya (BAKU 08.30, mengikuti jam rapat plant — deck hal. 3) | wajib **alasan koreksi**; nilai lama tetap tersimpan |
 | **Arsip** | Admin Plant | setelah periode dikunci | koreksi menjadi **versi baru**, bukan menimpa |
 
 - **R-40 · WAJIB — koreksi tidak pernah menghapus nilai lama.** Riwayat: nilai, siapa, kapan, alasan.
 - **R-41 · WAJIB — angka yang dikoreksi di atas ambang** (BAKU: perubahan > 5% atau mengubah status
-  close) harus disetujui satu tingkat di atas pengoreksi.
+  close) harus disetujui satu tingkat di atas pengoreksi. Untuk item **biner/pilihan/status**,
+  setiap perubahan nilai dianggap "besar" (ambang 5% hanya berlaku untuk item angka).
 - **R-42 · WAJIB — periode dikunci** setelah laporan bulanan disahkan. Periode terkunci hanya bisa
   dibuka Admin Plant dengan alasan, dan pembukaan tercatat di jejak audit.
 - **R-43 · WAJIB — sengketa angka saat rapat** diselesaikan dengan urutan: bukti (foto/work order) →
@@ -225,12 +228,19 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 - **R-46 · WAJIB — setiap kasus punya tenggat** yang dihitung sistem dari tingkat dampak, bukan
   diketik tangan. Tingkat dampak: **A** (lini berhenti / keselamatan) · **B** (mutu/hold) ·
   **C** (administratif). Tenggat awal BAKU: A = 1 hari kerja, B = 3 hari kerja, C = 5 hari kerja.
-- **R-47 · WAJIB — kasus lewat tenggat naik otomatis**: L1 (line) → L2 (supervisor/DH) → L3 (plant head).
-  Naik satu tingkat setiap 2 hari kerja keterlambatan.
-- **R-48 · WAJIB — berulang dihitung sistem**: kejadian dengan sebab/kategori sama ≥ 3 kali dalam
-  BAKU 90 hari pada line/plant yang sama menjadi **temuan berulang** dan wajib punya
-  tindakan pencegahan, bukan hanya perbaikan.
+  Tingkat dampak **ditetapkan otomatis dari jenis item/kejadian** (pemetaan di konfigurasi Admin);
+  pengisi boleh mengusulkan naik, penurunan hanya oleh Supervisor ke atas dengan alasan.
+- **R-47 · WAJIB — kasus lewat tenggat naik otomatis**: saat tenggat lewat, kasus langsung naik
+  ke **L2** (supervisor/DH); setiap **2 hari kerja** keterlambatan berikutnya naik satu tingkat:
+  **L3** (plant head) pada hari ke-2, masuk **laporan Group** pada hari ke-4. Kartu eskalasi
+  tampil di TV area terkait dan dasbor tingkatnya.
+- **R-48 · WAJIB — berulang dihitung sistem**: kejadian dengan **signature** sama ≥ 3 kali dalam
+  BAKU 90 hari menjadi **temuan berulang** dan wajib punya tindakan pencegahan, bukan hanya
+  perbaikan. Signature = **(line, mesin/LBN, kategori sebab)** — sama dengan pemicu I-03;
+  teks problem bebas tidak dipakai sebagai kunci.
 - **R-49 · WAJIB — penutupan butuh persetujuan** satu tingkat di atas pengaju (R-09).
+  Bila pengaju adalah **Plant Head**, penyetuju adalah **Admin Group**; bila pengaju Admin Plant
+  satu-satunya, penyetuju adalah Plant Head. Tidak ada peran yang menyetujui pengajuannya sendiri.
 - **R-50 · BAKU — kasus tanpa aktivitas 14 hari** ditandai "dingin" dan dipertanyakan pada rapat
   berikutnya; bukan langsung ditutup.
 
@@ -302,13 +312,15 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 - **R-71 · BAKU — skor proses dan skor hasil dipisah.** Proses = kelengkapan dan ketepatan waktu
   pengisian; hasil = pencapaian target pilar. Keduanya dilaporkan berdampingan, tidak digabung
   menjadi satu angka yang menutupi masalah.
-- **R-72 · BAKU — hari wajib Senin–Jumat** dikurangi kalender libur; hari tanpa kewajiban tidak
-  dihitung.
+- **R-72 · BAKU — perhitungan memakai hari wajib R-05** (Senin–Jumat dikurangi kalender libur);
+  hari tanpa kewajiban tidak dihitung. Definisi hari wajib ada di R-05 dan tidak ganda di sini.
 - **R-73 · BAKU — status N/A** dipakai bila item memang tidak berlaku untuk line tersebut (mis. line
   tanpa proses tertentu), dan N/A tidak dihitung sebagai tidak tercapai.
 - **R-74 · WAJIB — angka yang dipakai rapat dan KPI berasal dari catatan**, bukan dari rekap manual.
 - **R-75 · SARAN — angka impor historis** (17.201 kasus dari tiga workbook) masuk sebagai arsip
   bertanda "historis" agar bisa dibandingkan, tanpa mencampur mutu datanya dengan data baru.
+  Kasus historis **tidak memicu kartu TV, eskalasi, atau temuan I-02**; ia masuk laporan
+  kualitas-data terpisah dan program pembersihan bertahap dengan PIC.
 
 ---
 
@@ -316,8 +328,10 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 - **R-76 · BAKU — urutan replikasi:** Snack (pilot 8 pekan) → Exist Plant (4 pekan) → New Plant
   (4 pekan) → Dairy (4 pekan).
-- **R-77 · WAJIB — gerbang sebelum replikasi:** data master bersih · angka sistem = jumlah baris ·
-  aturan jalan satu periode penuh · lima ukuran keberhasilan terpenuhi di pilot.
+- **R-77 · WAJIB — gerbang sebelum replikasi:** data master bersih · angka sistem cocok dengan
+  workbook atau selisihnya terjelaskan penuh dalam laporan rekonsiliasi · aturan jalan satu
+  periode penuh · **lima ukuran keberhasilan** (rancangan/01 §4.2: hari terisi, sebab lengkap,
+  tenggat tercatat, kasus lewat tenggat, pola berulang) terpenuhi di pilot.
 - **R-78 · BAKU — yang dibawa saat replikasi:** master line & mesin, template item dan target (versi
   baru per plant), aturan insight, profil TV.
 - **R-79 · WAJIB — yang tetap lokal:** target plant, kalender libur, daftar nama & regu, PIC dan
@@ -340,15 +354,28 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 ---
 
-## 14. Yang masih perlu diputuskan
+## 14. Status keputusan
 
-| No | Pertanyaan | Pilihan |
+**Tiga keputusan diminta pada rapat persetujuan** (sama dengan deck hal. 24). Sampai rapat
+memutuskan, nilai BAKU di aturan tetap berlaku; bila rapat memilih lain, aturan direvisi
+sebagai versi baru (R-53).
+
+| No | Pertanyaan | Pilihan | Nilai berlaku sekarang |
+|---|---|---|---|
+| 1 | Cut-off edit leader | 30 menit · 60 menit · sampai akhir shift | 30 menit (R-26) |
+| 2 | Ambang downtime jadi kasus Teknik | 30 menit · 60 menit · per mesin | 30 menit (R-17) |
+| 3 | Sumber nama absensi | Admin ketik · impor Excel · tarik dari mesin absensi | impor Excel dianjurkan (R-31) |
+
+**Sudah diputuskan** (tidak dibuka lagi):
+
+| Pertanyaan | Keputusan | Rujukan |
 |---|---|---|
-| 1 | Daftar divisi final | 4 pilar saja · 4 + Teknik · + Food Safety/Maintenance lain |
-| 2 | Cut-off edit leader | 30 menit · 60 menit · sampai akhir shift |
-| 3 | Koreksi angka dari TV | tidak (R-58) · mode PIN leader fase 2 |
-| 4 | Absensi | per line · per divisi untuk divisi lintas line |
-| 5 | Status absensi | hadir/sakit/izin/alpa · + terlambat · + dinas luar |
-| 6 | Sumber nama | Admin ketik · impor Excel · tarik dari mesin absensi |
-| 7 | Ambang downtime jadi kasus Teknik | 30 menit · 60 menit · per mesin |
-| 8 | Item checklist | ditetapkan sekarang dari papan Factory 10 · diisi bertahap Admin |
+| Daftar divisi final | 5 divisi: SHE, Quality, Produksi, Delivery, Teknik | §3, R-11 |
+| Koreksi angka dari TV | Tidak; TV hanya tampil + absensi | R-58, R-10 |
+| Absensi per line vs per divisi | Default per line; divisi lintas line boleh daftar terpisah atas tanda Admin | R-39 |
+| Status absensi | hadir · sakit · izin · alpa · terlambat · dinas luar | R-32, rancangan/03 §2 |
+| Item checklist | Ditetapkan dari papan Factory 10, dilengkapi bertahap oleh Admin | §8.1 |
+| Retensi | Kasus & catatan ≥ 5 tahun; foto mengikuti kasusnya | rancangan/02 §7 |
+| Kalender libur | Master tahunan per plant, dipelihara Admin | R-05 |
+| N/A item | Dari konfigurasi item per line, bukan diketik saat mengisi | R-73 |
+| Impor historis | Masuk berflag historis; tidak ke TV/eskalasi | R-75 |

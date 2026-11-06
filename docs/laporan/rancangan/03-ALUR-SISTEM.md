@@ -254,19 +254,21 @@ flowchart LR
     A["Kasus dibuat"] --> B["Tenggat dihitung sistem<br/>A=1 hari · B=3 hari · C=5 hari kerja"]
     B --> C{"Lewat tenggat?"}
     C -- tidak --> D["Dikerjakan normal"]
-    C -- ya --> E["Naik L2: supervisor / DH"]
-    E --> F{"2 hari kerja<br/>masih lewat?"}
+    C -- ya --> E["Hari ke-0 lewat:<br/>naik L2 supervisor / DH"]
+    E --> F{"Hari ke-2 kerja<br/>masih lewat?"}
     F -- ya --> G["Naik L3: plant head"]
     F -- tidak --> D
-    G --> H["Masuk laporan Group<br/>+ prioritas rapat"]
+    G --> H{"Hari ke-4 kerja<br/>masih lewat?"}
+    H -- ya --> I2["Masuk laporan Group<br/>+ prioritas rapat"]
+    H -- tidak --> D
     D --> I["Ditutup dengan bukti"]
-    H --> I
+    I2 --> I
 ```
 
 | Aturan | Isi |
 |---|---|
 | R-46 | tenggat dihitung dari dampak, bukan diketik |
-| R-47 | naik satu tingkat tiap 2 hari kerja keterlambatan |
+| R-47 | lewat tenggat → L2 hari ke-0 · L3 hari ke-2 · laporan Group hari ke-4 (hari kerja) |
 | R-50 | tanpa aktivitas 14 hari → ditandai "dingin", ditanyakan di rapat (bukan ditutup) |
 
 Kartu di TV selalu menampilkan **umur kasus** dan **tingkat eskalasi** supaya tidak menunggu rapat.
@@ -326,7 +328,7 @@ TV tahan gangguan:
 | Jaringan putus | tampilkan snapshot terakhir + jam pembaruan |
 | Pilar belum diisi | sel abu-abu "belum diisi", bukan kosong |
 | Jaringan pulih | ambil snapshot baru, tanpa perlu restart |
-| Absensi | tetap bisa diketuk (terkirim saat jaringan kembali) |
+| Absensi | tetap bisa diketuk (terkirim saat jaringan kembali); ketukan yang tiba setelah cut-off masuk sebagai usulan koreksi ke Supervisor, bukan menimpa langsung |
 
 ---
 
@@ -336,9 +338,9 @@ TV tahan gangguan:
 flowchart LR
     A["Snack<br/>pilot 8 pekan"] --> G1{{"G4 siap<br/>replikasi"}}
     G1 --> B["Exist Plant<br/>4 pekan"]
-    B --> G2{{"uji<br/>4 ukuran"}}
+    B --> G2{{"uji<br/>5 ukuran"}}
     G2 --> C["New Plant<br/>4 pekan"]
-    C --> G3{{"uji<br/>4 ukuran"}}
+    C --> G3{{"uji<br/>5 ukuran"}}
     G3 --> D["Dairy<br/>4 pekan"]
     G1 -.gagal.-> A
     G2 -.gagal.-> B
@@ -380,7 +382,7 @@ Total: 8 + 4 + 4 + 4 = **20 pekan**.
 | 4 | Kasus downtime 48 menit dicatat Produksi | work order Teknik otomatis muncul dengan tenggat |
 | 5 | Kasus ditutup tanpa bukti | tombol nonaktif, pesan jelas |
 | 6 | Kasus berulang ke-3 dalam 90 hari | wajib PICA sebelum boleh ditutup |
-| 7 | Kasus lewat tenggat 2 hari | naik ke L2, muncul di dasbor supervisor |
+| 7 | Kasus lewat tenggat 2 hari kerja | sudah di L3 (plant head) sejak hari ke-2; L2 sejak hari ke-0; muncul di dasbor tingkatnya |
 | 8 | TV dimatikan saat jaringan putus | tetap menampilkan papan terakhir + jam |
 | 9 | Absensi diketuk di TV lalu dibuka di form | status sama, tidak ada duplikat |
 | 10 | Laporan Oktober dibuka setelah dikunci | hanya Admin, dengan alasan, versi baru |

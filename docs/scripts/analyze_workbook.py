@@ -2,8 +2,8 @@
 """Analisis tiga workbook DMS (Snack, Exist Plant, New Plant) dengan definisi sama.
 
 Definisi baris kasus: baris pada tabel kasus yang punya tanggal valid.
-Keluaran: docs/data_plants.json + ringkasan stdout.
-Jalankan: python3 docs/analyze_workbook.py
+Keluaran: docs/data/data_plants.json + ringkasan stdout.
+Jalankan: python3 docs/scripts/analyze_workbook.py
 """
 import json
 import re
@@ -205,7 +205,11 @@ def analyse_bulanan(wb):
 
 
 def jumlah_line(wb):
-    """Jumlah nama line unik (setelah normalisasi) pada sheet QC dan Prod."""
+    """Jumlah entitas unik gabungan kolom Line + LBN Name (setelah normalisasi) pada QC dan Prod.
+
+    Catatan: ini bukan jumlah line fisik. Angka 20/59/45 mengikuti deck dan perlu
+    divalidasi ke layout plant sebelum memodelkan entitas line / papan TV (R-59).
+    """
     names = set()
     for sheet in ("Resume QC", "Resume Prod"):
         if sheet not in wb.sheetnames:
@@ -275,6 +279,6 @@ result["_total"] = grand
 print("bulan terakhir:", list(bulan_total.items())[-6:])
 print("TOTAL", grand)
 
-with open("docs/data_plants.json", "w", encoding="utf-8") as f:
+with open("docs/data/data_plants.json", "w", encoding="utf-8") as f:
     json.dump(result, f, indent=1, ensure_ascii=False, default=str)
-print("saved docs/data_plants.json")
+print("saved docs/data/data_plants.json")

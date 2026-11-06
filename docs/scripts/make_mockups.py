@@ -12,7 +12,7 @@ Semua digambar 1600x1000 dengan satu sistem desain: warna template
   docs/assets/mockup/kasus.png     detail kasus + PICA
   docs/assets/mockup/laporan.png   laporan & skor KPI
 
-Jalankan: python3 docs/make_mockups.py
+Jalankan: python3 docs/scripts/make_mockups.py
 """
 import os
 
@@ -373,78 +373,169 @@ def form():
 
 
 # ------------------------------------------------------------------ papan
-def board(d, x, y, w, h, scale=1.0, cell=46, vf=13, shifts=("S1", "S2", "S3")):
-    pillars = [
-        ("SAFETY", RED,
-         [("zero accident", "0", "0", "0"), ("near miss", "1", "0", "2"),
-          ("temuan KAK", "3", "1", "2"), ("tindakan buka", "2", "2", "1")]),
-        ("QUALITY", GOLD,
-         [("defect visual %", "0,9", "0,5", "0,6"), ("critical point", "1", "0", "0"),
-          ("hold / release", "2", "1", "0"), ("kalibrasi alat", "ok", "ok", "ok")]),
-        ("PRODUCTIVITY", NAVY,
-         [("output shift", "8.120", "8.360", "8.400"), ("downtime (mnt)", "48", "22", "15"),
-          ("checklist A/B", "ok", "ok", "ok"), ("OEE %", "78", "81", "84")]),
-        ("DELIVERY", TEAL,
-         [("plan vs real PO", "6/6", "5/6", "6/6"), ("keterlambatan", "1", "0", "0"),
-          ("kesiapan muat", "ok", "ok", "ok"), ("retur kirim", "0", "0", "0")]),
+# Palet papan tulis (whiteboard) — meniru papan DMS fisik B.U.E Factory 10.
+WB_BG = (0xFB, 0xFB, 0xF5)      # putih papan
+WB_EDGE = (0xB7, 0xB2, 0xA4)    # bingkai aluminium
+WB_GRID = (0x90, 0x90, 0x88)    # garis grid tipis
+WB_HEAD = (0xF2, 0xF0, 0xE7)    # kepala kolom tabel
+MARK_BLUE = (0x1C, 0x3E, 0x8A)  # spidol biru
+MARK_RED = (0xC2, 0x2A, 0x26)   # spidol merah
+MARK_DARK = (0x2B, 0x2B, 0x28)  # spidol hitam
+FKB = "docs/assets/fonts/Kalam-Bold.ttf"
+FKR = "docs/assets/fonts/Kalam-Regular.ttf"
+
+
+def fk(size, bold=True):
+    return ImageFont.truetype(FKB if bold else FKR, max(int(size), 6))
+
+
+def hw(d, xy, s, size=18, color=MARK_BLUE, bold=True, anchor="mm"):
+    d.text(xy, s, font=fk(size, bold), fill=color, anchor=anchor)
+
+
+# Warna kepala pilar sesuai papan asli (Safety merah, Quality kuning, dst.)
+P_SAFETY = (0xB0, 0x2F, 0x2F)
+P_QUALITY = (0xD7, 0xB3, 0x2A)
+P_PROD = (0xA6, 0x2E, 0x2E)
+P_DELIV = (0x2E, 0x7D, 0x46)
+P_TECH = (0x2A, 0x5C, 0xA0)
+
+
+def mark_color(st):
+    return {0: MARK_BLUE, 1: MARK_RED, 2: MARK_RED, 3: (0xA9, 0xA9, 0xA2)}[st]
+
+
+def board_columns():
+    """Isi tiap pilar papan: (nama, warna kepala, warna teks, subjudul, baris).
+    Tiap baris = (label, [(nilai, status) x3]); status 0=biru 1/2=merah 3=kosong."""
+    return [
+        ("SAFETY", P_SAFETY, WHITE, "Zero Accident · KAK · Genba", [
+            ("zero accident", [("0", 0), ("0", 0), ("0", 0)]),
+            ("near miss", [("1", 0), ("0", 0), ("2", 1)]),
+            ("temuan KAK", [("3", 1), ("1", 0), ("2", 1)]),
+            ("tindakan buka", [("2", 1), ("2", 1), ("1", 0)]),
+            ("APD / housekeeping", [("ok", 0), ("ok", 0), ("ok", 0)]),
+        ]),
+        ("QUALITY", P_QUALITY, MARK_DARK, "Quality & Internal Defect", [
+            ("defect visual %", [("0,9", 1), ("0,5", 0), ("0,6", 0)]),
+            ("critical point", [("1", 0), ("0", 0), ("0", 0)]),
+            ("kontaminasi", [("0", 0), ("0", 0), ("1", 2)]),
+            ("hold / release", [("2", 1), ("1", 0), ("0", 0)]),
+            ("kalibrasi alat", [("ok", 0), ("ok", 0), ("ok", 0)]),
+        ]),
+        ("PRODUCTIVITY", P_PROD, WHITE, "Operation · Yield · OEE", [
+            ("yield RM %", [("96,2", 0), ("95,8", 0), ("96,5", 0)]),
+            ("yield PM %", [("97,1", 0), ("96,8", 0), ("97,3", 0)]),
+            ("OEE %", [("78", 1), ("81", 0), ("84", 0)]),
+            ("output shift", [("8.120", 2), ("8.360", 0), ("8.400", 0)]),
+            ("downtime (mnt)", [("48", 2), ("22", 0), ("15", 0)]),
+        ]),
+        ("DELIVERY", P_DELIV, WHITE, "Plan vs Real PO", [
+            ("PO (unit)", [("6/6", 0), ("5/6", 1), ("6/6", 0)]),
+            ("keterlambatan", [("1", 1), ("0", 0), ("0", 0)]),
+            ("kesiapan muat", [("ok", 0), ("ok", 0), ("ok", 0)]),
+            ("retur kirim", [("0", 0), ("0", 0), ("0", 0)]),
+            ("ach order %", [("98", 0), ("92", 1), ("100", 0)]),
+        ]),
+        ("TECHNIC PERFORM", P_TECH, WHITE, "Maintenance · Energy", [
+            ("MTC accuracy %", [("99", 0), ("100", 0), ("100", 0)]),
+            ("% failure OEE", [("2,1", 1), ("1,8", 0), ("1,5", 0)]),
+            ("energy gas", [("360", 0), ("355", 0), ("358", 0)]),
+            ("energy listrik", [("628", 0), ("641", 1), ("635", 0)]),
+            ("work order open", [("2", 1), ("2", 1), ("1", 0)]),
+        ]),
     ]
-    gap = 14 * scale
-    cw = (w - gap * 3) / 4
-    ns = len(shifts)
-    for i, (name, col, rows) in enumerate(pillars):
-        cx = x + i * (cw + gap)
-        d.rectangle((cx, y, cx + cw, y + 36 * scale), fill=col)
-        t(d, (cx + cw / 2, y + 18 * scale), name, int(16 * scale), WHITE, True, "mm")
-        hy = y + 36 * scale
-        d.rectangle((cx, hy, cx + cw, hy + 26 * scale), fill=(0xF2, 0xF4, 0xF8))
-        t(d, (cx + 10 * scale, hy + 13 * scale), "ITEM", int(12 * scale), LGREY, True, "lm")
+
+
+def realistic_board(d, x, y, w, h, scale=1.0, ncols=5):
+    """Papan DMS gaya whiteboard: bingkai, kepala pilar berwarna, grid shift,
+    angka tulisan tangan biru/merah, seperti papan fisik di lantai produksi."""
+    s = scale
+    d.rectangle((x - 6 * s, y - 6 * s, x + w + 6 * s, y + h + 6 * s), fill=WB_EDGE)
+    d.rectangle((x, y, x + w, y + h), fill=WB_BG)
+    cols = board_columns()[:ncols]
+    gap, pad = 8 * s, 8 * s
+    cw = (w - 2 * pad - gap * (ncols - 1)) / ncols
+    head_h, sub_h = 34 * s, 24 * s
+    shifts = ("S1", "S2", "S3")
+    cell_w = 50 * s
+    for i, (name, hcol, htxt, sub, rows) in enumerate(cols):
+        cx = x + pad + i * (cw + gap)
+        top = y + pad
+        d.rectangle((cx, top, cx + cw, top + head_h), fill=hcol)
+        t(d, (cx + cw / 2, top + head_h / 2), name, int(15 * s), htxt, True, "mm")
+        sy = top + head_h
+        t(d, (cx + cw / 2, sy + sub_h / 2), sub, int(11 * s), GREY, False, "mm")
+        gy = sy + sub_h
+        item_w = cw - 3 * cell_w
+        hrh = 24 * s
+        d.rectangle((cx, gy, cx + cw, gy + hrh), fill=WB_HEAD)
+        t(d, (cx + 6 * s, gy + hrh / 2), "ITEM", int(10 * s), GREY, True, "lm")
         for k, sh in enumerate(shifts):
-            cxx = cx + cw - (ns - k) * cell * scale
-            t(d, (cxx + (cell / 2 - 1) * scale, hy + 13 * scale), sh, int(12 * scale), GREY, True, "mm")
-        ry = hy + 26 * scale
-        rh = (h - (ry - y)) / len(rows)
-        for j, (item, a, b, c_) in enumerate(rows):
-            if j % 2:
-                d.rectangle((cx, ry, cx + cw, ry + rh), fill=SOFT2)
-            d.line((cx, ry + rh, cx + cw, ry + rh), fill=RULE, width=1)
-            t(d, (cx + 10 * scale, ry + rh / 2), item, int(13 * scale), INK, anchor="lm")
-            for k, val in enumerate((a, b, c_)[:ns]):
-                cxx = cx + cw - (ns - k) * cell * scale
-                hit = hit_test(item, val)
-                cell_col, tcol = {0: (OK_BG, OK), 1: (WARN_BG, GOLD_D),
-                                  2: (BAD_BG, RED), 3: ((0xEF, 0xF1, 0xF5), LGREY)}[hit]
-                d.rectangle((cxx + 2 * scale, ry + 5 * scale,
-                             cxx + (cell - 3) * scale, ry + rh - 5 * scale), fill=cell_col)
-                t(d, (cxx + (cell / 2 - 1) * scale, ry + rh / 2), val, int(vf * scale), tcol, True, "mm")
+            cxx = cx + item_w + k * cell_w
+            t(d, (cxx + cell_w / 2, gy + hrh / 2), sh, int(11 * s), GREY, True, "mm")
+        gh = (y + h - pad) - gy
+        rh = (gh - hrh) / len(rows)
+        # garis grid
+        for k in range(1, 4):
+            vx = cx + item_w + (k - 1) * cell_w
+            d.line((vx, gy, vx, y + h - pad), fill=WB_GRID, width=1)
+        d.rectangle((cx, gy, cx + cw, y + h - pad), outline=WB_GRID, width=1)
+        ry = gy + hrh
+        for j, (label, vals) in enumerate(rows):
+            if j:
+                d.line((cx, ry, cx + cw, ry), fill=WB_GRID, width=1)
+            hw(d, (cx + 7 * s, ry + rh / 2), label, int(14 * s), MARK_DARK, False, "lm")
+            for k, (val, st) in enumerate(vals):
+                cxx = cx + item_w + k * cell_w
+                col = mark_color(st)
+                hw(d, (cxx + cell_w / 2, ry + rh / 2), val, int(18 * s), col, True, "mm")
+                if st == 2 and len(val) <= 3:  # lingkaran spidol merah utk 'lewat batas'
+                    d.ellipse((cxx + 5 * s, ry + rh / 2 - 13 * s,
+                               cxx + cell_w - 5 * s, ry + rh / 2 + 13 * s),
+                              outline=MARK_RED, width=2)
             ry += rh
 
 
-def hit_test(item, val):
-    if val == "—":
-        return 3
-    if item.startswith("output"):
-        return 2 if val == "8.120" else 0
-    if item.startswith("downtime"):
-        return 2 if val == "48" else 0
-    if item.startswith("defect"):
-        return 1 if val == "0,9" else 0
-    if item == "near miss" and val == "2":
-        return 1
-    if item == "plan vs real PO":
-        return 1 if val == "5/6" else 0
-    if item in ("tindakan buka", "hold / release") and val == "2":
-        return 1
-    if item == "keterlambatan" and val == "1":
-        return 1
-    return 0
+def pica_strip(d, x, y, w, h, scale=1.0):
+    """Baris PICA di kaki papan, seperti papan asli (Problem·Action·PIC·Due·Status)."""
+    s = scale
+    d.rectangle((x, y, x + w, y + h), fill=WB_BG, outline=WB_GRID, width=1)
+    hh = 26 * s
+    d.rectangle((x, y, x + w, y + hh), fill=(0x8A, 0x2A, 0x2A))
+    t(d, (x + 10 * s, y + hh / 2), "PICA", int(13 * s), WHITE, True, "lm")
+    t(d, (x + 70 * s, y + hh / 2), "Problem & Rootcause", int(11 * s), (0xF0, 0xD8, 0xD8), True, "lm")
+    rows = [
+        ("Belt WS L02 aus", "ganti belt + cek line 9", "Dhani", "3 Nov", "OPEN"),
+        ("Defect visual naik", "cek nozzle seasoning", "Sigit", "4 Nov", "OPEN"),
+    ]
+    widths = [0.30, 0.34, 0.12, 0.10, 0.14]
+    heads = ["", "", "PIC", "Due", "Status"]
+    xx = x
+    for k, frac in enumerate(widths):
+        if heads[k]:
+            t(d, (xx + 8 * s, y + hh / 2), heads[k], int(11 * s), (0xF0, 0xD8, 0xD8), True, "lm")
+        xx += w * frac
+    ry, rh = y + hh, (h - hh) / len(rows)
+    for j, row in enumerate(rows):
+        yy = ry + j * rh
+        if j:
+            d.line((x, yy, x + w, yy), fill=WB_GRID, width=1)
+        xx = x
+        for k, (val, frac) in enumerate(zip(row, widths)):
+            col = MARK_RED if k == 4 else (MARK_BLUE if k in (2, 3) else MARK_DARK)
+            hw(d, (xx + 8 * s, yy + rh / 2), val, int(14 * s), col, k == 4, "lm")
+            xx += w * frac
 
 
-def legend(d, x, y, size=15):
-    for name, bg, tc in [("sesuai target", OK_BG, OK), ("di bawah target", WARN_BG, GOLD_D),
-                         ("lewat batas", BAD_BG, RED), ("belum diisi", (0xEF, 0xF1, 0xF5), GREY)]:
-        d.rectangle((x, y, x + 24, y + 20), fill=bg)
-        t(d, (x + 32, y + 10), name, size, tc, True, "lm")
-        x += 40 + tw(d, name, size, True) + 26
+def board_legend(d, x, y, size=13):
+    """Legenda spidol: biru sesuai, merah di bawah/lewat, abu belum diisi."""
+    for name, col in [("sesuai target", MARK_BLUE), ("di bawah / lewat batas", MARK_RED),
+                      ("belum diisi", (0xA9, 0xA9, 0xA2))]:
+        d.rectangle((x, y - 8, x + 18, y + 8), fill=col)
+        t(d, (x + 26, y), name, size, GREY, True, "lm")
+        x += 26 + tw(d, name, size, True) + 26
+    return x
 
 
 def tv():
@@ -452,30 +543,24 @@ def tv():
     im, inner = device_tablet(im, (44, 44, 1556, 912))
     d = ImageDraw.Draw(im)
     x0, y0, x1, y1 = inner
-    d.rectangle((x0, y0, x1, y0 + 86), fill=NAVY)
-    rr(d, (x0 + 24, y0 + 24, x0 + 62, y0 + 62), 8, fill=GOLD)
-    rr(d, (x0 + 31, y0 + 31, x0 + 55, y0 + 55), 4, fill=NAVY)
-    t(d, (x0 + 76, y0 + 16), "PAPAN DMS", 28, WHITE, True)
-    t(d, (x0 + 76, y0 + 52), "SNACK  ·  LINE 9  ·  SHIFT 1", 17, (0xB6, 0xC3, 0xDA), True)
-    t(d, (x1 - 26, y0 + 18), "07.12", 34, WHITE, True, "ra")
-    t(d, (x1 - 26, y0 + 56), "Sen, 3 Nov 2026", 16, GOLD, True, "ra")
-
-    t(d, (x0 + 26, y0 + 108), "Empat pilar, kolom shift, warna dibanding target", 17, GREY)
-    legend(d, x0 + 26, y0 + 140, 15)
-
-    board(d, x0 + 24, y0 + 178, x1 - x0 - 48, 470, scale=1.34)
-
+    # kepala papan (meniru header papan fisik: nama, tanggal, jadwal PKI)
+    d.rectangle((x0, y0, x1, y0 + 64), fill=(0xF7, 0xF5, 0xEE))
+    d.line((x0, y0 + 64, x1, y0 + 64), fill=WB_EDGE, width=2)
+    t(d, (x0 + 24, y0 + 14), "DMS · SNACK · LINE 9", 25, NAVY, True)
+    board_legend(d, x0 + 24, y0 + 50, 13)
+    t(d, (x1 - 24, y0 + 14), "Sen, 3 Nov 2026 · Minggu 45", 16, NAVY, True, "ra")
+    t(d, (x1 - 24, y0 + 42), "PKI 08.30 · Leader: shift 1", 14, MARK_RED, True, "ra")
+    # papan lima kolom + PICA
+    realistic_board(d, x0 + 20, y0 + 80, x1 - x0 - 40, 540, scale=1.0, ncols=5)
+    pica_strip(d, x0 + 20, y0 + 632, x1 - x0 - 40, 90, scale=1.0)
     # footer
-    fy = y1 - 74
+    fy = y1 - 58
     d.rectangle((x0, fy, x1, y1), fill=SOFT)
     d.line((x0, fy, x1, fy), fill=RULE, width=2)
-    d.ellipse((x0 + 26, fy + 30, x0 + 38, fy + 42), fill=TEAL)
-    t(d, (x0 + 48, fy + 22), "Pembaruan terakhir 07.12", 17, NAVY, True)
-    t(d, (x0 + 300, fy + 22), "·", 17, LGREY)
-    t(d, (x0 + 318, fy + 22), "Absensi shift 1: 25 dari 28 hadir", 17, INK)
-    t(d, (x1 - 26, fy + 22), "TANPA LOGIN  ·  BERGANTI PILAR TIAP 20 DETIK", 14, LGREY, True, "ra")
-    t(d, (x1 - 26, fy + 46), "Sumber angka: satu catatan kasus, sama dengan dasbor dan form harian",
-      13, LGREY, anchor="ra")
+    d.ellipse((x0 + 24, fy + 22, x0 + 36, fy + 34), fill=TEAL)
+    t(d, (x0 + 46, fy + 16), "Pembaruan 07.12", 15, NAVY, True)
+    t(d, (x0 + 212, fy + 16), "·  Absensi shift 1: 25/28 hadir", 15, INK)
+    t(d, (x1 - 24, fy + 16), "TANPA LOGIN · ROTASI 20 DETIK", 13, LGREY, True, "ra")
     im.save(f"{OUT}/tv.png")
 
 
@@ -484,56 +569,54 @@ def tv_absen():
     im, inner = device_tablet(im, (44, 44, 1556, 912))
     d = ImageDraw.Draw(im)
     x0, y0, x1, y1 = inner
-    d.rectangle((x0, y0, x1, y0 + 86), fill=NAVY)
-    rr(d, (x0 + 24, y0 + 24, x0 + 62, y0 + 62), 8, fill=GOLD)
-    rr(d, (x0 + 31, y0 + 31, x0 + 55, y0 + 55), 4, fill=NAVY)
-    t(d, (x0 + 76, y0 + 16), "PAPAN DMS", 28, WHITE, True)
-    t(d, (x0 + 76, y0 + 52), "SNACK  ·  LINE 9  ·  SHIFT 1", 17, (0xB6, 0xC3, 0xDA), True)
-    t(d, (x1 - 26, y0 + 18), "07.12", 34, WHITE, True, "ra")
-    t(d, (x1 - 26, y0 + 56), "Sen, 3 Nov 2026", 16, GOLD, True, "ra")
+    d.rectangle((x0, y0, x1, y0 + 64), fill=(0xF7, 0xF5, 0xEE))
+    d.line((x0, y0 + 64, x1, y0 + 64), fill=WB_EDGE, width=2)
+    t(d, (x0 + 24, y0 + 14), "DMS · SNACK · LINE 9", 25, NAVY, True)
+    board_legend(d, x0 + 24, y0 + 50, 12)
+    t(d, (x1 - 24, y0 + 14), "Sen, 3 Nov 2026", 16, NAVY, True, "ra")
+    t(d, (x1 - 24, y0 + 42), "PKI 08.30 · shift 1", 14, MARK_RED, True, "ra")
 
-    legend(d, x0 + 26, y0 + 110, 14)
-    board(d, x0 + 24, y0 + 148, 908, 560, scale=0.98, cell=74, vf=14, shifts=("SHIFT 1",))
+    # papan (4 pilar utama) di kiri, panel absensi di kanan
+    realistic_board(d, x0 + 20, y0 + 80, 900, 600, scale=0.8, ncols=4)
 
-    px, py, pw = x1 - 470, y0 + 106, 446
-    rr(d, (px, py, px + pw, py + 616), 14, fill=WHITE, line=RULE, w=2)
+    px, py, pw = x1 - 470, y0 + 80, 446
+    rr(d, (px, py, px + pw, py + 600), 14, fill=WHITE, line=RULE, w=2)
     d.rectangle((px, py, px + pw, py + 54), fill=TEAL)
     t(d, (px + 20, py + 27), "ABSENSI SHIFT 1", 21, WHITE, True, "lm")
     t(d, (px + pw - 20, py + 27), "TANPA LOGIN", 13, (0xD8, 0xEE, 0xEA), True, "rm")
-
     t(d, (px + 20, py + 70), "25", 34, OK, True)
-    t(d, (px + 20, py + 112), "hadir dari 28 orang", 15, GREY)
-    t(d, (px + 20, py + 136), "2 sakit · 1 izin · 0 alpa", 14, GREY)
-    d.rectangle((px + 20, py + 162, px + pw - 20, py + 170), fill=SOFT)
-    d.rectangle((px + 20, py + 162, px + 20 + (pw - 40) * 25 / 28, py + 170), fill=TEAL)
-    t(d, (px + 20, py + 180), "4 nama belum dikonfirmasi — ketuk namanya", 13, GOLD_D, True)
+    t(d, (px + 78, py + 82), "hadir dari 28 orang", 15, GREY)
+    t(d, (px + 20, py + 116), "2 sakit · 1 izin · 0 alpa", 14, GREY)
+    d.rectangle((px + 20, py + 146, px + pw - 20, py + 154), fill=SOFT)
+    d.rectangle((px + 20, py + 146, px + 20 + (pw - 40) * 25 / 28, py + 154), fill=TEAL)
+    t(d, (px + 20, py + 166), "4 nama belum dikonfirmasi — ketuk namanya", 13, GOLD_D, True)
 
     names = [("Rani", "hadir", 0), ("Dhani", "hadir", 0), ("Sigit", "sakit", 1),
              ("Asep", "?", 2), ("Yanti", "hadir", 0), ("Budi", "izin", 3),
              ("Wawan", "?", 2)]
-    y = py + 204
+    y = py + 196
     fills = {0: WHITE, 1: (0xFB, 0xF0, 0xD6), 2: WHITE, 3: SOFT}
     for name, st, kind in names:
-        hh = 42 if kind != 2 else 50
+        hh = 44 if kind != 2 else 50
         rr(d, (px + 20, y, px + pw - 20, y + hh), 8, fill=fills[kind],
            line=GOLD if kind == 2 else RULE, w=2)
         avatar(d, px + 44, y + hh / 2, name[0], {0: TEAL, 1: GOLD, 2: NAVY, 3: LGREY}[kind], 16, 13)
         t(d, (px + 70, y + hh / 2), name, 19, INK, kind == 2, "lm")
         if kind == 0:
-            pill(d, px + pw - 36, y + 9, "HADIR", OK, 12, 26, True, "r")
+            pill(d, px + pw - 36, y + 10, "HADIR", OK, 12, 26, True, "r")
         elif kind == 1:
-            pill(d, px + pw - 36, y + 9, "SAKIT", GOLD_D, 12, 26, True, "r")
+            pill(d, px + pw - 36, y + 10, "SAKIT", GOLD_D, 12, 26, True, "r")
         elif kind == 3:
-            pill(d, px + pw - 36, y + 9, "IZIN", LGREY, 12, 26, True, "r")
+            pill(d, px + pw - 36, y + 10, "IZIN", LGREY, 12, 26, True, "r")
         else:
             pill(d, px + pw - 36, y + 11, "KETUK", TEAL, 13, 30, True, "r")
         y += hh + 6
+    t(d, (px + 20, py + 572), "Urungkan 2 menit · setiap ketukan tercatat waktu & perangkat", 11, LGREY)
 
-    t(d, (px + 20, py + 588), "Urungkan 2 menit · setiap ketukan tercatat waktu dan perangkat", 11, LGREY)
-
-    d.rectangle((x0, y1 - 64, x1, y1), fill=SOFT)
-    t(d, (x0 + 26, y1 - 46), "Absensi tampil berdampingan dengan papan  ·  hasilnya langsung dipakai dasbor",
-      17, NAVY, True)
+    d.rectangle((x0, y1 - 58, x1, y1), fill=SOFT)
+    d.line((x0, y1 - 58, x1, y1 - 58), fill=RULE, width=2)
+    t(d, (x0 + 26, y1 - 40), "Absensi tampil berdampingan dengan papan  ·  hasilnya langsung dipakai dasbor",
+      16, NAVY, True)
     im.save(f"{OUT}/tv_absen.png")
 
 

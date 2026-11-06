@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Deck DMS memakai template_master.pptx (versi terbaru) DAN data tiga workbook:
-Snack, Exist Plant, New Plant (angka dibaca dari docs/data_plants.json).
+Deck DMS memakai docs/template/template_master.pptx (versi terbaru) DAN data tiga workbook:
+Snack, Exist Plant, New Plant (angka dibaca dari docs/data/data_plants.json).
 
 slide 1 template -> cover · slide 2 template -> halaman isi · slide 3 template -> penutup
 
-Jalankan: python3 docs/analyze_workbook.py && python3 docs/make_mockups.py && python3 docs/build_deck.py
-Hasil  : docs/DMS_Digitalisasi_v1.pptx
+Jalankan: python3 docs/scripts/analyze_workbook.py && python3 docs/scripts/make_mockups.py && python3 docs/scripts/build_deck.py
+Hasil  : docs/laporan/DMS_Digitalisasi_v1.pptx
 
-Template tidak disimpan di repo: taruh template_master.pptx di root sebelum build.
+Template tersimpan di docs/template/template_master.pptx.
 Foto papan dan ilustrasi layar sudah tersimpan di docs/assets/ (papan, mockup).
 """
 import json
@@ -21,9 +21,9 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
-SRC = "template_master.pptx"
-OUT = "docs/DMS_Digitalisasi_v1.pptx"
-DATA = json.load(open("docs/data_plants.json", encoding="utf-8"))
+SRC = "docs/template/template_master.pptx"
+OUT = "docs/laporan/DMS_Digitalisasi_v1.pptx"
+DATA = json.load(open("docs/data/data_plants.json", encoding="utf-8"))
 
 SN, EP, NP = DATA["Snack"], DATA["Exist Plant"], DATA["New Plant"]
 TOT = DATA["_total"]
@@ -362,6 +362,28 @@ def chart(slide, x, y, w, h, cats, series, kind, colors, number_format="0", lege
     return gf
 
 
+# Auto-fit judul: ukur dengan DejaVu Bold (lebih lebar dari Calibri -> konservatif),
+# kecilkan ukuran sampai judul tidak menabrak nomor halaman di kanan.
+try:
+    from PIL import ImageFont as _IF
+    _TITLE_FONT = _IF.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 100)
+except Exception:
+    _TITLE_FONT = None
+
+
+def _fit_title_size(title, start):
+    if _TITLE_FONT is None:
+        return start
+    size = start
+    while size > 14:
+        px = int(size * 96 / 72)
+        w_in = _TITLE_FONT.getlength(title) * (px / 100) / 96
+        if 2.05 + w_in <= 11.90:
+            return size
+        size -= 0.5
+    return size
+
+
 PAGE = [1]
 
 
@@ -374,6 +396,7 @@ def page(title, kicker, no=None, note=None):
             ph._element.getparent().remove(ph._element)
     title_ph = s.shapes.title
     size = 24 if len(title) <= 46 else (22.5 if len(title) <= 56 else 20.5)
+    size = _fit_title_size(title, size)
     if title_ph is not None:
         title_ph.left, title_ph.top = Inches(2.05), Inches(0.20)
         title_ph.width, title_ph.height = Inches(10.05), Inches(0.68)
@@ -658,14 +681,14 @@ sides(s, 8.20, 1.46, 4.50, [
 # ---- 2 · TV berbentuk papan
 s = page("Ilustrasi 2 · TV berbentuk papan, sama seperti hari ini",
          "Bagian 3 · ilustrasi sistem",
-         note="Bentuk papan dipertahankan: empat pilar, baris item, kolom shift, warna dibanding target")
+         note="Bentuk papan asli dipertahankan: lima kolom (empat pilar + Teknik), grid shift 1–3, angka spidol biru/merah, dan baris PICA")
 shot(s, "docs/assets/mockup/tv.png", 0.62, 1.46,
      "PAPAN DMS · TV AREA PRODUKSI · SNACK LINE 9",
-     "kepala papan, legenda warna, empat pilar berjajar, kolom shift", TEAL)
+     "kepala papan, lima kolom pilar + Teknik, grid shift, angka tulisan tangan, baris PICA", TEAL)
 sides(s, 8.20, 1.46, 4.50, [
     ("Bentuknya papan, bukan kartu", "Orang lapangan langsung mengenali susunannya tanpa diajari ulang.", TEAL),
     ("Kolom shift di tiap pilar", "Shift 1–3 berjajar seperti papan tulis; satu sel satu angka.", NAVY),
-    ("Warna menggantikan sorot mata", "Sesuai target, di bawah target, lewat batas, belum diisi — empat warna tetap.", GOLD),
+    ("Warna menggantikan sorot mata", "Spidol biru = sesuai target, merah = di bawah/lewat batas, abu-abu = belum diisi.", GOLD),
     ("Tidak pernah kosong", "Bagian yang belum diisi bertanda abu-abu, bukan hilang; TV tidak terlihat mati.", RED)])
 
 
@@ -1079,7 +1102,7 @@ table(s, [
     ["I-07", "Prioritas tidak membedakan", "High 100% di ketiga plant", "Admin"],
     ["I-08", "Nilai mendekati batas", "rawan selisih antar pencatat", "Admin"],
     ["I-09", "Tiga periode menurun", "checklist turun 4% per pekan", "L2 · L3"],
-    ["I-10", "Satu line menumpuk kasus", "Snack line 9 = 96,9% · Exist WS L02 = 22,6%", "L3"],
+    ["I-10", "Satu line menumpuk kasus", "Snack line 9 = 96,9% · Exist WS L02 = 22,9%", "L3"],
     ["I-11", "Downtime besar dan sering", "508.226 menit; median 50–60 menit/kasus", "L2"],
     ["I-12", "Tindakan perbaikan lemah", "prediksi lonjakan pekan depan", "L3"],
 ], [0.66, 2.76, 3.86, 1.10], 0.62, 1.24, row_h=0.36, head_h=0.34, fs=9.4,
