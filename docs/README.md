@@ -13,6 +13,7 @@ docs/
 │   ├── DMS_Insight_xlsx_ke_Aplikasi.md insight dari 3 workbook → terjemahan ke aplikasi
 │   ├── DMS_Aturan_Sistem_v1.md         aturan sistem (R-01 … R-90)
 │   ├── DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md  TV per divisi · absensi awal · QR · sinkron Excel
+│   ├── DMS_Keputusan_Platform_dan_Akses_Online_v1.md  Power Platform vs aplikasi sendiri · akses lintas jaringan
 │   ├── DMS_Logic_Design_v1.md          logika & model data
 │   └── rancangan/                      paket rancangan 5 Nov (kanonik)
 │       ├── 01-KENAPA-DMS-DIGITAL.md
@@ -56,6 +57,17 @@ python3 docs/scripts/build_deck.py         # rakit deck        → docs/laporan/
   biru/merah (font Kalam), baris PICA — tetapi **satu divisi per layar** dengan kolom mengikuti
   Excel, ditambah halaman absensi awal dan layar QR satu pintu.
 - `render_deck.py` dipakai untuk memeriksa visual slide (menghasilkan PNG per slide).
+
+## Aplikasi prototipe
+
+Prototipe yang berjalan ada di **`app/`** (lihat `app/README.md`): ingest Excel otomatis, TV per
+divisi, absensi sebagai gerbang, QR sesi, dan panel sinkronisasi. Jalankan:
+
+```bash
+pip install -r app/requirements.txt
+python3 app/seed_demo.py
+python3 app/server.py        # http://0.0.0.0:8000
+```
 
 ## Catatan
 
