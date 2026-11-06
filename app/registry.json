@@ -1,0 +1,18 @@
+{
+  "_catatan": "Daftar sumber per berkas divisi (R-86). Path di sini menunjuk workbook acuan di reference/ untuk demo. Di lapangan, ganti 'path' dengan folder kerja petugas yang sudah dipindah ke OneDrive (lihat setup_onedrive.bat). 'line': '*' berarti semua line di berkas itu.",
+  "sumber": [
+    { "sumber_id": "SN-SHE",  "plant": "Snack", "line": "*", "divisi": "she",      "sheet": "Resume SHE",  "path": "reference/12. Konsep Penilaian DMS Snack Des 24.xlsx" },
+    { "sumber_id": "SN-QC",   "plant": "Snack", "line": "*", "divisi": "quality",  "sheet": "Resume QC",   "path": "reference/12. Konsep Penilaian DMS Snack Des 24.xlsx" },
+    { "sumber_id": "SN-PROD", "plant": "Snack", "line": "*", "divisi": "produksi", "sheet": "Resume Prod", "path": "reference/12. Konsep Penilaian DMS Snack Des 24.xlsx" },
+    { "sumber_id": "EP-SHE",  "plant": "EP",    "line": "*", "divisi": "she",      "sheet": "Resume SHE",  "path": "reference/12. Konsep Penilaian DMS EP Des 24.xlsx" },
+    { "sumber_id": "EP-QC",   "plant": "EP",    "line": "*", "divisi": "quality",  "sheet": "Resume QC",   "path": "reference/12. Konsep Penilaian DMS EP Des 24.xlsx" },
+    { "sumber_id": "EP-PROD", "plant": "EP",    "line": "*", "divisi": "produksi", "sheet": "Resume Prod", "path": "reference/12. Konsep Penilaian DMS EP Des 24.xlsx" },
+    { "sumber_id": "NP-SHE",  "plant": "NP",    "line": "*", "divisi": "she",      "sheet": "Resume SHE",  "path": "reference/12. Konsep Penilaian DMS NP Des 24 (1).xlsx" },
+    { "sumber_id": "NP-QC",   "plant": "NP",    "line": "*", "divisi": "quality",  "sheet": "Resume QC",   "path": "reference/12. Konsep Penilaian DMS NP Des 24 (1).xlsx" },
+    { "sumber_id": "NP-PROD", "plant": "NP",    "line": "*", "divisi": "produksi", "sheet": "Resume Prod", "path": "reference/12. Konsep Penilaian DMS NP Des 24 (1).xlsx" }
+  ],
+  "_belum_terdaftar": [
+    { "divisi": "delivery", "alasan": "Berkas Excel divisi Delivery belum diserahkan. Halaman TV tetap tampil dengan status 'menunggu berkas' (R-84, R-86)." },
+    { "divisi": "teknik",   "alasan": "Berkas Excel divisi Teknik belum diserahkan. Halaman TV tetap tampil dengan status 'menunggu berkas' (R-84, R-86)." }
+  ]
+}

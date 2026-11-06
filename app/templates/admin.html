@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS · Panel sinkronisasi</title>
+<style>
+:root{--navy:#1B2C57;--teal:#2E868C;--grey:#5C6472;--rule:#DDE2EA;--soft:#F4F6FA;--red:#B02F2F;--gold:#8A6C10}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--soft);color:#1E2430;padding:20px}
+h1{font-size:21px;color:var(--navy)} h2{font-size:14px;color:var(--navy);margin:18px 0 8px}
+.sub{font-size:13px;color:var(--grey);margin-top:5px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap}
+button{padding:10px 16px;border:0;border-radius:8px;background:var(--teal);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+button.ghost{background:#fff;color:var(--navy);border:1px solid var(--rule)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kc{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:12px}
+.kc b{display:block;font-size:26px;color:var(--navy)} .kc span{font-size:12px;color:var(--grey)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--rule);border-radius:10px;overflow:hidden;font-size:12.5px}
+th{background:var(--soft);text-align:left;padding:9px 10px;color:var(--grey);font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
+td{padding:8px 10px;border-top:1px solid var(--rule);vertical-align:top}
+.ok{color:#1E6B3A;font-weight:700}.bad{color:var(--red);font-weight:700}.warn{color:var(--gold);font-weight:700}
+code{font-size:11.5px;background:var(--soft);padding:1px 5px;border-radius:4px}
+.note{background:#FBF0D6;border:1px solid #C8A52B;color:var(--gold);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.5;margin-top:12px}
+a{color:var(--teal)}
+#msg{font-size:12.5px;color:var(--teal);font-weight:700}
+</style>
+</head>
+<body>
+<h1>Panel sinkronisasi Excel</h1>
+<div class="sub">Aplikasi <b>membaca</b> berkas divisi, tidak pernah menulisnya (R-85). Tidak ada tombol upload untuk petugas (R-88). Pengawas folder berjalan di server ini.</div>
+<div class="bar">
+  <button id="sync">Sinkronkan sekarang</button>
+  <button class="ghost" onclick="location.href='/'">Buka TV</button>
+  <span id="msg"></span>
+</div>
+<div class="cards" id="cards"></div>
+<h2>Daftar sumber · satu berkas per divisi (R-86)</h2>
+<table id="src"><thead><tr><th>ID</th><th>Plant</th><th>Divisi</th><th>Berkas</th><th>Sheet</th><th>Status</th><th>Sinkron terakhir</th><th>Baris</th><th>Catatan</th></tr></thead><tbody></tbody></table>
+<h2>Riwayat ingest</h2>
+<table id="log"><thead><tr><th>Waktu</th><th>Sumber</th><th>Tambah</th><th>Ubah</th><th>Karantina</th><th>Pesan</th></tr></thead><tbody></tbody></table>
+<h2>Karantina · baris yang tidak bisa dipercaya</h2>
+<table id="kar"><thead><tr><th>Sumber</th><th>Baris Excel</th><th>Alasan</th><th>Cuplikan</th></tr></thead><tbody></tbody></table>
+<div class="note" id="note"></div>
+<h2>Jejak audit terbaru</h2>
+<table id="aud"><thead><tr><th>Waktu</th><th>Pelaku</th><th>Aksi</th><th>Rinci</th></tr></thead><tbody></tbody></table>
+<script>
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function rows(id,html){document.querySelector('#'+id+' tbody').innerHTML=html}
+async function load(){
+  const d=await (await fetch('/api/admin')).json();
+  document.getElementById('cards').innerHTML=[
+    ['Kasus aktif',d.kasus],['Ditandai (mis. PIC tautan)',d.flagged],
+    ['Baris dikarantina',d.karantina_total],['Ditandai terhapus di sumber',d.terhapus],
+    ['Putaran pengawas',d.pengawas.putaran]
+  ].map(([k,v])=>`<div class="kc"><b>${v}</b><span>${k}</span></div>`).join('');
+  rows('src',d.sumber.map(s=>`<tr><td><code>${esc(s.sumber_id)}</code></td><td>${esc(s.plant)}</td>
+    <td>${esc(s.divisi)}</td><td><code>${esc((s.path||'').split('/').pop())}</code></td>
+    <td>${esc(s.sheet)}</td><td class="${s.status==='aktif'?'ok':'bad'}">${esc(s.status)}</td>
+    <td>${esc(s.sinkron_terakhir)}</td><td>${s.baris_terbaca}</td><td>${esc(s.pesan)}</td></tr>`).join(''));
+  rows('log',d.log.map(l=>`<tr><td>${esc(l.selesai)}</td><td><code>${esc(l.sumber_id)}</code></td>
+    <td>${l.tambah}</td><td>${l.ubah}</td><td class="${l.karantina?'warn':''}">${l.karantina}</td><td>${esc(l.pesan)}</td></tr>`).join(''));
+  rows('kar',d.karantina.map(k=>`<tr><td><code>${esc(k.sumber_id)}</code></td><td>${k.baris_excel}</td>
+    <td class="warn">${esc(k.alasan)}</td><td><code>${esc((k.data||'').slice(0,120))}</code></td></tr>`).join(''));
+  rows('aud',d.audit.map(a=>`<tr><td>${esc(a.waktu)}</td><td>${esc(a.pelaku)}</td><td>${esc(a.aksi)}</td>
+    <td><code>${esc((a.rinci||'').slice(0,120))}</code></td></tr>`).join(''));
+  document.getElementById('note').innerHTML=`Pengawas folder: <b>${d.pengawas.hidup?'hidup':'mati'}</b> · perubahan terakhir ${esc(d.pengawas.terakhir||'belum ada')}.
+    Delivery &amp; Teknik belum ada di daftar sumber karena berkasnya belum diserahkan — halaman TV-nya tetap tampil
+    dengan status <b>menunggu berkas</b>, bukan angka karangan (R-84, R-86).`;
+}
+document.getElementById('sync').onclick=async e=>{
+  e.target.disabled=true;document.getElementById('msg').textContent='Membaca ulang semua berkas…';
+  const r=await (await fetch('/api/sync',{method:'POST'})).json();
+  const t=r.hasil.reduce((a,b)=>a+(b.tambah||0),0),u=r.hasil.reduce((a,b)=>a+(b.ubah||0),0);
+  document.getElementById('msg').textContent=`Selesai · ${t} baris baru, ${u} berubah`;
+  e.target.disabled=false;load();
+};
+load();setInterval(load,10000);
+</script>
+</body>
+</html>

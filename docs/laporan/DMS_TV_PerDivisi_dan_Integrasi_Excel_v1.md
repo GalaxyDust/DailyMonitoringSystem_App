@@ -300,6 +300,12 @@ lalu tautan dibuat **di luar** pada path lama. Kebalikannya — menaruh junction
 menunjuk ke folder luar — **tidak didukung Microsoft** dan tidak akan tersinkron. OneDrive juga tidak
 bisa menyinkron folder jaringan/mapped drive. Karena itu langkah 2 (pindah) wajib mendahului langkah 3.
 
+Versi aman yang dipakai di lapangan ada di **`app/setup_onedrive.ps1`**: skrip itu **menyalin** dulu,
+memverifikasi jumlah berkas dan total byte, mengganti nama folder lama menjadi `.lama-<waktu>`
+sebagai cadangan (tidak dihapus), baru membuat junction. Bila verifikasi gagal folder lama tidak
+disentuh; bila `mklink` gagal nama folder lama dikembalikan. Jalankan `-RencanaSaja` untuk melihat
+rencana tanpa mengubah apa pun.
+
 Setelah itu petugas **tidak melakukan apa pun yang baru**: buka file dari shortcut yang sama, isi,
 simpan. OneDrive mengunggah otomatis; begitu laptop online, TV ikut terbarui.
 
@@ -484,6 +490,18 @@ registry      (sumber_id, plant, line, divisi, path_lama, cloud_item_id, sheet, 
 | 6 | Daftarkan berkas Delivery & Teknik + petakan kolomnya | 5 divisi lengkap dari Excel masing-masing |
 | 7 | Panel sinkronisasi + karantina + badge sumber | gagal sinkron terlihat, bukan diam |
 | 8 | Perluas ke semua laptop/divisi; **Excel tetap dipakai** | semua divisi tersinkron; tidak ada langkah upload di SOP mana pun |
+
+---
+
+## 8.1 Prototipe yang sudah berjalan
+
+Rancangan ini sudah dibuktikan sebagian oleh prototipe di **`app/`** (lihat `app/README.md`):
+parser tahan geser header, upsert idempoten, karantina, pengawas folder, TV per divisi dengan KPI
+dihitung dari log kasus, absensi sebagai gerbang, dan QR sesi yang bisa dipindai.
+
+Hasil baca 9 berkas-divisi (3 plant × SHE/QC/Produksi): **15.940 kasus**, header terdeteksi otomatis
+pada baris 17/19/24/25, **61 baris dikarantina**, **708 baris bertanda** karena PIC berisi tautan.
+Delivery & Teknik menampilkan "menunggu berkas" karena berkasnya belum diserahkan — bukan angka karangan.
 
 ---
 
