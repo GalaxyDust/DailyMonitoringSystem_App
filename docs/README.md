@@ -11,7 +11,7 @@ docs/
 │   ├── DMS_Digitalisasi_v1.pptx        deck presentasi (28 slide) — deliverable utama
 │   ├── DMS_Review_Rancangan_v1.md      review rancangan + status perbaikan + verifikasi xlsx
 │   ├── DMS_Insight_xlsx_ke_Aplikasi.md insight dari 3 workbook → terjemahan ke aplikasi
-│   ├── DMS_Aturan_Sistem_v1.md         aturan sistem (R-01 … R-87)
+│   ├── DMS_Aturan_Sistem_v1.md         aturan sistem (R-01 … R-90)
 │   ├── DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md  TV per divisi · absensi awal · QR · sinkron Excel
 │   ├── DMS_Logic_Design_v1.md          logika & model data
 │   └── rancangan/                      paket rancangan 5 Nov (kanonik)

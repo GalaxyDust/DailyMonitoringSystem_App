@@ -491,6 +491,7 @@ Aturan TV:
 | Kolom tabel | mengikuti kontrak kolom Excel divisi itu (R-83); kolom baru → staging |
 | Isi dinamis | kolom tetap, baris & angka per tanggal/shift (R-84); divisi kosong tetap tampil |
 | Sumber & sinkron | badge `Excel`/`Aplikasi` + jam sinkron terakhir di footer (R-87) |
+| Laptop offline | "belum tersinkron · terakhir hh.mm" — dibedakan dari "belum diisi" (R-90) |
 | Warna | hanya 3 status; tanpa gradasi |
 | Anti burn-in | panel bergulir, posisi jam digeser |
 | Gagal memuat | snapshot terakhir + timestamp |

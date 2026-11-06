@@ -327,15 +327,30 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 - **R-69 · WAJIB — kelengkapan diukur dan ditampilkan**: persen item terisi per line per hari, per divisi.
   Inilah ukuran mutu data yang dipakai rapat, bukan perasaan.
 
-- **R-85 · WAJIB — integrasi Excel otomatis dan satu arah.** Petugas tetap mengisi workbook seperti
-  biasa; sistem membaca dari tempat file disimpan (SharePoint/OneDrive atau folder jaringan) dan
-  memperbarui basis data **tanpa upload manual**. Aplikasi **tidak menulis** ke workbook. Baris
-  yang hilang dari Excel ditandai "terhapus di sumber", tidak dihapus permanen. Cutover ke aplikasi
-  dilakukan **per divisi**; selama transisi, penulisan sejajar diizinkan terbatas dan diberi badge sumber.
-- **R-86 · WAJIB — Delivery & Teknik perlu sumber sendiri.** Workbook hanya memuat KPI Safety,
-  Quality, dan Productivity (`Template Penilaian → Summary DMS to KPI`). Halaman TV Delivery dan
-  Teknik memakai form aplikasi atau sheet baru berkontrak kolom sama; jangan menampilkan angka
-  yang tidak punya sumber.
+- **R-85 · WAJIB — integrasi Excel otomatis, satu arah, terus-menerus.** Petugas tetap mengisi
+  workbook di laptopnya seperti biasa; sistem membaca setiap perubahan dan memperbarui basis data
+  **tanpa upload manual**. Excel **tidak pernah dibekukan** dan tidak ada cutover. Aplikasi **tidak
+  menulis** ke workbook. Baris yang hilang dari Excel ditandai "terhapus di sumber", tidak dihapus
+  permanen. Karena file masih di laptop, folder kerja dipindah ke OneDrive **satu kali oleh IT**
+  dengan *junction* di path lama agar shortcut dan kebiasaan petugas tidak berubah.
+- **R-86 · BAKU — satu berkas per divisi, sinkron per berkas.** Tiap divisi memakai Excel-nya sendiri
+  dan didaftarkan di daftar sumber (plant · line · divisi · path lama · ID cloud · sheet · peta kolom).
+  Delivery dan Teknik **cukup didaftarkan**, bukan dibuatkan form baru. Satu berkas gagal tidak
+  menahan divisi lain. ID cloud dipakai sebagai kunci agar file di-*rename* tidak memutus sinkron.
+- **R-88 · WAJIB — nol langkah tambahan bagi petugas.** Sistem tidak boleh meminta petugas
+  mengunggah file, mengekspor CSV, mengirim lampiran, menyalin ke folder lain, atau mengisi ulang
+  data yang sudah ada di Excel. Bila sebuah rancangan menuntut langkah tambahan dari petugas,
+  rancangan itu yang harus berubah — bukan petugasnya.
+- **R-89 · WAJIB — kepemilikan kolom, bukan kepemilikan aplikasi.** Kolom yang ada di Excel divisi
+  itu dimiliki Excel dan **baca-saja** di aplikasi; koreksi dilakukan di Excel dan aplikasi menyusul
+  otomatis. Aplikasi hanya memiliki kolom yang tidak ada di Excel (absensi, konfirmasi sesi, jejak
+  audit, eskalasi, tenggat, foto tambahan, persetujuan, skor proses). Tidak ada satu kolom pun
+  ditulis di dua tempat, sehingga tidak ada konflik dan tidak perlu masa transisi. Untuk kolom
+  milik Excel, aplikasi menampilkan **"Perbaiki di Excel"** beserta nama berkas dan barisnya.
+- **R-90 · WAJIB — bedakan "belum diisi" dan "belum tersinkron".** Bila laptop petugas mati atau
+  offline, TV menulis **"belum tersinkron · terakhir hh.mm"** dan tetap menampilkan angka terakhir
+  beserta jamnya. "Belum diisi" hanya dipakai bila berkas memang belum menyentuh hari itu. Perubahan
+  yang tertunda wajib tersusul saat online; tidak boleh ada baris hilang.
 
 ---
 
@@ -374,8 +389,8 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 ## 13. Larangan tegas
 
-1. Mencatat angka yang sama di dua tempat (papan + Excel + grup WA). Pengecualian terbatas:
-   masa transisi sejajar per divisi sampai cutover, dengan badge sumber (R-85).
+1. Mencatat angka yang sama di dua tempat (papan + Excel + grup WA). Excel tetap pemilik kolomnya
+   dan aplikasi hanya membaca (R-89), jadi tidak ada pencatatan ganda.
 2. Menutup kasus tanpa sebab, tindakan, bukti, dan PIC.
 3. Mengubah angka periode yang sudah dikunci tanpa jejak.
 4. Mengetik angka papan dari TV.
@@ -390,25 +405,16 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 ## 14. Status keputusan
 
-**Tiga keputusan awal diminta pada rapat persetujuan** (deck hal. 27, bersama tiga keputusan
- tambahan di bawah). Sampai rapat
-memutuskan, nilai BAKU di aturan tetap berlaku; bila rapat memilih lain, aturan direvisi
-sebagai versi baru (R-53).
+**Tiga keputusan diminta pada rapat persetujuan** (deck hal. 27). Sampai rapat memutuskan, nilai
+BAKU di aturan tetap berlaku; bila rapat memilih lain, aturan direvisi sebagai versi baru (R-53).
+Tiga pertanyaan tambahan tentang TV & integrasi Excel **sudah dijawab plant pada 6 Nov 2026** —
+lihat tabel "Sudah diputuskan" di bawah.
 
 | No | Pertanyaan | Pilihan | Nilai berlaku sekarang |
 |---|---|---|---|
 | 1 | Cut-off edit leader | 30 menit · 60 menit · sampai akhir shift | 30 menit (R-26) |
 | 2 | Ambang downtime jadi kasus Teknik | 30 menit · 60 menit · per mesin | 30 menit (R-17) |
 | 3 | Sumber nama absensi | Admin ketik · impor Excel · tarik dari mesin absensi | impor Excel dianjurkan (R-31) |
-
-**Keputusan tambahan — rancangan TV per divisi & integrasi Excel**
-(detail: `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §10):
-
-| No | Pertanyaan | Pilihan | Usulan |
-|---|---|---|---|
-| 4 | Tempat file Excel disimpan | SharePoint/OneDrive · folder jaringan · laptop petugas | library bersama (SharePoint/OneDrive) → sinkron otomatis (R-85) |
-| 5 | Sumber data Delivery & Teknik | form aplikasi · sheet Excel baru | form aplikasi (R-86) |
-| 6 | Waktu Excel dibekukan per divisi | setelah 2 pekan sejajar · setelah gerbang G4 | setelah 2 pekan sejajar per divisi |
 
 **Sudah diputuskan** (tidak dibuka lagi):
 
@@ -423,3 +429,7 @@ sebagai versi baru (R-53).
 | Kalender libur | Master tahunan per plant, dipelihara Admin | R-05 |
 | N/A item | Dari konfigurasi item per line, bukan diketik saat mengisi | R-73 |
 | Impor historis | Masuk berflag historis; tidak ke TV/eskalasi | R-75 |
+| Tempat file Excel | Masih di laptop petugas → folder dipindah ke OneDrive sekali oleh IT, junction di path lama | R-85, rancangan TV §5.1 |
+| Sumber Delivery & Teknik | Tiap divisi sudah punya Excel sendiri → cukup didaftarkan, bukan form baru | R-86 |
+| Pembekuan Excel | **Tidak dibekukan.** Excel dipakai terus, sinkron setiap saat; yang dibagi adalah kepemilikan kolom | R-85, R-89 |
+| Usaha petugas | Nol langkah tambahan; dilarang meminta upload/ekspor/isi ulang | R-88 |

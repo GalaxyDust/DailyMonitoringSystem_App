@@ -886,7 +886,7 @@ def tv_qr():
     t(d, (px + 22, ty + 22), "SATU PINTU UNTUK SEMUA PERAN", 20, NAVY, True)
     t(d, (px + 22, ty + 52), "Absensi · isian divisi · PICA · review — satu tautan sesi, bukan aplikasi terpisah", 14, GREY)
     steps = [("1", "ABSENSI", "Leader menandai yang tidak hadir lalu konfirmasi. Wajib selesai lebih dulu.", TEAL, "WAJIB DULU"),
-             ("2", "ISI DIVISI", "SHE · Quality · Produksi · Delivery · Teknik. Kolom mengikuti Excel.", NAVY, "TERBUKA SETELAH 1"),
+             ("2", "DATA DIVISI", "Sudah terisi dari Excel tiap divisi — tidak perlu isi ulang; yang belum ada di Excel saja diisi di sini.", NAVY, "TERBUKA SETELAH 1"),
              ("3", "REVIEW & KIRIM", "Cek sebab, tindakan, PIC, tenggat; kirim bagian divisi sendiri.", GOLD_D, "TERKUNCI"),
              ("4", "SESI TERKUNCI", "TV pindah dari Absensi ke rotasi divisi; laporan ikut terbarui.", GREY, "OTOMATIS")]
     sy = ty + 88

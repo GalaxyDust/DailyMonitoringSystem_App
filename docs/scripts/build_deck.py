@@ -1460,21 +1460,21 @@ shot(s, "docs/assets/mockup/tv_qr.png", 0.62, 1.46,
      "QR sesi di TV, urutan langkah: absensi → isi divisi → review → sesi terkunci", NAVY)
 sides(s, 8.20, 1.46, 4.50, [
     ("Absensi jadi gerbang", "Isian divisi belum bisa dikirim sebelum kehadiran sesi dikonfirmasi leader.", TEAL),
-    ("Satu pintu, bukan aplikasi baru", "Absensi, isian, PICA, dan review memakai tautan sesi yang sama; yang membedakan hanya hak akses.", NAVY),
+    ("Tidak ada isi ulang", "Data divisi sudah masuk dari Excel masing-masing; yang diisi di aplikasi hanya yang tidak ada di Excel.", NAVY),
     ("Token terbatas & bisa dicabut", "Terikat plant, line, tanggal, dan shift; kedaluwarsa otomatis, dampak kebocoran kecil.", RED),
     ("Ada jalan keluar darurat", "Supervisor/DH boleh membuka isian bila absensi tertunda, dengan alasan tercatat di jejak audit.", GOLD)])
 
 
 # ================================================================ 12d · EXCEL AUTO-SYNC
-s = page("Excel tetap diisi petugas, sistem memperbarui sendiri",
+s = page("Petugas cukup Ctrl+S — sistem yang mengurus sisanya",
          "Bagian 4 · pembaruan rancangan",
-         note="Integrasi satu arah: aplikasi membaca workbook, tidak pernah menulisnya · tanpa tombol upload")
-label(s, 0.62, 1.24, "ALUR DATA · DARI EXCEL KE TV", 6.0)
-flow = [("1", "Petugas isi Excel", "Kebiasaan tidak berubah; tidak ada tombol upload.", NAVY),
-        ("2", "File di library bersama", "SharePoint/OneDrive atau folder jaringan.", NAVY),
-        ("3", "Pemicu perubahan", "Webhook, flow, atau pengawas folder.", TEAL),
-        ("4", "Normalisasi + upsert", "Baca header, rapikan, simpan idempoten.", TEAL),
-        ("5", "Basis data → TV", "Halaman divisi menyegar 20–30 detik.", GOLD)]
+         note="File tetap di laptop petugas · folder dipindah ke OneDrive satu kali oleh IT · tidak ada tombol upload, tidak ada pelatihan baru")
+label(s, 0.62, 1.24, "DARI LAPTOP PETUGAS KE TV · TANPA LANGKAH TAMBAHAN", 8.0)
+flow = [("1", "Petugas Ctrl+S", "File dan shortcut yang sama seperti biasa.", NAVY),
+        ("2", "OneDrive unggah", "Folder dipindah IT sekali; junction di path lama.", NAVY),
+        ("3", "Pemicu perubahan", "Graph delta/webhook atau Power Automate.", TEAL),
+        ("4", "Normalisasi + upsert", "Per berkas divisi, idempoten, ada karantina.", TEAL),
+        ("5", "TV & dasbor", "Tersinkron 10–60 detik setelah disimpan.", GOLD)]
 fx = 0.62
 for no_, ttl, body, col in flow:
     box(s, fx, 1.56, 2.24, 1.44, fill=WHITE, line=RULE, radius=0.05)
@@ -1485,26 +1485,26 @@ for no_, ttl, body, col in flow:
         arrow(s, fx + 2.28, 2.16, 0.12, 0.20, "right", LGREY)
     fx += 2.44
 
-label(s, 0.62, 3.20, "TIGA PILIHAN PEMICU · PILIH SESUAI TEMPAT FILE DISIMPAN", 8.0)
-opts = [("A · Microsoft Graph", "Untuk file di SharePoint/OneDrive. Langganan perubahan + delta query "
-         "untuk mengejar yang terlewat. Latensi 10–60 detik.", "Pilihan produksi", NAVY),
-        ("B · Power Automate", "Flow \"file berubah\" mengirim ke API aplikasi. Paling cepat dibuat, "
-         "tanpa banyak kode. Latensi 5–60 detik.", "Pilihan pilot", TEAL),
-        ("C · Pengawas folder", "Untuk jaringan tertutup: folder bersama disinkron ke server, agen "
-         "membaca saat file selesai disimpan.", "Tanpa cloud", GOLD)]
+label(s, 0.62, 3.20, "TIGA HAL YANG MEMBUAT PETUGAS TIDAK TERBEBANI", 8.0)
+opts = [("Nol langkah baru", "Tidak ada upload, ekspor CSV, kirim lampiran, atau isi ulang di aplikasi. "
+         "Bila sebuah rancangan menuntut langkah tambahan, rancangannya yang berubah.", "R-88", NAVY),
+        ("Excel tidak dibekukan", "Excel dipakai terus selamanya. Kolom milik Excel baca-saja di aplikasi; "
+         "koreksi cukup di Excel dan aplikasi menyusul otomatis.", "R-85 · R-89", TEAL),
+        ("Tiap divisi file sendiri", "Sinkron per berkas lewat daftar sumber. Berkas Quality bermasalah "
+         "tidak menahan halaman SHE atau Produksi.", "R-86", GOLD)]
 ox = 0.62
 for ttl, body, tag, col in opts:
     box(s, ox, 3.52, 3.87, 1.62, fill=SOFT, line=RULE, radius=0.05)
     box(s, ox, 3.52, 0.06, 1.62, fill=col, line=None, radius=0.5)
     txt(s, ox + 0.20, 3.64, 3.50, 0.24, [(ttl, 10.5, True, col)])
     txt(s, ox + 0.20, 3.92, 3.50, 0.86, [(body, 9, None, GREY)], spacing=1.18)
-    txt(s, ox + 0.20, 4.84, 3.50, 0.22, [(tag.upper(), 8.5, True, col)])
+    txt(s, ox + 0.20, 4.84, 3.50, 0.22, [(tag, 8.5, True, col)])
     ox += 4.11
 
 label(s, 0.62, 5.34, "YANG MENJAGA DATA TETAP BENAR", 6.0)
 guards = [("Tidak dobel", "Kunci baris dari isi, bukan nomor urut Excel yang bisa berubah."),
           ("Tidak setengah jadi", "Tunggu file selesai disimpan; lewati berkas kunci Excel."),
-          ("Tidak hilang diam-diam", "Gagal baca masuk karantina + notifikasi Admin, bukan dibuang."),
+          ("Offline ≠ belum diisi", "Laptop mati menulis \"belum tersinkron\"; perubahan tersusul saat online."),
           ("Jelas sumbernya", "Badge Excel/Aplikasi + jam sinkron terakhir di TV dan dasbor.")]
 gx = 0.62
 for ttl, body in guards:
@@ -1518,25 +1518,20 @@ for ttl, body in guards:
 s = page("Keputusan yang diminta dan langkah berikutnya", "Penutup · keputusan",
          note="Semua keputusan mengacu pada angka tiga workbook; tidak ada tambahan asumsi baru")
 
-label(s, 0.62, 1.26, "ENAM KEPUTUSAN TERBUKA", 4.15)
+label(s, 0.62, 1.26, "TIGA KEPUTUSAN TERBUKA", 4.15)
 dec = [("1 · Cut-off edit papan",
         "30 menit, 60 menit, atau sampai akhir shift?"),
        ("2 · Ambang downtime jadi kasus Teknik",
         "Mulai 30 menit, 60 menit, atau per jenis mesin?"),
        ("3 · Sumber daftar nama absensi",
         "Admin ketik, impor Excel, atau tarik mesin absensi?"),
-       ("4 · Tempat file Excel disimpan",
-        "SharePoint/OneDrive, folder jaringan, atau laptop petugas?"),
-       ("5 · Sumber data Delivery & Teknik",
-        "Form aplikasi atau sheet Excel baru? Belum ada di workbook."),
-       ("6 · Kapan Excel dibekukan per divisi",
-        "Setelah dua pekan sejajar, atau menunggu gerbang G4?")]
+       ]
 y = 1.58
 for name, q in dec:
-    box(s, 0.62, y, 4.15, 0.52, fill=SOFT, line=RULE, radius=0.04)
-    txt(s, 0.80, y + 0.04, 3.80, 0.20, [(name, 9.5, True, NAVY)])
-    txt(s, 0.80, y + 0.25, 3.80, 0.24, [(q, 8.2, None, GREY)], spacing=1.10)
-    y += 0.56
+    box(s, 0.62, y, 4.15, 0.98, fill=SOFT, line=RULE, radius=0.05)
+    txt(s, 0.80, y + 0.10, 3.80, 0.24, [(name, 10.5, True, NAVY)])
+    txt(s, 0.80, y + 0.38, 3.80, 0.54, [(q, 9, None, GREY)], spacing=1.2)
+    y += 1.06
 
 label(s, 5.02, 1.26, "ANGKA YANG MENJADI DASAR", 3.20)
 nums = [(n(TOT["total_kasus"]), "kasus tiga plant", NAVY),
@@ -1551,10 +1546,16 @@ for v, l, col in nums:
     hline(s, 5.02, y + 0.36, 3.20, RULE)
     y += 0.48
 
+box(s, 5.02, 4.14, 3.20, 0.78, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 5.18, 4.20, 2.90, 0.20, [("SUDAH DIJAWAB · 6 NOV", 8.5, True, TEAL)])
+txt(s, 5.18, 4.42, 2.90, 0.46,
+    [("Excel di laptop → OneDrive + junction, petugas cukup Ctrl+S. Tiap divisi pakai Excel sendiri. "
+      "Excel tidak dibekukan.", 8, None, GREY)], spacing=1.14)
+
 label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 2.30, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.70, 3.90, 2.10,
-    [("1. Enam keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
+    [("1. Tiga keputusan di atas diputuskan pada rapat ini.", 9.5, None, INK),
      ("2. Angka halaman 23 diambil ulang dari workbook sebelum rapat.", 9.5, None, INK),
      ("3. Pilot Snack, lalu Exist Plant dan New Plant dengan pola yang sama.", 9.5, None, INK),
      ("4. Evaluasi pekan ke-8 memakai lima ukuran keberhasilan.", 9.5, None, INK),

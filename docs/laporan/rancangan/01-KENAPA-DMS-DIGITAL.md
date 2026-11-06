@@ -210,7 +210,7 @@ Hubungan dengan dokumen lain:
 | **01 (ini)** | alasan, baseline angka, tujuan, prinsip | saat meminta persetujuan/anggaran |
 | **02 Rancangan Aplikasi** | modul, data, peran, teknologi, non-fungsional | saat membangun dan menguji |
 | **03 Alur Sistem** | alur harian, absensi, kasus, eskalasi, koreksi, laporan | saat sosialisasi ke plant dan saat uji terima |
-| `DMS_Aturan_Sistem_v1.md` | 87 aturan bernomor (WAJIB/BAKU/SARAN) | rujukan hukum sistem; tidak boleh dilanggar |
+| `DMS_Aturan_Sistem_v1.md` | 90 aturan bernomor (WAJIB/BAKU/SARAN) | rujukan hukum sistem; tidak boleh dilanggar |
 | `DMS_Logic_Design_v1.md` | pembongkaran rumus Excel → logika aplikasi (sebagian digantikan paket ini; lihat banner di dokumennya) | saat memindahkan penilaian |
 | `DMS_Review_Rancangan_v1.md` | review silang antar-dokumen + status perbaikan | saat mengecek konsistensi rancangan |
 | `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` | TV satu divisi per layar, absensi di awal, QR satu pintu, sinkron Excel otomatis | saat menyepakati tampilan TV dan cara integrasi Excel |

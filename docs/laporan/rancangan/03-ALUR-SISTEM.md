@@ -63,9 +63,10 @@ sequenceDiagram
     S-->>TV: ringkasan hadir/total + buka isian divisi (R-81)
 
     par Pengisian paralel
-        L->>S: isi tab Produksi (output, downtime, checklist)
+        D->>D: isi Excel divisi sendiri di laptop, Ctrl+S (kebiasaan lama)
+        S->>S: OneDrive unggah -> ingest otomatis -> papan terisi, tanpa upload
     and
-        D->>S: isi tab SHE / Quality / Teknik / Delivery
+        L->>S: isi kolom yang tidak ada di Excel (bukti, konfirmasi, catatan)
     end
 
     S->>S: validasi, hitung status, hitung kelengkapan
@@ -86,7 +87,7 @@ sequenceDiagram
 |---|---|---|---|
 | 06.00–06.30 | Sistem | buka sesi: QR + halaman Absensi; isian divisi terkunci | sesi terbuka, QR aktif |
 | 06.30–07.00 | Leader | pindai QR → konfirmasi absensi (hanya yang tidak hadir) | kehadiran shift + isian terbuka |
-| 06.30–07.30 | Leader & divisi | isi bagian masing-masing | sel papan terisi |
+| 06.30–07.30 | Divisi | isi Excel masing-masing di laptop, Ctrl+S | papan terisi lewat sinkron otomatis |
 | 07.30 | Sistem | validasi & buat kasus bila di bawah target | kasus + tenggat |
 | 07.30 | Sistem | perbarui TV & dasbor | papan terkini |
 | 08.30 | Supervisor/DH | rapat pagi memakai temuan berperingkat | keputusan & penugasan |
@@ -331,6 +332,7 @@ TV tahan gangguan:
 | Divisi tanpa data hari itu | halaman tetap tampil "belum diisi" + siapa yang belum mengisi (R-84) |
 | Sesi baru dibuka | halaman **Absensi** tampil lebih dulu; rotasi divisi mulai setelah konfirmasi (R-81) |
 | Sinkron Excel tertunda | footer menampilkan jam sinkron terakhir + badge sumber; angka tidak disamarkan (R-87) |
+| Laptop petugas mati/offline | **"belum tersinkron · terakhir hh.mm"**, bukan "belum diisi"; tersusul saat online (R-90) |
 | Jaringan pulih | ambil snapshot baru, tanpa perlu restart |
 | Absensi | tetap bisa diketuk (terkirim saat jaringan kembali); ketukan yang tiba setelah cut-off masuk sebagai usulan koreksi ke Supervisor, bukan menimpa langsung |
 

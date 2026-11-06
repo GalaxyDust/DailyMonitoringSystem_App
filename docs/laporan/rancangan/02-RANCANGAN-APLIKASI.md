@@ -53,7 +53,7 @@ flowchart TB
     subgraph Luar["Sistem terkait"]
         ABS["Mesin absensi / jadwal shift<br/>(impor file)"]
         XLS["Workbook historis<br/>(17.201 kasus)"]
-        XLSL["Workbook harian petugas<br/>(SharePoint/OneDrive atau folder)"]
+        XLSL["Excel tiap divisi di laptop petugas<br/>folder di OneDrive + junction di path lama<br/>petugas cukup Ctrl+S"]
         GRP["Group Manufacturing<br/>(laporan & perbandingan)"]
     end
 
@@ -82,9 +82,11 @@ Prinsip arsitektur:
 3. **Semua aturan waktu di penjadwal**, bukan di kepala orang: cut-off shift, kunci periode, tenggat, eskalasi.
 4. **Audit di lapisan API**, bukan di aplikasi klien, supaya tidak bisa dilewati.
 5. **Berkas (foto/dokumen) dipisah dari basis data**, hanya metadatanya yang masuk DB.
-6. **Excel didatangi, bukan diunggah.** Layanan sinkron membaca workbook di tempat petugas
-   menyimpannya (webhook/delta Microsoft Graph, Power Automate, atau pengawas folder), lalu
-   menormalkan dan menyimpan idempoten. Aplikasi tidak pernah menulis ke workbook (R-85).
+6. **Excel didatangi, bukan diunggah.** File masih di laptop petugas: folder kerja dipindah ke
+   OneDrive **satu kali oleh IT** dan di path lama dibuat *junction*, sehingga petugas tetap membuka
+   file yang sama dan cukup Ctrl+S. OneDrive mengunggah sendiri; layanan sinkron membaca perubahan
+   (Graph delta/webhook atau Power Automate), menormalkan, dan menyimpan idempoten. Aplikasi tidak
+   pernah menulis ke workbook dan **Excel tidak dibekukan** (R-85, R-88, R-89).
    Detail: `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §5.
 
 ---
@@ -201,6 +203,10 @@ Matriks penuh dan alasannya: `DMS_Aturan_Sistem_v1.md` bagian 2.
 
 ### 5.1 Isi papan (tablet/PC line)
 
+> **Kolom milik Excel bersifat baca-saja** (R-89). Untuk SHE/Quality/Produksi yang sudah punya
+> Excel sendiri, layar ini menampilkan hasil sinkron + tanda "Perbaiki di Excel", bukan meminta
+> petugas mengetik ulang (R-88). Isian manual hanya untuk kolom yang tidak ada di Excel.
+
 - **Kepala:** plant › line › tanggal, badge hari kerja, sisa waktu sebelum cut-off.
 - **Tab divisi:** SHE · Quality · Produksi · Teknik · Delivery (badge titik bila belum diisi).
 - **Tabel sel:** item · target · hasil · status (warna) · sebab/bukti.
@@ -271,7 +277,9 @@ Semua angka dapat diklik menuju daftar detailnya.
 
 - Target & bobot KPI **per versi** (berlaku per periode) + simulasi dampak sebelum simpan.
 - Profil TV: pilih halaman divisi yang tampil, urutan, durasi rotasi, absensi di awal, penanda halaman.
-- Sumber data & sinkronisasi: daftarkan workbook, lihat status sinkron, karantina, dan peta kolom.
+- Daftar sumber **per berkas divisi**: plant · line · divisi · path lama di laptop · ID cloud ·
+  sheet · peta kolom · status. Satu berkas gagal tidak menahan divisi lain (R-86).
+- Status sinkron, karantina, dan tombol "Sinkronkan sekarang"; peringatan bila laptop lama offline.
 - Daftar nama, regu, shift, line; impor Excel.
 - Kunci periode; buka kunci dengan alasan.
 - Jejak audit: siapa, kapan, sebelum–sesudah.
