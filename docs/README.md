@@ -8,10 +8,11 @@ Sumber angka adalah tiga workbook di `reference/` (root repo) — **read-only, t
 ```
 docs/
 ├── laporan/                        ← SEMUA LAPORAN & DECK FINAL
-│   ├── DMS_Digitalisasi_v1.pptx        deck presentasi (25 slide) — deliverable utama
+│   ├── DMS_Digitalisasi_v1.pptx        deck presentasi (28 slide) — deliverable utama
 │   ├── DMS_Review_Rancangan_v1.md      review rancangan + status perbaikan + verifikasi xlsx
 │   ├── DMS_Insight_xlsx_ke_Aplikasi.md insight dari 3 workbook → terjemahan ke aplikasi
-│   ├── DMS_Aturan_Sistem_v1.md         aturan sistem (R-01 … R-77)
+│   ├── DMS_Aturan_Sistem_v1.md         aturan sistem (R-01 … R-87)
+│   ├── DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md  TV per divisi · absensi awal · QR · sinkron Excel
 │   ├── DMS_Logic_Design_v1.md          logika & model data
 │   └── rancangan/                      paket rancangan 5 Nov (kanonik)
 │       ├── 01-KENAPA-DMS-DIGITAL.md
@@ -29,7 +30,7 @@ docs/
 │
 ├── assets/                         ← GAMBAR, FONT, MOCKUP
 │   ├── papan/                          foto papan DMS asli B.U.E Factory 10
-│   ├── mockup/                         ilustrasi layar (termasuk papan DMS realistis: tv, tv_absen)
+│   ├── mockup/                         ilustrasi layar (tv=SHE, tv_quality, tv_produksi, tv_absen, tv_qr, form, dasbor, admin, kasus, laporan)
 │   ├── fonts/                          Kalam (tulisan tangan spidol untuk ilustrasi papan)
 │   ├── gf_logo.png, gf_cover_band.jpg
 │
@@ -51,8 +52,9 @@ python3 docs/scripts/build_deck.py         # rakit deck        → docs/laporan/
 
 - Seluruh angka di deck dibaca dari `docs/data/data_plants.json`, jadi bila workbook diperbarui,
   cukup jalankan ulang `analyze_workbook.py` lalu `build_deck.py`.
-- Ilustrasi papan DMS (slide 6–7) digambar menyerupai papan fisik: 5 kolom pilar berwarna,
-  grid shift 1–3, angka spidol biru/merah (font Kalam), dan baris PICA.
+- Ilustrasi TV (slide 6–7 dan 24–26) memakai bentuk papan fisik — grid KPI, angka spidol
+  biru/merah (font Kalam), baris PICA — tetapi **satu divisi per layar** dengan kolom mengikuti
+  Excel, ditambah halaman absensi awal dan layar QR satu pintu.
 - `render_deck.py` dipakai untuk memeriksa visual slide (menghasilkan PNG per slide).
 
 ## Catatan

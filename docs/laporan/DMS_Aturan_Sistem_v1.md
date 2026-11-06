@@ -180,7 +180,7 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
   divisi, dan masa berlaku. Impor dari file (Excel) dianjurkan; mengetik manual hanya untuk koreksi.
 - **R-32 · WAJIB — status awal "hadir".** Sistem mengisi seluruh daftar shift sebagai hadir, lalu
   lapangan hanya menandai yang **tidak hadir**: sakit · izin · alpa · dinas luar · terlambat.
-- **R-33 · WAJIB — absensi bisa dikerjakan dari TV (tanpa login) atau dari form web**, hasilnya sama.
+- **R-33 · WAJIB — absensi bisa dikerjakan dari TV (tanpa login), form web, atau hasil pindai QR sesi (R-82)**, hasilnya sama.
   Dua jalur ini menulis ke catatan absensi yang sama — tidak ada rekap ulang.
 - **R-34 · WAJIB — TV hanya bisa mengabsen shift berjalan dan line miliknya sendiri** (terikat kode
   perangkat). Tanggal lampau tidak bisa diubah dari TV.
@@ -196,6 +196,14 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
   adalah kehadiran terkonfirmasi per shift dan kelengkapan pengisian, bukan peringkat individu.
 - **R-39 · SARAN — absensi per line dan shift** sebagai default. Bila sebuah divisi punya regu sendiri
   (mis. Teknik lintas line), Admin menandai divisi itu punya daftar absensi terpisah.
+
+- **R-81 · WAJIB — absensi dikerjakan lebih dulu, sebelum DMS.** Saat sesi dibuka, TV tampil halaman
+  Absensi dan isian divisi **belum bisa dikirim** sampai kehadiran sesi dikonfirmasi leader.
+  Supervisor/DH boleh membuka isian bila absensi tertunda, dengan alasan tercatat di jejak audit.
+- **R-82 · WAJIB — QR sesi adalah satu pintu masuk.** Satu QR per sesi mengikat plant · line ·
+  tanggal · shift, berputar tiap shift, dan dapat dicabut Admin. Semua peran masuk lewat tautan
+  sesi yang sama (absensi → divisi → review → kunci); menulis tetap wajib login/SSO. QR bukan
+  kanal baru dan bukan izin mengubah angka lampau.
 
 ---
 
@@ -273,19 +281,34 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 ## 9. Tampilan TV dan layar lain
 
 - **R-55 · WAJIB — TV berbentuk papan**, bukan daftar kartu lepas: kepala papan (plant, line, tanggal,
-  shift), kolom per pilar, baris per line/mesin, sel dengan warna status dibanding target.
+  shift), grid KPI (target vs realisasi per shift), tabel kasus, dan baris PICA — disajikan
+  **satu divisi per layar** (R-80), sel dengan warna status dibanding target.
 - **R-56 · WAJIB — TV tanpa login dan tanpa interaksi**, kecuali panel absensi.
 - **R-57 · WAJIB — TV terikat satu profil** (kode perangkat). TV tidak punya kolom pencarian plant/line.
 - **R-58 · WAJIB — angka papan tidak diubah dari TV.** TV bukan alat ketik.
-- **R-59 · BAKU — rotasi**: papan penuh → panel absensi → papan penuh, atau gulir per pilar tiap
-  BAKU 20 detik untuk plant dengan line banyak (EP 59 line). Snack 20 line umumnya tampil sekaligus.
+- **R-59 · BAKU — rotasi per divisi**: **Absensi (saat sesi dibuka) → SHE → Quality → Produksi →
+  Delivery → Teknik → Ringkasan/DMS Index**, lalu ulang. BAKU 20–30 detik per halaman; urutan,
+  durasi, dan halaman aktif diatur Admin lewat profil TV. Bukan lagi papan gabungan lima kolom.
 - **R-60 · WAJIB — TV selalu menunjukkan kesegaran data**: jam pembaruan terakhir dan tanda
   "data kemarin" bila hari ini belum ada isian. TV tidak boleh terlihat seperti angka hari ini
   padahal masih kemarin.
 - **R-61 · WAJIB — layar PC/admin**: dasbor L1–L3 (lihat), halaman admin (ubah aturan, koreksi,
   kunci periode, profil TV). Hanya dari sini data dan aturan boleh diubah.
 - **R-62 · BAKU — empat kanal tetap**: form/tablet isian · dasbor L1–L3 · TV lantai · halaman admin.
-  Menambah kanal baru harus lewat aturan, bukan aplikasi terpisah.
+  Menambah kanal baru harus lewat aturan, bukan aplikasi terpisah. QR sesi (R-82) adalah pintu
+  masuk kanal isian, bukan kanal kelima.
+
+- **R-80 · WAJIB — satu divisi per layar.** TV menampilkan satu divisi penuh per halaman dengan
+  penanda halaman (`Halaman 4/6`), bukan papan gabungan. Lebih detail, kolom lengkap, tetap
+  terbaca 3–10 m.
+- **R-83 · WAJIB — kolom TV & form mengikuti kontrak kolom Excel** divisi itu (`Resume SHE`,
+  `Resume QC`, `Resume Prod`). Kolom baru yang muncul di Excel **tidak otomatis tampil**: masuk
+  staging dan diberitahukan ke Admin untuk dipetakan lebih dulu.
+- **R-84 · BAKU — kolom statis, isi dinamis.** Daftar kolom tetap sesuai kontrak; baris kasus,
+  angka, dan target berubah mengikuti tanggal/shift. Divisi tanpa data hari itu **tetap tampil**
+  dengan tanda "belum diisi" — tidak dilewati diam-diam.
+- **R-87 · WAJIB — setiap angka membawa sumber dan waktu.** TV dan dasbor menampilkan badge
+  sumber (`Excel` / `Aplikasi`) serta jam sinkron terakhir, selain jam pembaruan (R-60).
 
 ---
 
@@ -303,6 +326,16 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
   (saat ini sampai dua kali lipat) tidak boleh terulang.
 - **R-69 · WAJIB — kelengkapan diukur dan ditampilkan**: persen item terisi per line per hari, per divisi.
   Inilah ukuran mutu data yang dipakai rapat, bukan perasaan.
+
+- **R-85 · WAJIB — integrasi Excel otomatis dan satu arah.** Petugas tetap mengisi workbook seperti
+  biasa; sistem membaca dari tempat file disimpan (SharePoint/OneDrive atau folder jaringan) dan
+  memperbarui basis data **tanpa upload manual**. Aplikasi **tidak menulis** ke workbook. Baris
+  yang hilang dari Excel ditandai "terhapus di sumber", tidak dihapus permanen. Cutover ke aplikasi
+  dilakukan **per divisi**; selama transisi, penulisan sejajar diizinkan terbatas dan diberi badge sumber.
+- **R-86 · WAJIB — Delivery & Teknik perlu sumber sendiri.** Workbook hanya memuat KPI Safety,
+  Quality, dan Productivity (`Template Penilaian → Summary DMS to KPI`). Halaman TV Delivery dan
+  Teknik memakai form aplikasi atau sheet baru berkontrak kolom sama; jangan menampilkan angka
+  yang tidak punya sumber.
 
 ---
 
@@ -341,7 +374,8 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 ## 13. Larangan tegas
 
-1. Mencatat angka yang sama di dua tempat (papan + Excel + grup WA).
+1. Mencatat angka yang sama di dua tempat (papan + Excel + grup WA). Pengecualian terbatas:
+   masa transisi sejajar per divisi sampai cutover, dengan badge sumber (R-85).
 2. Menutup kasus tanpa sebab, tindakan, bukti, dan PIC.
 3. Mengubah angka periode yang sudah dikunci tanpa jejak.
 4. Mengetik angka papan dari TV.
@@ -356,7 +390,8 @@ Pembagian ini yang membuat tidak ada dua orang mencatat hal yang sama.
 
 ## 14. Status keputusan
 
-**Tiga keputusan diminta pada rapat persetujuan** (sama dengan deck hal. 24). Sampai rapat
+**Tiga keputusan awal diminta pada rapat persetujuan** (deck hal. 27, bersama tiga keputusan
+ tambahan di bawah). Sampai rapat
 memutuskan, nilai BAKU di aturan tetap berlaku; bila rapat memilih lain, aturan direvisi
 sebagai versi baru (R-53).
 
@@ -365,6 +400,15 @@ sebagai versi baru (R-53).
 | 1 | Cut-off edit leader | 30 menit · 60 menit · sampai akhir shift | 30 menit (R-26) |
 | 2 | Ambang downtime jadi kasus Teknik | 30 menit · 60 menit · per mesin | 30 menit (R-17) |
 | 3 | Sumber nama absensi | Admin ketik · impor Excel · tarik dari mesin absensi | impor Excel dianjurkan (R-31) |
+
+**Keputusan tambahan — rancangan TV per divisi & integrasi Excel**
+(detail: `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §10):
+
+| No | Pertanyaan | Pilihan | Usulan |
+|---|---|---|---|
+| 4 | Tempat file Excel disimpan | SharePoint/OneDrive · folder jaringan · laptop petugas | library bersama (SharePoint/OneDrive) → sinkron otomatis (R-85) |
+| 5 | Sumber data Delivery & Teknik | form aplikasi · sheet Excel baru | form aplikasi (R-86) |
+| 6 | Waktu Excel dibekukan per divisi | setelah 2 pekan sejajar · setelah gerbang G4 | setelah 2 pekan sejajar per divisi |
 
 **Sudah diputuskan** (tidak dibuka lagi):
 

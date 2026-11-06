@@ -22,7 +22,7 @@ paket rancangan 5 November sebagai kanonik.
 | B5 ukuran keberhasilan | ✅ | **5 ukuran gerbang** (deck hal. 20) di rancangan/01 §4.2, R-77, G4, gerbang replikasi; waktu rekap & insight = ukuran tambahan |
 | B6 hari wajib | ✅ | R-05 menang (tidak editable); R-72 merujuk R-05; config Logic_Design disesuaikan |
 | B7 TV read-only | ✅ | token = baca papan + tulis absensi shift berjalan; bisa dicabut |
-| B8 pertanyaan terbuka basi | ✅ | Aturan §14 ditulis ulang: 3 keputusan rapat (deck hal. 24) + tabel sudah diputuskan |
+| B8 pertanyaan terbuka basi | ✅ | Aturan §14 ditulis ulang: 3 keputusan rapat (deck hal. 27) + 3 keputusan tambahan TV/Excel + tabel sudah diputuskan |
 | B9 gerbang G2 | ✅ | "selisih terjelaskan penuh dalam laporan rekonsiliasi" |
 | B10 matriks vs R-13 | ✅ | pengecualian "boleh diisi leader" masuk matriks |
 | P2-1 legacy banjiri TV | ✅ | R-75 + migrasi: kasus historis tidak ke TV/eskalasi/I-02; laporan terpisah ber-PIC |
@@ -33,7 +33,8 @@ paket rancangan 5 November sebagai kanonik.
 | P2-6 template deck | ✅ | deck dimaksimalkan (5 Nov, instruksi baru): judul auto-fit agar tidak menabrak nomor halaman; ilustrasi TV/papan digambar ulang menyerupai papan DMS fisik (5 kolom pilar, grid shift, angka spidol biru/merah, baris PICA); koreksi I-10 WS L02 22,6%→22,9% |
 
 **Sisa yang benar-benar terbuka** (menunggu rapat, bukan cacat dokumen): 3 keputusan di
-Aturan §14 / deck hal. 24 — cut-off leader, ambang downtime Teknik, sumber nama absensi.
+Aturan §14 / deck hal. 27 — cut-off leader, ambang downtime Teknik, sumber nama absensi;
+ ditambah tempat file Excel, sumber Delivery & Teknik, dan waktu pembekuan Excel.
 
 ---
 
@@ -145,7 +146,7 @@ Entity yang diwajibkan aturan tetapi belum ada di model:
 | `po` / referensi PO | item Delivery "per PO" (§3, R-24 ritme) | nomor PO, plan vs real |
 | `healthy_check` per periode | R-28 | nilai konstan per periode, diisi Admin |
 | relasi **item ↔ line/plant** | §8.1 "item checklist per line per divisi" | `item` sekarang hanya milik divisi — target per line tidak bisa dibedakan |
-| cakupan **profil TV multi-line** | R-59 (EP 59 line, gulir per pilar) | `profil_tv` sekarang plant/line tunggal |
+| cakupan **profil TV multi-line** | R-59 (rotasi per divisi, R-80; EP 59 line) | `profil_tv` sekarang plant/line tunggal |
 
 Plus dua perbaikan pada `catatan`:
 

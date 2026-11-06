@@ -538,89 +538,370 @@ def board_legend(d, x, y, size=13):
     return x
 
 
-def tv():
-    im, _ = canvas()
-    im, inner = device_tablet(im, (44, 44, 1556, 912))
-    d = ImageDraw.Draw(im)
-    x0, y0, x1, y1 = inner
-    # kepala papan (meniru header papan fisik: nama, tanggal, jadwal PKI)
-    d.rectangle((x0, y0, x1, y0 + 64), fill=(0xF7, 0xF5, 0xEE))
-    d.line((x0, y0 + 64, x1, y0 + 64), fill=WB_EDGE, width=2)
-    t(d, (x0 + 24, y0 + 14), "DMS · SNACK · LINE 9", 25, NAVY, True)
-    board_legend(d, x0 + 24, y0 + 50, 13)
-    t(d, (x1 - 24, y0 + 14), "Sen, 3 Nov 2026 · Minggu 45", 16, NAVY, True, "ra")
-    t(d, (x1 - 24, y0 + 42), "PKI 08.30 · Leader: shift 1", 14, MARK_RED, True, "ra")
-    # papan lima kolom + PICA
-    realistic_board(d, x0 + 20, y0 + 80, x1 - x0 - 40, 540, scale=1.0, ncols=5)
-    pica_strip(d, x0 + 20, y0 + 632, x1 - x0 - 40, 90, scale=1.0)
-    # footer
+# ------------------------------------------------------------------ TV per divisi (R-80)
+import datetime as _dt
+
+_HARI = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
+_TGL = _dt.date(2026, 11, 6)
+TGL_ID = f"{_HARI[_TGL.weekday()]}, {_TGL.day} Nov {_TGL.year}"
+
+
+def fit(d, s, size, maxw, bold=False, hand=False):
+    """Potong teks agar tidak melewati lebar kolom."""
+    fo = fk(size, bold) if hand else f(size, bold)
+    if d.textlength(s, font=fo) <= maxw:
+        return s
+    out = s
+    while out and d.textlength(out + "…", font=fo) > maxw:
+        out = out[:-1]
+    return (out + "…") if out else "…"
+
+
+def tv_head(d, box, divname=None, divcol=None, divtxt=WHITE, sub=None):
+    x0, y0, x1, y1 = box
+    d.rectangle((x0, y0, x1, y0 + 72), fill=(0xF7, 0xF5, 0xEE))
+    d.line((x0, y0 + 72, x1, y0 + 72), fill=WB_EDGE, width=2)
+    t(d, (x0 + 22, y0 + 12), "DMS · SNACK · LINE 9", 24, NAVY, True)
+    bx = x0 + 22 + tw(d, "DMS · SNACK · LINE 9", 24, True) + 26
+    if divname:
+        bw = tw(d, divname, 22, True) + 40
+        rr(d, (bx, y0 + 10, bx + bw, y0 + 48), 8, fill=divcol)
+        t(d, (bx + bw / 2, y0 + 29), divname, 22, divtxt, True, "mm")
+        t(d, (bx + bw + 16, y0 + 29), sub or "SATU DIVISI PER LAYAR", 12, LGREY, True, "lm")
+    board_legend(d, x0 + 22, y0 + 60, 12)
+    t(d, (x1 - 22, y0 + 12), TGL_ID + " · Minggu 45", 17, NAVY, True, "ra")
+    t(d, (x1 - 22, y0 + 42), "Shift 1 · PKI 08.30 · Leader: Dhani", 14, MARK_RED, True, "ra")
+
+
+def tv_foot(d, box, page, total=7, src="EXCEL", sync="07.12", upd="07.14", extra="Hadir 25/28"):
+    x0, y0, x1, y1 = box
     fy = y1 - 58
     d.rectangle((x0, fy, x1, y1), fill=SOFT)
     d.line((x0, fy, x1, fy), fill=RULE, width=2)
-    d.ellipse((x0 + 24, fy + 22, x0 + 36, fy + 34), fill=TEAL)
-    t(d, (x0 + 46, fy + 16), "Pembaruan 07.12", 15, NAVY, True)
-    t(d, (x0 + 212, fy + 16), "·  Absensi shift 1: 25/28 hadir", 15, INK)
-    t(d, (x1 - 24, fy + 16), "TANPA LOGIN · ROTASI 20 DETIK", 13, LGREY, True, "ra")
-    im.save(f"{OUT}/tv.png")
+    d.ellipse((x0 + 22, fy + 23, x0 + 34, fy + 35), fill=TEAL)
+    t(d, (x0 + 44, fy + 18), f"Sinkron Excel {sync}", 15, NAVY, True)
+    x = x0 + 44 + tw(d, f"Sinkron Excel {sync}", 15, True) + 14
+    x += pill(d, x, fy + 15, "SUMBER: " + src, TEAL, 12, 26, False)
+    t(d, (x + 16, fy + 18), f"·  Pembaruan {upd}  ·  {extra}", 15, INK)
+    lbl = f"Halaman {page}/{total}"
+    t(d, (x1 - 22, fy + 18), lbl, 15, NAVY, True, "ra")
+    dx = x1 - 30 - tw(d, lbl, 15, True) - total * 16
+    for i in range(total):
+        col = NAVY if i == page - 1 else (0xC7, 0xCE, 0xDA)
+        d.ellipse((dx + i * 16, fy + 24, dx + i * 16 + 9, fy + 33), fill=col)
+    return fy
 
 
-def tv_absen():
+def kpi_grid(d, x, y, w, rows, color):
+    """Grid KPI: ITEM | Target | S1 | S2 | S3 | Harian | Minggu | Bulan."""
+    heads = ["Target", "S1", "S2", "S3", "Harian", "Minggu", "Bulan"]
+    cw, hh = 96, 28
+    rh = 34 if len(rows) <= 3 else 30
+    h = hh + rh * len(rows)
+    d.rectangle((x - 5, y - 5, x + w + 5, y + h + 5), fill=WB_EDGE)
+    d.rectangle((x, y, x + w, y + h), fill=WB_BG)
+    d.rectangle((x, y, x + w, y + hh), fill=color)
+    t(d, (x + 10, y + hh / 2), "KPI HARIAN  ·  target vs realisasi", 13, WHITE, True, "lm")
+    iw = w - cw * len(heads)
+    for k, hd in enumerate(heads):
+        t(d, (x + iw + cw * k + cw / 2, y + hh / 2), hd, 13, WHITE, True, "mm")
+    ry = y + hh
+    for j, (label, tgt, vals) in enumerate(rows):
+        if j:
+            d.line((x, ry, x + w, ry), fill=WB_GRID, width=1)
+        hw(d, (x + 10, ry + rh / 2), label, 16, MARK_DARK, False, "lm")
+        t(d, (x + iw + cw / 2, ry + rh / 2), tgt, 14, GREY, True, "mm")
+        for k, (val, st) in enumerate(vals):
+            cx = x + iw + cw * (k + 1)
+            if k == 2:
+                d.rectangle((cx, ry + 1, cx + cw, ry + rh - 1), fill=(0xF2, 0xF0, 0xE7))
+            col = mark_color(st)
+            hw(d, (cx + cw / 2, ry + rh / 2), val, 20, col, True, "mm")
+            if st == 2 and len(val) <= 3:
+                d.ellipse((cx + 22, ry + rh / 2 - 13, cx + cw - 22, ry + rh / 2 + 13),
+                          outline=MARK_RED, width=2)
+        ry += rh
+    for k in range(len(heads) + 1):
+        vx = x + iw + cw * k
+        d.line((vx, y + hh, vx, y + h), fill=WB_GRID, width=1)
+    d.rectangle((x, y, x + w, y + h), outline=WB_GRID, width=1)
+    return y + h
+
+
+ST_COL = {"OPEN": MARK_RED, "PROGRESS": (0x8A, 0x6C, 0x10), "CLOSE": MARK_BLUE}
+
+
+def case_table(d, x, y, w, h, sheet, cols, rows, note):
+    d.rectangle((x, y, x + w, y + h), fill=WB_BG, outline=WB_GRID, width=1)
+    tb = 30
+    d.rectangle((x, y, x + w, y + tb), fill=(0x3A, 0x3F, 0x4A))
+    t(d, (x + 10, y + tb / 2), f"KASUS · sheet {sheet}", 14, WHITE, True, "lm")
+    t(d, (x + w - 10, y + tb / 2), note, 12, (0xC9, 0xCF, 0xDA), True, "rm")
+    tot = sum(c[1] for c in cols)
+    widths = [w * c[1] / tot for c in cols]
+    hy, hh = y + tb, 26
+    d.rectangle((x, hy, x + w, hy + hh), fill=WB_HEAD)
+    xx = x
+    for (hd, _), cw in zip(cols, widths):
+        t(d, (xx + 7, hy + hh / 2), fit(d, hd, 11, cw - 12, True), 11, GREY, True, "lm")
+        xx += cw
+    ry, rh = hy + hh, (h - tb - hh) / len(rows)
+    for j, row in enumerate(rows):
+        if j:
+            d.line((x, ry, x + w, ry), fill=WB_GRID, width=1)
+        if j % 2:
+            d.rectangle((x + 1, ry + 1, x + w - 1, ry + rh - 1), fill=(0xF7, 0xF7, 0xF0))
+        xx = x
+        for k, (val, cw) in enumerate(zip(row, widths)):
+            hd = cols[k][0]
+            if val == "@foto":
+                for q in range(2):
+                    d.rectangle((xx + 8 + q * 20, ry + rh / 2 - 8, xx + 22 + q * 20, ry + rh / 2 + 8),
+                                outline=MARK_BLUE, width=2)
+                t(d, (xx + 52, ry + rh / 2), "1·1", 11, GREY, True, "lm")
+            elif hd in ("Status",):
+                col = ST_COL.get(val, MARK_DARK)
+                hw(d, (xx + 7, ry + rh / 2), val, 15, col, True, "lm")
+            else:
+                col = MARK_RED if hd in ("Prioritas", "Priority", "Umur", "DT (min)") and val not in ("—", "Rendah", "0") else MARK_DARK
+                if hd in ("PIC", "Due", "Tanggal", "Tgl", "Date", "Shift", "LBN"):
+                    col = MARK_BLUE
+                hw(d, (xx + 7, ry + rh / 2), fit(d, val, 15, cw - 12, False, True), 15, col, False, "lm")
+            xx += cw
+        ry += rh
+    xx = x
+    for cw in widths[:-1]:
+        xx += cw
+        d.line((xx, hy, xx, y + h), fill=WB_GRID, width=1)
+    d.line((x, hy + hh, x + w, hy + hh), fill=WB_GRID, width=1)
+
+
+DIV = {
+    "she": dict(
+        out="tv", name="SHE / SAFETY", color=P_SAFETY, txt=WHITE, sheet="Resume SHE", page=2,
+        kpi=[("KAK (kecelakaan kerja)", "Zero", [("0", 0)] * 6),
+             ("PICA Safety – completion", "0,80", [("0,75", 1), ("—", 3), ("—", 3), ("0,75", 1), ("0,80", 0), ("0,82", 0)]),
+             ("KPI SHE INDEX", "—", [("V", 0), ("—", 3), ("—", 3), ("V", 0), ("V", 0), ("V", 0)])],
+        cols=[("Tgl", 5), ("Shift", 4), ("LBN", 8), ("Area", 8), ("Kat. Safety", 8),
+              ("Problem Statement", 19), ("RootCause", 13), ("Action Plan", 13),
+              ("PIC", 6), ("Due", 5), ("Umur", 5), ("Status", 6), ("Foto", 6)],
+        rows=[("6 Nov", "1", "WS L09", "Frying", "Unsafe condition", "Pelindung belt frying terbuka",
+               "Baut cover lepas, tidak ada cek awal", "Pasang cover + cek per shift", "Dhani", "7 Nov", "1", "OPEN", "@foto"),
+              ("6 Nov", "1", "WS L09", "Packing", "Unsafe action", "Operator naik conveyor tanpa APD",
+               "Jalur tangga jauh, belum disosialisasi", "Sediakan tangga + briefing", "Rani", "8 Nov", "1", "PROGRESS", "@foto"),
+              ("5 Nov", "3", "WS L02", "Gudang RM", "Housekeeping", "Tumpukan karung tutup jalur evakuasi",
+               "Area staging belum ditandai", "Tandai area + rapikan", "Sigit", "6 Nov", "2", "OPEN", "@foto"),
+              ("5 Nov", "2", "WS L09", "Seasoning", "Near miss", "Terpeleset ceceran minyak",
+               "Seal pompa bocor, drip tray penuh", "Ganti seal + jadwal kuras", "Asep", "9 Nov", "2", "PROGRESS", "@foto"),
+              ("4 Nov", "1", "WS L09", "Frying", "APD", "Sarung tangan tidak dipakai saat bersih mesin",
+               "Stok APD ukuran L habis", "Restock APD + cek mingguan", "Yanti", "5 Nov", "3", "CLOSE", "@foto")],
+        note="26 kolom Excel · kolom lain: OPL/WI · PM · AM · CRMO · Training · Occurrence",
+        pica=True),
+    "quality": dict(
+        out="tv_quality", name="QUALITY", color=P_QUALITY, txt=MARK_DARK, sheet="Resume QC", page=3,
+        kpi=[("Defect internal (packing)", "≤ 0,8%", [("0,9", 1), ("0,5", 0), ("—", 3), ("0,7", 0), ("0,8", 0), ("0,76", 0)]),
+             ("PICA Quality – completion", "0,80", [("0,88", 0), ("—", 3), ("—", 3), ("0,88", 0), ("0,92", 0), ("0,97", 0)]),
+             ("KPI PQI INDEX", "—", [("V", 0), ("—", 3), ("—", 3), ("V", 0), ("V", 0), ("V", 0)])],
+        cols=[("Tanggal", 5), ("Shift", 4), ("LBN", 8), ("Category", 8), ("Prioritas", 6),
+              ("Problem", 18), ("Validasi QCP", 13), ("Root Cause", 12), ("Action Plan", 12),
+              ("PIC", 6), ("Due", 5), ("Status", 6), ("Case Category", 7)],
+        rows=[("6 Nov", "1", "WS L09", "Visual", "Tinggi", "Seal bocor pada kemasan 20 g",
+               "QCP suhu seal: di luar batas", "Suhu heater turun 8 °C", "Set ulang + kunci parameter", "Sigit", "7 Nov", "OPEN", "Mesin"),
+              ("6 Nov", "1", "WS L09", "Berat", "Sedang", "Berat bersih di bawah label",
+               "QCP checkweigher: lolos", "Setting filler drift", "Kalibrasi filler per shift", "Rani", "7 Nov", "PROGRESS", "Metode"),
+              ("5 Nov", "3", "WS L02", "Kontaminasi", "Tinggi", "Serpihan logam terdeteksi MD",
+               "QCP metal detector: fungsi", "Knife scraper aus", "Ganti scraper + cek harian", "Asep", "6 Nov", "OPEN", "Material"),
+              ("5 Nov", "2", "WS L09", "Kode produksi", "Sedang", "Kode kedaluwarsa kurang jelas",
+               "QCP coding: cek 30 mnt", "Ribbon printer habis", "Stok ribbon + alarm", "Yanti", "8 Nov", "PROGRESS", "Mesin"),
+              ("4 Nov", "1", "WS L09", "Visual", "Rendah", "Warna bumbu tidak seragam",
+               "QCP warna: sesuai standar", "Nozzle seasoning tersumbat", "Bersihkan nozzle per shift", "Budi", "5 Nov", "CLOSE", "Metode")],
+        note="21 kolom Excel · kolom lain: Progress · OPL/WI · PM · V/AM · CRMO",
+        pica=True),
+    "produksi": dict(
+        out="tv_produksi", name="PRODUKSI / PRODUCTIVITY", color=P_PROD, txt=WHITE, sheet="Resume Prod", page=4,
+        kpi=[("Yield RM E2E %", "96,0", [("96,2", 0), ("95,8", 1), ("—", 3), ("96,0", 0), ("96,4", 0), ("96,1", 0)]),
+             ("Yield PM %", "97,0", [("97,1", 0), ("96,8", 1), ("—", 3), ("97,0", 0), ("97,2", 0), ("97,0", 0)]),
+             ("OFR0 (AVG ≤ 10%)", "98–110%", [("101", 0), ("104", 0), ("—", 3), ("102", 0), ("103", 0), ("101", 0)]),
+             ("OEE %", "85", [("78", 2), ("81", 1), ("—", 3), ("80", 1), ("82", 1), ("84", 1)]),
+             ("Man Power Standart", "1,00", [("1,00", 0), ("1,08", 1), ("—", 3), ("1,04", 1), ("1,02", 0), ("1,01", 0)]),
+             ("PICA Prod – completion", "0,80", [("0,97", 0), ("—", 3), ("—", 3), ("0,97", 0), ("0,96", 0), ("0,97", 0)])],
+        cols=[("Date", 5), ("Shift", 4), ("LBN", 8), ("Category", 8), ("Prioritas", 6),
+              ("Problem", 17), ("DT (min)", 6), ("RootCause", 12), ("Corrective / Preventive", 13),
+              ("PIC", 6), ("Due", 5), ("Status", 6), ("O / R", 5)],
+        rows=[("6 Nov", "1", "WS L09", "Downtime", "Tinggi", "Frying stop — belt slip", "48",
+               "Belt aus, tension turun", "Ganti belt + set tension", "Dhani", "7 Nov", "OPEN", "R"),
+              ("6 Nov", "1", "WS L09", "Output", "Tinggi", "Output 8.120 < target 8.400", "22",
+               "Changeover lama + tunggu QC", "SMED + jadwal QC tetap", "Rani", "8 Nov", "PROGRESS", "R"),
+              ("5 Nov", "3", "WS L02", "Yield", "Sedang", "Yield RM 95,8 < 96,0", "0",
+               "Ceceran di transfer conveyor", "Pasang guide + bersihkan", "Sigit", "6 Nov", "OPEN", "O"),
+              ("5 Nov", "2", "WS L09", "Speed", "Sedang", "Speed packer turun 12%", "15",
+               "Sensor foto kotor", "Bersihkan + cek per shift", "Asep", "9 Nov", "PROGRESS", "R"),
+              ("4 Nov", "1", "WS L09", "Man power", "Rendah", "MP 1,08 > standar 1,00", "0",
+               "Operator baru belum multiskill", "Matriks latih + pairing", "Yanti", "5 Nov", "CLOSE", "O")],
+        note="22 kolom Excel · kolom lain: Progress · OPL/WI · PM · AM · CRMO",
+        pica=True),
+}
+
+
+def tv_divisi(key="she"):
+    cfg = DIV[key]
     im, _ = canvas()
     im, inner = device_tablet(im, (44, 44, 1556, 912))
     d = ImageDraw.Draw(im)
     x0, y0, x1, y1 = inner
-    d.rectangle((x0, y0, x1, y0 + 64), fill=(0xF7, 0xF5, 0xEE))
-    d.line((x0, y0 + 64, x1, y0 + 64), fill=WB_EDGE, width=2)
-    t(d, (x0 + 24, y0 + 14), "DMS · SNACK · LINE 9", 25, NAVY, True)
-    board_legend(d, x0 + 24, y0 + 50, 12)
-    t(d, (x1 - 24, y0 + 14), "Sen, 3 Nov 2026", 16, NAVY, True, "ra")
-    t(d, (x1 - 24, y0 + 42), "PKI 08.30 · shift 1", 14, MARK_RED, True, "ra")
+    tv_head(d, inner, cfg["name"], cfg["color"], cfg["txt"])
+    x, w = x0 + 20, x1 - x0 - 40
+    fy = tv_foot(d, inner, cfg["page"])
+    y = y0 + 84
+    kpi_end = kpi_grid(d, x, y, w, cfg["kpi"], cfg["color"])
+    py, ph = fy - 102, 90
+    ty = kpi_end + 16
+    case_table(d, x, ty, w, py - 12 - ty, cfg["sheet"], cfg["cols"], cfg["rows"], cfg["note"])
+    pica_strip(d, x, py, w, ph, scale=1.0)
+    im.save(f"{OUT}/{cfg['out']}.png")
 
-    # papan (4 pilar utama) di kiri, panel absensi di kanan
-    realistic_board(d, x0 + 20, y0 + 80, 900, 600, scale=0.8, ncols=4)
 
-    px, py, pw = x1 - 470, y0 + 80, 446
-    rr(d, (px, py, px + pw, py + 600), 14, fill=WHITE, line=RULE, w=2)
-    d.rectangle((px, py, px + pw, py + 54), fill=TEAL)
-    t(d, (px + 20, py + 27), "ABSENSI SHIFT 1", 21, WHITE, True, "lm")
-    t(d, (px + pw - 20, py + 27), "TANPA LOGIN", 13, (0xD8, 0xEE, 0xEA), True, "rm")
-    t(d, (px + 20, py + 70), "25", 34, OK, True)
-    t(d, (px + 78, py + 82), "hadir dari 28 orang", 15, GREY)
-    t(d, (px + 20, py + 116), "2 sakit · 1 izin · 0 alpa", 14, GREY)
-    d.rectangle((px + 20, py + 146, px + pw - 20, py + 154), fill=SOFT)
-    d.rectangle((px + 20, py + 146, px + 20 + (pw - 40) * 25 / 28, py + 154), fill=TEAL)
-    t(d, (px + 20, py + 166), "4 nama belum dikonfirmasi — ketuk namanya", 13, GOLD_D, True)
+def tv():
+    """Halaman TV divisi SHE — halaman 2 dari 7 (R-80, satu divisi per layar)."""
+    tv_divisi("she")
 
-    names = [("Rani", "hadir", 0), ("Dhani", "hadir", 0), ("Sigit", "sakit", 1),
-             ("Asep", "?", 2), ("Yanti", "hadir", 0), ("Budi", "izin", 3),
-             ("Wawan", "?", 2)]
-    y = py + 196
-    fills = {0: WHITE, 1: (0xFB, 0xF0, 0xD6), 2: WHITE, 3: SOFT}
-    for name, st, kind in names:
-        hh = 44 if kind != 2 else 50
-        rr(d, (px + 20, y, px + pw - 20, y + hh), 8, fill=fills[kind],
-           line=GOLD if kind == 2 else RULE, w=2)
-        avatar(d, px + 44, y + hh / 2, name[0], {0: TEAL, 1: GOLD, 2: NAVY, 3: LGREY}[kind], 16, 13)
-        t(d, (px + 70, y + hh / 2), name, 19, INK, kind == 2, "lm")
-        if kind == 0:
-            pill(d, px + pw - 36, y + 10, "HADIR", OK, 12, 26, True, "r")
-        elif kind == 1:
-            pill(d, px + pw - 36, y + 10, "SAKIT", GOLD_D, 12, 26, True, "r")
-        elif kind == 3:
-            pill(d, px + pw - 36, y + 10, "IZIN", LGREY, 12, 26, True, "r")
+
+def qr_pattern(d, x, y, size, seed=20261106):
+    """Gambar QR ilustratif (pola tetap, bukan QR yang bisa dipindai)."""
+    import random
+    n, q = 25, 2
+    m = size / (n + q * 2)
+    d.rectangle((x, y, x + size, y + size), fill=WHITE)
+    rnd = random.Random(seed)
+    ox, oy = x + q * m, y + q * m
+    def finder(cx, cy):
+        d.rectangle((ox + cx * m, oy + cy * m, ox + (cx + 7) * m, oy + (cy + 7) * m), fill=INK)
+        d.rectangle((ox + (cx + 1) * m, oy + (cy + 1) * m, ox + (cx + 6) * m, oy + (cy + 6) * m), fill=WHITE)
+        d.rectangle((ox + (cx + 2) * m, oy + (cy + 2) * m, ox + (cx + 5) * m, oy + (cy + 5) * m), fill=INK)
+    reserved = lambda r, c: ((r < 8 and c < 8) or (r < 8 and c > n - 9) or (r > n - 9 and c < 8))
+    for r in range(n):
+        for c in range(n):
+            if reserved(r, c):
+                continue
+            if rnd.random() < 0.46:
+                d.rectangle((ox + c * m, oy + r * m, ox + (c + 1) * m - 0.6, oy + (r + 1) * m - 0.6), fill=INK)
+    finder(0, 0); finder(n - 7, 0); finder(0, n - 7)
+
+
+def tv_absen():
+    """Halaman 1/7 — absensi dikerjakan paling awal, sebelum DMS (R-81)."""
+    im, _ = canvas()
+    im, inner = device_tablet(im, (44, 44, 1556, 912))
+    d = ImageDraw.Draw(im)
+    x0, y0, x1, y1 = inner
+    tv_head(d, inner, "LANGKAH 1 · ABSENSI", TEAL, WHITE, "DIKERJAKAN SEBELUM DMS")
+    fy = tv_foot(d, inner, 1, extra="Belum dikonfirmasi")
+    lx, lw = x0 + 20, 960
+    px, pw = x1 - 20 - 448, 448
+    ty = y0 + 84
+    rr(d, (lx, ty, lx + lw, ty + 100), 12, fill=WHITE, line=RULE, w=2)
+    t(d, (lx + 20, ty + 16), "25", 40, OK, True)
+    t(d, (lx + 88, ty + 34), "hadir dari 28 orang", 18, GREY, True)
+    t(d, (lx + 20, ty + 68), "2 sakit · 1 izin · 0 alpa · 4 nama belum dikonfirmasi", 15, GOLD_D, True)
+    d.rectangle((lx + 430, ty + 30, lx + lw - 20, ty + 42), fill=SOFT)
+    d.rectangle((lx + 430, ty + 30, lx + 430 + (lw - 450) * 25 / 28, ty + 42), fill=TEAL)
+    t(d, (lx + 430, ty + 56), "Ketuk nama untuk menandai tidak hadir — status awal semua hadir", 13, LGREY, True)
+    t(d, (lx + lw - 20, ty + 74), "Urungkan 2 menit", 13, TEAL, True, "ra")
+
+    names = ["Dhani", "Rani", "Sigit", "Asep", "Yanti", "Budi", "Wawan",
+             "Rina", "Joko", "Sari", "Agus", "Dewi", "Bagas", "Nita",
+             "Fajar", "Putri", "Rizal", "Maya", "Hendra", "Lilis", "Yoga",
+             "Tari", "Bayu", "Nisa", "Iwan", "Ratna", "Doni", "Wulan"]
+    sick = {"Sigit", "Agus"}
+    permit = {"Budi"}
+    unknown = {"Asep", "Wawan", "Fajar", "Nisa"}
+    gy = ty + 116
+    cols, gap = 4, 10
+    cw = (lw - gap * (cols - 1)) / cols
+    rh, vg = 54, 8
+    for i, nm in enumerate(names):
+        r, c = divmod(i, cols)
+        cx, cy = lx + c * (cw + gap), gy + r * (rh + vg)
+        if nm in unknown:
+            fill_, edge, st, sc = WARN_BG, GOLD, "belum pasti", GOLD_D
+        elif nm in sick:
+            fill_, edge, st, sc = BAD_BG, RED, "sakit", RED
+        elif nm in permit:
+            fill_, edge, st, sc = SOFT, LGREY, "izin", GREY
         else:
-            pill(d, px + pw - 36, y + 11, "KETUK", TEAL, 13, 30, True, "r")
-        y += hh + 6
-    t(d, (px + 20, py + 572), "Urungkan 2 menit · setiap ketukan tercatat waktu & perangkat", 11, LGREY)
+            fill_, edge, st, sc = OK_BG, OK, "hadir", OK
+        rr(d, (cx, cy, cx + cw, cy + rh), 9, fill=fill_, line=edge, w=2)
+        avatar(d, cx + 28, cy + rh / 2, nm[:2].upper(), edge, 17, 14)
+        t(d, (cx + 54, cy + 12), nm, 17, INK, True)
+        t(d, (cx + 54, cy + 33), st, 12, sc, True)
+        if nm in unknown:
+            t(d, (cx + cw - 14, cy + rh / 2), "?", 22, GOLD_D, True, "rm")
 
-    d.rectangle((x0, y1 - 58, x1, y1), fill=SOFT)
-    d.line((x0, y1 - 58, x1, y1 - 58), fill=RULE, width=2)
-    t(d, (x0 + 26, y1 - 40), "Absensi tampil berdampingan dengan papan  ·  hasilnya langsung dipakai dasbor",
-      16, NAVY, True)
+    rr(d, (px, ty, px + pw, fy - 12), 12, fill=WHITE, line=RULE, w=2)
+    d.rectangle((px, ty, px + pw, ty + 48), fill=TEAL)
+    t(d, (px + 18, ty + 24), "SATU PINTU · QR SESI", 19, WHITE, True, "lm")
+    qs = 236
+    qr_pattern(d, px + (pw - qs) / 2, ty + 66, qs)
+    t(d, (px + pw / 2, ty + 316), "Pindai untuk absen & isi DMS", 16, NAVY, True, "mm")
+    t(d, (px + pw / 2, ty + 342), "berlaku Shift 1 · 06.00–14.00 · Line 9", 13, GREY, False, "mm")
+    sy = ty + 372
+    steps = [("1", "Absensi", "AKTIF · wajib dulu", TEAL, True),
+             ("2", "Isi divisi", "terkunci", LGREY, False),
+             ("3", "Review & kirim", "terkunci", LGREY, False)]
+    for num, lbl, st, col, on in steps:
+        rr(d, (px + 18, sy, px + pw - 18, sy + 44), 8,
+           fill=(0xE8, 0xF3, 0xF2) if on else SOFT, line=col, w=2 if on else 1)
+        d.ellipse((px + 30, sy + 12, px + 50, sy + 32), fill=col)
+        t(d, (px + 40, sy + 22), num, 13, WHITE, True, "mm")
+        t(d, (px + 62, sy + 22), lbl, 16, INK if on else GREY, True, "lm")
+        t(d, (px + pw - 30, sy + 22), st, 12, col, True, "rm")
+        sy += 48
+    btn(d, (px + 18, sy + 6, px + pw - 18, sy + 58), "KONFIRMASI KEHADIRAN", TEAL, 18)
+    wrap(d, (px + 18, sy + 70), "Isian divisi terbuka setelah kehadiran dikonfirmasi (R-81). "
+         "Supervisor/DH dapat membuka bila tertunda, dengan alasan tercatat.", pw - 36, 12, GREY)
     im.save(f"{OUT}/tv_absen.png")
 
 
-# ------------------------------------------------------------------ dasbor
+def tv_qr():
+    """Sesi dibuka: QR satu pintu + urutan langkah (R-82)."""
+    im, _ = canvas()
+    im, inner = device_tablet(im, (44, 44, 1556, 912))
+    d = ImageDraw.Draw(im)
+    x0, y0, x1, y1 = inner
+    tv_head(d, inner, "SESI DMS DIBUKA", NAVY, WHITE, "MULAI DARI SINI")
+    fy = tv_foot(d, inner, 1, src="EXCEL", extra="Sesi belum dikonfirmasi")
+    ty = y0 + 88
+    lx, lw = x0 + 24, 620
+    px = lx + lw + 28
+    pw = x1 - 24 - px
+    rr(d, (lx, ty, lx + lw, fy - 16), 14, fill=WHITE, line=RULE, w=2)
+    t(d, (lx + lw / 2, ty + 34), "PINDAI UNTUK MULAI DMS", 24, NAVY, True, "mm")
+    qs = 330
+    qr_pattern(d, lx + (lw - qs) / 2, ty + 62, qs)
+    t(d, (lx + lw / 2, ty + 412), "dms.contoh.id/s/9f2c-s1", 18, TEAL, True, "mm")
+    t(d, (lx + lw / 2, ty + 442), "QR berputar setiap shift · dapat dicabut Admin", 14, GREY, False, "mm")
+    t(d, (lx + lw / 2, ty + 468), "menulis tetap wajib login/SSO", 14, GREY, False, "mm")
+
+    rr(d, (px, ty, px + pw, fy - 16), 14, fill=SOFT2, line=RULE, w=2)
+    t(d, (px + 22, ty + 22), "SATU PINTU UNTUK SEMUA PERAN", 20, NAVY, True)
+    t(d, (px + 22, ty + 52), "Absensi · isian divisi · PICA · review — satu tautan sesi, bukan aplikasi terpisah", 14, GREY)
+    steps = [("1", "ABSENSI", "Leader menandai yang tidak hadir lalu konfirmasi. Wajib selesai lebih dulu.", TEAL, "WAJIB DULU"),
+             ("2", "ISI DIVISI", "SHE · Quality · Produksi · Delivery · Teknik. Kolom mengikuti Excel.", NAVY, "TERBUKA SETELAH 1"),
+             ("3", "REVIEW & KIRIM", "Cek sebab, tindakan, PIC, tenggat; kirim bagian divisi sendiri.", GOLD_D, "TERKUNCI"),
+             ("4", "SESI TERKUNCI", "TV pindah dari Absensi ke rotasi divisi; laporan ikut terbarui.", GREY, "OTOMATIS")]
+    sy = ty + 88
+    for num, ttl, desc, col, tag in steps:
+        rr(d, (px + 22, sy, px + pw - 22, sy + 100), 10, fill=WHITE, line=RULE, w=2)
+        d.rectangle((px + 22, sy, px + 28, sy + 100), fill=col)
+        d.ellipse((px + 44, sy + 18, px + 78, sy + 52), fill=col)
+        t(d, (px + 61, sy + 35), num, 18, WHITE, True, "mm")
+        t(d, (px + 94, sy + 20), ttl, 19, INK, True)
+        pill(d, px + 94 + tw(d, ttl, 19, True) + 14, sy + 18, tag, col, 11, 24, False)
+        wrap(d, (px + 94, sy + 50), desc, pw - 140, 14, GREY)
+        sy += 112
+    im.save(f"{OUT}/tv_qr.png")
+
+
 def dasbor():
     im, _ = canvas()
     im, inner = device_laptop(im)
@@ -762,8 +1043,8 @@ def admin():
 
     # kartu TV
     card(d, (nx + 486, y, x1 - 24, y + 330), "Profil layar TV", right="3 layar aktif")
-    tv_rows = [("SN-L09-TV1", "TV lantai 1 · Snack", "papan + absensi", "aktif", OK),
-               ("SN-L09-TV2", "TV lantai 2 · Snack", "papan penuh", "aktif", OK),
+    tv_rows = [("SN-L09-TV1", "TV lantai 1 · Snack", "divisi + absensi awal", "aktif", OK),
+               ("SN-L09-TV2", "TV lantai 2 · Snack", "rotasi 7 halaman", "aktif", OK),
                ("DR-L01-TV1", "TV Dairy", "belum dipasang", "menunggu", LGREY)]
     yy = y + 66
     for kode, name, mode, st, col in tv_rows:
@@ -1015,12 +1296,16 @@ if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     form()
     tv()
+    tv_divisi("quality")
+    tv_divisi("produksi")
     tv_absen()
+    tv_qr()
     dasbor()
     admin()
     kasus()
     laporan()
-    for name in ("form", "tv", "tv_absen", "dasbor", "admin", "kasus", "laporan"):
+    for name in ("form", "tv", "tv_quality", "tv_produksi", "tv_absen", "tv_qr",
+                 "dasbor", "admin", "kasus", "laporan"):
         trim(name)
         p = f"{OUT}/{name}.png"
         print(p, Image.open(p).size, f"{os.path.getsize(p) / 1024:.0f} KB")

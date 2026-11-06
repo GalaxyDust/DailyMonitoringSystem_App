@@ -41,6 +41,7 @@ flowchart TB
         API["API aplikasi<br/>(validasi, hak akses, audit)"]
         RULE["Mesin aturan<br/>insight · tenggat · eskalasi · kelengkapan"]
         JOB["Penjadwal<br/>(cut-off shift, kunci periode, snapshot TV)"]
+        SYNC["Layanan sinkron Excel<br/>(baca satu arah · tanpa upload)"]
     end
 
     subgraph Data["Data"]
@@ -52,6 +53,7 @@ flowchart TB
     subgraph Luar["Sistem terkait"]
         ABS["Mesin absensi / jadwal shift<br/>(impor file)"]
         XLS["Workbook historis<br/>(17.201 kasus)"]
+        XLSL["Workbook harian petugas<br/>(SharePoint/OneDrive atau folder)"]
         GRP["Group Manufacturing<br/>(laporan & perbandingan)"]
     end
 
@@ -69,6 +71,8 @@ flowchart TB
     API -->|ekspor| GRP
     ABS -.impor.-> API
     XLS -.impor sekali.-> API
+    XLSL -.->|file berubah| SYNC
+    SYNC -->|normalisasi + upsert| API
 ```
 
 Prinsip arsitektur:
@@ -78,6 +82,10 @@ Prinsip arsitektur:
 3. **Semua aturan waktu di penjadwal**, bukan di kepala orang: cut-off shift, kunci periode, tenggat, eskalasi.
 4. **Audit di lapisan API**, bukan di aplikasi klien, supaya tidak bisa dilewati.
 5. **Berkas (foto/dokumen) dipisah dari basis data**, hanya metadatanya yang masuk DB.
+6. **Excel didatangi, bukan diunggah.** Layanan sinkron membaca workbook di tempat petugas
+   menyimpannya (webhook/delta Microsoft Graph, Power Automate, atau pengawas folder), lalu
+   menormalkan dan menyimpan idempoten. Aplikasi tidak pernah menulis ke workbook (R-85).
+   Detail: `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §5.
 
 ---
 
@@ -86,7 +94,7 @@ Prinsip arsitektur:
 | # | Modul | Layar | Fungsi inti | Halaman deck |
 |---|---|---|---|---|
 | 1 | **Isi papan** | `/isi/...` | tab divisi, sel papan, sebab, bukti, absensi, kirim bagian | 5 |
-| 2 | **Papan lantai** | `/tv/...` | tampilan papan penuh, rotasi pilar | 6 |
+| 2 | **Papan lantai** | `/tv/...` | satu divisi per layar, rotasi Absensi → 5 divisi → ringkasan | 6, 24–25 |
 | 3 | **Absensi** | panel di TV & isian | konfirmasi hadir, urungkan, rekap shift | 7 |
 | 4 | **Dasbor L1–L3** | `/app/dasbor` | kartu KPI, tren, temuan berperingkat, daftar kerja | 8 |
 | 5 | **Detail kasus** | `/app/kasus/:kode` | riwayat, empat kolom wajib, PICA, lampiran, dampak | 9 |
@@ -202,14 +210,29 @@ Matriks penuh dan alasannya: `DMS_Aturan_Sistem_v1.md` bagian 2.
 
 ### 5.2 Papan lantai (TV)
 
-- Bentuk papan: empat pilar, baris item, kolom shift, sel berwarna + legenda.
-- Kepala papan: plant, line, tanggal, **jam pembaruan terakhir**.
-- Rotasi: papan penuh → (opsional) panel absensi → papan; atau gulir per pilar 20 detik untuk plant berline banyak (EP 59).
+- **Satu divisi per layar** (R-80), bukan papan gabungan lima kolom. Bentuk tetap papan:
+  kepala papan → grid KPI (target vs S1/S2/S3/harian/mingguan/bulanan) → tabel kasus aktif →
+  baris PICA → footer.
+- **Kolom mengikuti Excel** (R-83): SHE dari `Resume SHE` (Area, Category Safety, Problem Statement,
+  Running Day→Umur, foto), Quality dari `Resume QC` (Priority Level, Validasi QCP, Case Category),
+  Produksi dari `Resume Prod` (**DT (min)** ditonjolkan). Grid KPI dari `Template Penilaian →
+  Summary DMS to KPI`; index dari `DMS_INDEX`.
+- Kepala papan: plant, line, divisi, tanggal, shift, index divisi, kasus terbuka, lewat tenggat,
+  hadir/total, **jam pembaruan terakhir + badge sumber** (R-87).
+- Rotasi (R-59): **Absensi → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan**, 20–30 detik
+  per halaman, dengan penanda `Halaman n/N`. Urutan & durasi diatur Admin.
+- Kolom statis, baris & angka dinamis per hari (R-84). Divisi tanpa data tetap tampil "belum diisi".
 - Tanpa interaksi, kecuali tombol absensi. Tidak ada kolom pencarian plant/line.
 - Bila data hari ini belum ada: tampilkan angka kemarin dengan tanda **"data kemarin"**.
+- Delivery & Teknik belum punya sheet Excel → perlu sumber sendiri (R-86).
 
 ### 5.3 Absensi
 
+- **Dikerjakan paling awal, sebelum isian DMS** (R-81). Sesi: `DIBUKA → ABSENSI → ISI DIVISI →
+  REVIEW → DIKUNCI`. Tombol kirim divisi terkunci sampai kehadiran dikonfirmasi; Supervisor/DH
+  dapat membuka dengan alasan tercatat.
+- Pintu masuk: **QR sesi** di TV/papan (R-82) — token terikat plant/line/tanggal/shift, berputar
+  tiap shift, dapat dicabut; menulis wajib SSO. Satu tautan untuk absensi, isian, PICA, dan review.
 - Sumber nama: impor daftar (Excel) atau tarik dari mesin absensi bila tersedia; default semua **hadir**.
 - Lapangan menandai yang tidak hadir: sakit · izin · alpa · terlambat · dinas luar.
 - Ketukan dari TV atau dari isian menulis ke catatan absensi yang sama.
@@ -247,7 +270,8 @@ Semua angka dapat diklik menuju daftar detailnya.
 ### 5.7 Admin
 
 - Target & bobot KPI **per versi** (berlaku per periode) + simulasi dampak sebelum simpan.
-- Profil TV: pilih pilar tampil, urutan, rotasi, mode (papan penuh / papan + absensi).
+- Profil TV: pilih halaman divisi yang tampil, urutan, durasi rotasi, absensi di awal, penanda halaman.
+- Sumber data & sinkronisasi: daftarkan workbook, lihat status sinkron, karantina, dan peta kolom.
 - Daftar nama, regu, shift, line; impor Excel.
 - Kunci periode; buka kunci dengan alasan.
 - Jejak audit: siapa, kapan, sebelum–sesudah.

@@ -56,10 +56,11 @@ sequenceDiagram
     participant S as Sistem
     participant SP as Supervisor / DH
 
-    S->>TV: tampilkan papan + daftar absensi shift
-    L->>TV: ketuk nama yang tidak hadir
+    S->>TV: buka sesi: tampilkan QR + halaman ABSENSI (divisi masih terkunci)
+    L->>S: pindai QR sesi (satu pintu)
+    L->>TV: tandai yang tidak hadir, lalu Konfirmasi kehadiran
     TV->>S: kirim status absensi (waktu, perangkat)
-    S-->>TV: ringkasan hadir/total
+    S-->>TV: ringkasan hadir/total + buka isian divisi (R-81)
 
     par Pengisian paralel
         L->>S: isi tab Produksi (output, downtime, checklist)
@@ -74,7 +75,7 @@ sequenceDiagram
         S->>S: buat kasus + tenggat otomatis
     end
 
-    S->>TV: perbarui papan (≤ 30 detik)
+    S->>TV: perbarui halaman divisi (≤ 30 detik), rotasi Absensi→SHE→Quality→Produksi→Delivery→Teknik
     S->>S: jalankan 12 aturan temuan
     S-->>SP: notifikasi temuan berperingkat
     S->>S: cut-off shift: kunci untuk leader
@@ -83,8 +84,8 @@ sequenceDiagram
 
 | Waktu | Siapa | Langkah | Keluaran |
 |---|---|---|---|
-| 06.00–06.30 | Sistem | siapkan papan + daftar absensi shift | papan kosong bertanda "belum diisi" |
-| 06.30–07.00 | Leader | konfirmasi absensi (hanya yang tidak hadir) | kehadiran shift |
+| 06.00–06.30 | Sistem | buka sesi: QR + halaman Absensi; isian divisi terkunci | sesi terbuka, QR aktif |
+| 06.30–07.00 | Leader | pindai QR → konfirmasi absensi (hanya yang tidak hadir) | kehadiran shift + isian terbuka |
 | 06.30–07.30 | Leader & divisi | isi bagian masing-masing | sel papan terisi |
 | 07.30 | Sistem | validasi & buat kasus bila di bawah target | kasus + tenggat |
 | 07.30 | Sistem | perbarui TV & dasbor | papan terkini |
@@ -309,7 +310,7 @@ Tidak ada fitur hapus untuk peran mana pun — hanya **batal** dan **arsip** (R-
 flowchart LR
     A["Catatan & kasus<br/>(satu sumber)"] --> B["Mesin aturan<br/>kelengkapan · temuan · skor"]
     B --> C["Snapshot papan<br/>tiap 20-30 detik"]
-    C --> D["TV lantai<br/>tanpa login"]
+    C --> D["TV lantai · satu divisi per layar<br/>Absensi → SHE → Quality → Produksi<br/>→ Delivery → Teknik → Ringkasan<br/>tanpa login"]
     B --> E["Dasbor L1-L3<br/>+ daftar kerja"]
     B --> F["Laporan bulanan<br/>skor proses vs hasil"]
     F --> G{"Periode<br/>dikunci?"}
@@ -327,6 +328,9 @@ TV tahan gangguan:
 | Data hari ini belum ada | tampilkan angka kemarin + tanda **"data kemarin"** |
 | Jaringan putus | tampilkan snapshot terakhir + jam pembaruan |
 | Pilar belum diisi | sel abu-abu "belum diisi", bukan kosong |
+| Divisi tanpa data hari itu | halaman tetap tampil "belum diisi" + siapa yang belum mengisi (R-84) |
+| Sesi baru dibuka | halaman **Absensi** tampil lebih dulu; rotasi divisi mulai setelah konfirmasi (R-81) |
+| Sinkron Excel tertunda | footer menampilkan jam sinkron terakhir + badge sumber; angka tidak disamarkan (R-87) |
 | Jaringan pulih | ambil snapshot baru, tanpa perlu restart |
 | Absensi | tetap bisa diketuk (terkirim saat jaringan kembali); ketukan yang tiba setelah cut-off masuk sebagai usulan koreksi ke Supervisor, bukan menimpa langsung |
 

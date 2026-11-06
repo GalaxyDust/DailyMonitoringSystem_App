@@ -459,7 +459,7 @@ Foto bukti      : [📷 kamera]
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 9.8 TV Display — 1920×1080
+### 9.8 TV Display — 1920×1080 · satu divisi per layar (R-80)
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -472,7 +472,7 @@ Foto bukti      : [📷 kamera]
 ├──────────────────────────────┴────────────────────────────────┤
 │ KASUS TERBUKA: 142   AGING >30 HARI: 37   RECURRENCE: 5,3%    │
 ├───────────────────────────────────────────────────────────────┤
-│ PERLU TINDAKAN (rotasi 20 detik)                              │
+│ PERLU TINDAKAN (halaman Ringkasan, akhir putaran)             │
 │ 🔴 MHM38 BCAT — 7× dalam 60 hari — PIC Teknik — sisa 4 hari   │
 │ 🟠 PICA Safety 75,4% < 90% — 37 kasus lewat due date          │
 │ 🟡 Checklist "PICA" skor < 8 tiga hari berturut               │
@@ -486,10 +486,18 @@ Aturan TV:
 | Font teks isi | ≥ 40 px |
 | Font angka hero | ≥ 120 px |
 | Refresh | 20–30 detik, snapshot (kesegaran ≤ 30 detik — rancangan/02 §7) |
+| Rotasi halaman | Absensi (saat sesi dibuka) → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan; 20–30 s/halaman (R-59) |
+| Penanda halaman | wajib `Halaman n/N` + titik, supaya jelas masih ada divisi lain |
+| Kolom tabel | mengikuti kontrak kolom Excel divisi itu (R-83); kolom baru → staging |
+| Isi dinamis | kolom tetap, baris & angka per tanggal/shift (R-84); divisi kosong tetap tampil |
+| Sumber & sinkron | badge `Excel`/`Aplikasi` + jam sinkron terakhir di footer (R-87) |
 | Warna | hanya 3 status; tanpa gradasi |
 | Anti burn-in | panel bergulir, posisi jam digeser |
 | Gagal memuat | snapshot terakhir + timestamp |
 | Interaksi | tidak ada, kecuali panel absensi (R-33, R-56) |
+
+Rincian susunan halaman per divisi, pemetaan kolom Excel→layar, dan alur QR satu pintu:
+`DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §2–§5.
 
 Yang **tidak** ditampilkan di TV: ranking individu/PIC, angka mentah panjang, KPI di luar wewenang lantai.
 
