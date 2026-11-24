@@ -106,7 +106,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 | `/healthz` | ❤️ Health check |
 
 > 💡 Tekan **`S`** di TV untuk paksa sinkron, **`spasi`** untuk jeda rotasi, **`←/→`** pindah halaman, **`A`** ke Absensi.
-> Frontend React (branch `front-end`) terhubung lewat proxy Vite ke `http://localhost:8000` — lihat [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) §5.
+> Frontend React ada di **`frontend/`** (lihat [frontend/README.md](frontend/README.md)) — jalan dengan `npm install && npm run dev` (proxy otomatis ke `:8000`); branch `front-end` berisi scaffold React temanmu.
 
 ---
 
@@ -120,6 +120,12 @@ python3 app/server.py        # → http://0.0.0.0:8000
 │   ├── seed_demo.py            seed awal (demo / produksi)
 │   ├── registry.json           daftar sumber Excel (9 aktif · Delivery & Teknik menunggu)
 │   └── setup_onedrive.ps1      pemasangan OneDrive + junction (sekali, oleh IT)
+├── ⚛️  frontend/                 ← FRONTEND (React + Vite) — Main · Dashboard 5 Pilar · Absensi
+│   ├── src/pages/Main.jsx      beranda (hero + kartu 5 pilar)
+│   ├── src/pages/Dashboard.jsx ringkasan 5 pilar + perbandingan beban
+│   ├── src/pages/Pillar.jsx    halaman generik per pilar (KPI · tabel kasus · PICA)
+│   ├── src/pages/Absensi.jsx   absensi shift (gerbang R-81)
+│   └── README.md               cara jalan (npm install · npm run dev)
 ├── 🎨 Logo/                    ← Logo GARUDAFOOD Daily Monitoring (png + favicon)
 ├── 📚 docs/                    ← DOKUMENTASI (alur, kontrak API, rencana backend, laporan)
 │   ├── ALUR_APLIKASI_DMS.md    peta alur lengkap (peran · halaman · fitur · user flow)
