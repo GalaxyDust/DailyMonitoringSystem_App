@@ -40,7 +40,7 @@
    - 5.8 [TV · Halaman 6 — TECHNIC PERFORM](#58-tv--halaman-6--technic-perform)
    - 5.9 [TV · Halaman 7 — Ringkasan Lima Divisi](#59-tv--halaman-7--ringkasan-lima-divisi)
    - 5.10 [Dashboard 2 — Panel Admin / Sinkronisasi `/admin`](#510-dashboard-2--panel-admin--sinkronisasi-admin)
-   - 5.11 [Referensi API (14 route) dengan payload & kode error](#511-referensi-api-14-route-dengan-payload--kode-error)
+   - 5.11 [Referensi API (12 route) dengan payload & kode error](#511-referensi-api-12-route-dengan-payload--kode-error)
 6. [Alur Utama End-to-End](#6-alur-utama-end-to-end)
 7. [Alur Absensi & Gerbang Sesi (R-81)](#7-alur-absensi--gerbang-sesi-r-81)
 8. [Alur Sinkron Excel Otomatis (R-85 – R-90)](#8-alur-sinkron-excel-otomatis-r-85--r-90)
@@ -115,7 +115,7 @@ flowchart LR
 | Landing per sesi (ponsel) | **1** | `/s/<token>` — dibuka dari QR di TV |
 | Berkas Excel terdaftar (aktif) | **9** | 3 plant × 3 divisi (SHE/QC/Produksi) |
 | Berkas divisi menunggu | **2** | Delivery · Teknik (`_belum_terdaftar` di `registry.json`) |
-| Route / endpoint HTTP | **14** | 9 API + QR + fonts + healthz + 3 halaman HTML (§5.11) |
+| Route / endpoint HTTP | **12** | 6 route API `/api/*` + QR + fonts + healthz + 3 halaman HTML (§5.11) |
 | Tabel SQLite | **7** | `sumber` · `kasus` · `karantina` · `ingest_log` · `sesi` · `absensi` · `audit` |
 | Status sesi | **2** | `DIBUKA` → `DIKONFIRMASI` |
 | Status absensi per nama | **7** | hadir · sakit · izin · alpa · terlambat · dinas luar · belum pasti |
@@ -668,7 +668,7 @@ Kepala halaman: "Panel sinkronisasi Excel" + sub "Aplikasi **membaca** berkas di
 
 ---
 
-### 5.11 Referensi API (14 route) dengan payload & kode error
+### 5.11 Referensi API (12 route) dengan payload & kode error
 
 | Method & path | 5.11.0 Ringkasan | Payload / query | Respons sukses | Error |
 |---|---|---|---|---|
