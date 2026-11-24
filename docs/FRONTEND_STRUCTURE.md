@@ -72,9 +72,9 @@ Kedua aturan ini diusulkan menjadi **R-91/R-92** pada `DMS_Aturan_Sistem` v1.1; 
 | Lint | ESLint flat config (js/recommended + react-hooks + react-refresh) | Sudah ada di scaffold |
 | Test | Vitest (opsional) | Minimal: smoke test render beranda |
 
-**Posisi di repo:** aplikasi berada di **root branch `front-end`** (bukan di dalam folder `frontend/`).
-File scaffold yang sudah ada di sana (`index.html`, `src/`, `package.json`, `eslint.config.js`, `vite.config.js`)
-diisi mengikuti struktur di dokumen ini — **jangan duplikasi** scaffold.
+**Posisi di repo:** implementasi berada di **root branch `front-end`** (bukan di dalam folder `frontend/`) — itu scaffold milik tim frontend (`index.html`, `src/`, `package.json`, … di root).
+
+> **Kerangka kosong tersedia:** folder **`frontend/`** di branch backend (`arena/ca138dd1-…`) berisi struktur yang sama (per folder, dengan `README.md` penjelas + berkas placeholder berisi komentar TODO — **tanpa kode**). Gunakan sebagai peta penempatan saat mengisi branch `front-end`; isinya tidak untuk di-merge ke `main`.
 
 Struktur repo (konteks):
 

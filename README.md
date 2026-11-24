@@ -120,6 +120,9 @@ python3 app/server.py        # → http://0.0.0.0:8000
 │   ├── seed_demo.py            seed awal (demo / produksi)
 │   ├── registry.json           daftar sumber Excel (9 aktif · Delivery & Teknik menunggu)
 │   └── setup_onedrive.ps1      pemasangan OneDrive + junction (sekali, oleh IT)
+├── ⚛️  frontend/                 ← KERANGKA STRUKTUR (kosong, placeholder TODO)
+│                              cermin scaffold branch front-end + FRONTEND_STRUCTURE.md;
+│                              isi kode di branch front-end — bukan di sini
 ├── 🎨 Logo/                    ← Logo GARUDAFOOD Daily Monitoring (png + favicon)
 ├── 📚 docs/                    ← DOKUMENTASI (alur, kontrak API, rencana backend, laporan)
 │   ├── ALUR_APLIKASI_DMS.md    peta alur lengkap (peran · halaman · fitur · user flow)
