@@ -7,6 +7,10 @@ Sumber angka adalah tiga workbook di `reference/` (root repo) — **read-only, t
 
 ```
 docs/
+├── ALUR_APLIKASI_DMS.md              ← ALUR APLIKASI (peran, 2 menu dashboard, landing QR, sinkron Excel)
+├── API_CONTRACT.md                   ← KONTRAK API v1 (pegangan frontend React ↔ backend Flask)
+├── BACKEND_PLAN.md                   ← RENCANA BACKEND (tahap A–D, SQL/SQLite→PostgreSQL, auth, deploy)
+├── FRONTEND_STRUCTURE.md             ← STRUKTUR FRONTEND (pohon folder, routing, komponen, data flow)
 ├── laporan/                        ← SEMUA LAPORAN & DECK FINAL
 │   ├── DMS_Digitalisasi_v1.pptx        deck presentasi (28 slide) — deliverable utama
 │   ├── DMS_Review_Rancangan_v1.md      review rancangan + status perbaikan + verifikasi xlsx
@@ -61,7 +65,11 @@ python3 docs/scripts/build_deck.py         # rakit deck        → docs/laporan/
 ## Aplikasi prototipe
 
 Prototipe yang berjalan ada di **`app/`** (lihat `app/README.md`): ingest Excel otomatis, TV per
-divisi, absensi sebagai gerbang, QR sesi, dan panel sinkronisasi. Jalankan:
+divisi, absensi sebagai gerbang, QR sesi, dan panel sinkronisasi. Alur lengkap aplikasi (role,
+landing QR, 2 dashboard, sinkron Excel, KPI, model data) didokumentasikan di
+**`docs/ALUR_APLIKASI_DMS.md`**. Untuk pengembangan frontend/backend: **`docs/API_CONTRACT.md`**
+(kontrak endpoint), **`docs/BACKEND_PLAN.md`** (rencana backend), dan **`docs/FRONTEND_STRUCTURE.md`**
+(struktur & penempatan frontend untuk branch `front-end`). Jalankan:
 
 ```bash
 pip install -r app/requirements.txt
