@@ -20,8 +20,8 @@ Akses online lewat **HTTPS publik + login akun M365 (Entra ID)**, dengan TV dibu
 
 ## 1. Alasan penentu: aplikasi ini bukan aplikasi formulir
 
-Ini yang paling sering terlewat. Karena **Excel tidak pernah dibekukan** (R-85) dan **kolom milik
-Excel baca-saja di aplikasi** (R-89), maka:
+Ini yang paling sering terlewat. Karena **Excel tidak pernah dibekukan** (Sinkron Excel Otomatis) dan **kolom milik
+Excel baca-saja di aplikasi** (Kepemilikan Kolom), maka:
 
 | Yang biasa jadi kekuatan Power Apps | terpakai di DMS? |
 |---|---|
@@ -162,7 +162,7 @@ Ini syarat pabrik, bukan kemewahan. Yang harus dibangun di sisi TV (pekerjaan te
 | Ketuk absensi saat offline | ketukan **diantrekan di perangkat**, dikirim saat online (belum ada — perlu dibangun) |
 | Ketukan tiba setelah cut-off | masuk sebagai **usulan koreksi** ke Supervisor, bukan menimpa (rancangan/03 §8) |
 | Online kembali | ambil snapshot baru tanpa restart; antrean dikirim berurutan |
-| Laptop petugas offline | TV menulis **"belum tersinkron"**, bukan "belum diisi" (R-90) |
+| Laptop petugas offline | TV menulis **"belum tersinkron"**, bukan "belum diisi" (Status Berkas Jujur) |
 
 Catatan: saat internet plant putus, petugas juga tidak bisa mengunggah ke OneDrive — jadi tidak ada
 data baru yang hilang. Yang perlu diselamatkan hanya **tampilan** dan **ketukan absensi**.
@@ -175,13 +175,13 @@ Karena akses dibuka lintas jaringan, hak perlu dibedakan:
 
 | Aksi | Dari mana saja | Batasan |
 |---|---|---|
-| Lihat TV / dasbor / laporan | ✅ boleh | sesuai hak plant/line (R-06…R-10) |
+| Lihat TV / dasbor / laporan | ✅ boleh | sesuai hak plant/line (Nama Line Diseragamkan…TV Tanpa Hak Ubah) |
 | Isi absensi | ⚠️ dibatasi | hanya sesi berjalan + leader pemilik line; opsional wajib jaringan plant |
 | Konfirmasi kehadiran | ⚠️ dibatasi | leader / Supervisor / DH, tercatat di audit |
-| Ubah angka milik Excel | ❌ tidak ada | koreksi di Excel (R-89) |
+| Ubah angka milik Excel | ❌ tidak ada | koreksi di Excel (Kepemilikan Kolom) |
 | Ubah aturan / kunci periode | ✅ boleh | hanya Admin, dari halaman admin, beralasan |
 
-QR sesi tetap berputar tiap shift dan bisa dicabut (R-82), sehingga foto QR yang tersebar tidak
+QR sesi tetap berputar tiap shift dan bisa dicabut (QR Satu Pintu), sehingga foto QR yang tersebar tidak
 menjadi izin permanen.
 
 ---

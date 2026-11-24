@@ -22,24 +22,24 @@
 
 Setiap pagi, papan DMS diisi **manual**, lalu direkap ulang, lalu dibaca ulang di rapat — angka bisa beda di tiap papan. DMS digital menyelesaikan ini dengan prinsip sederhana:
 
-> **Petugas tetap mengisi Excel seperti biasa (Ctrl+S). Aplikasi membaca Excel itu otomatis — tidak ada upload, tidak ada isi ulang, tidak ada langkah tambahan (R-88).**
+> **Petugas tetap mengisi Excel seperti biasa (Ctrl+S). Aplikasi membaca Excel itu otomatis — tidak ada upload, tidak ada isi ulang, tidak ada langkah tambahan (Nol Langkah Tambahan).**
 
 | 😕 Sebelum | 😄 Sesudah |
 |---|---|
-| Papan tulis / kertas, beda tiap line | TV per divisi, satu layar satu divisi (R-80) |
-| Rekap manual, angka tak sinkron | Satu catatan, semua layar membaca sumber yang sama (R-01) |
-| Absensi dikerjakan menyusul | Absensi jadi **gerbang** sebelum DMS (R-81) |
+| Papan tulis / kertas, beda tiap line | TV per divisi, satu layar satu divisi (Satu Divisi per Layar) |
+| Rekap manual, angka tak sinkron | Satu catatan, semua layar membaca sumber yang sama (Satu papan, satu catatan) |
+| Absensi dikerjakan menyusul | Absensi jadi **gerbang** sebelum DMS (Absensi Dulu) |
 | Berkas tercecer, susah ditelusuri | Semua tersimpan di SQLite + jejak audit |
-| "Belum diisi" vs "belum tersinkron" tidak jelas | Dibedakan jujur (R-90) |
+| "Belum diisi" vs "belum tersinkron" tidak jelas | Dibedakan jujur (Status Berkas Jujur) |
 
 ---
 
 ## ✨ Fitur Utama
 
 - 🖥️ **TV Lantai 7 halaman rotasi** — Absensi → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan (satu divisi per layar, kolom mengikuti Excel)
-- 🔐 **Absensi sebagai gerbang (R-81)** — rotasi divisi terkunci sampai kehadiran dikonfirmasi; koreksi hanya lewat Supervisor/DH dengan alasan tercatat
-- 📱 **QR sesi satu pintu (R-82)** — pindai di TV → landing ponsel: absensi → data divisi → review, satu tautan bertoken per shift
-- 🔄 **Sinkron Excel otomatis, satu arah (R-85)** — pengawas folder (3 dtk) → ingest → TV menyegar ≤ 15 dtk; aplikasi **tidak pernah** menulis workbook (R-89)
+- 🔐 **Absensi sebagai gerbang (Absensi Dulu)** — rotasi divisi terkunci sampai kehadiran dikonfirmasi; koreksi hanya lewat Supervisor/DH dengan alasan tercatat
+- 📱 **QR sesi satu pintu (QR Satu Pintu)** — pindai di TV → landing ponsel: absensi → data divisi → review, satu tautan bertoken per shift
+- 🔄 **Sinkron Excel otomatis, satu arah (Sinkron Excel Otomatis)** — pengawas folder (3 dtk) → ingest → TV menyegar ≤ 15 dtk; aplikasi **tidak pernah** menulis workbook (Kepemilikan Kolom)
 - 📊 **KPI dihitung dari log kasus** — S1 · S2 · S3 · Harian · Minggu · Bulan (PICA completion rate, lewat tenggat, downtime)
 - 🧽 **Tahan data kotor** — parser header bergeser (agnostik baris), tanggal 5 format, PIC berupa tautan → karantina & flag, bukan baris yang dibuang diam-diam
 - 🛡️ **Jejak audit** — setiap ketukan absensi, konfirmasi, buka ulang sesi, dan sinkron tercatat di tabel `audit`
@@ -129,7 +129,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 │   ├── API_CONTRACT.md         kontrak API v1 (pegangan frontend ↔ backend)
 │   ├── BACKEND_PLAN.md         roadmap backend (Tahap A–D · SQLite → PostgreSQL)
 │   ├── FRONTEND_STRUCTURE.md   struktur & penempatan frontend (panduan developer front-end)
-│   └── laporan/                aturan sistem R-01…R-90 · rancangan · deck
+│   └── laporan/                aturan sistem v1.1 (nama manusiawi, tanpa kode) · rancangan · deck
 ├── 📊 reference/               ← workbook acuan (read-only, sumber data asli)
 └── 🖼️ Logo/ · docs/assets/     ← aset (mockup, papan asli, font Kalam)
 ```
@@ -145,7 +145,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 | [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) | 🛠️ Rencana backend: integrasi Vite, auth Entra ID, deploy, testing, milestone M0–M6 |
 | [docs/FRONTEND_STRUCTURE.md](docs/FRONTEND_STRUCTURE.md) | ⚛️ Struktur & penempatan frontend: pohon folder, routing, komponen, data flow, checklist |
 | [docs/README.md](docs/README.md) | 📑 Indeks seluruh dokumentasi & cara build deck |
-| [docs/laporan/DMS_Aturan_Sistem_v1.md](docs/laporan/DMS_Aturan_Sistem_v1.md) | 📏 Aturan sistem R-01…R-90 |
+| [docs/laporan/DMS_Aturan_Sistem_v1.md](docs/laporan/DMS_Aturan_Sistem_v1.md) | 📏 Aturan sistem v1.1 — nama manusiawi + komentar (status berkas jujur diperbaiki) |
 | [docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md](docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md) | 📺 TV per divisi · QR satu pintu · sinkron Excel |
 
 ---
@@ -168,10 +168,10 @@ Detail di [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) §11.
 | Item | Status |
 |---|---|
 | Ingest Excel (9 sumber, 15.940 kasus) | ✅ Jalan |
-| TV 7 halaman + gerbang absensi (R-81) | ✅ Jalan |
+| TV 7 halaman + gerbang absensi (Absensi Dulu) | ✅ Jalan |
 | QR sesi + landing `/s/<token>` | ✅ Jalan |
 | Panel admin + jejak audit | ✅ Jalan |
-| Delivery & Teknik | ⏳ Menunggu berkas Excel (halaman tampil "menunggu berkas", R-84/R-86) |
+| Delivery & Teknik | ⏳ Menunggu berkas Excel (halaman tampil "menunggu berkas", Kolom Statis, Isi Dinamis/Satu Berkas per Divisi) |
 | Frontend React/Vite | ⏳ Scaffold sudah push di `front-end`; integrasi menyusul |
 | Auth Entra ID / SSO | ⏳ Tahap C (lihat BACKEND_PLAN) |
 
@@ -179,9 +179,9 @@ Detail di [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) §11.
 
 ## ⚖️ Aturan Kunci yang Mengikat
 
-- **R-81** Absensi dikerjakan lebih dulu, sebelum DMS · **R-82** QR sesi satu pintu
-- **R-85** Integrasi Excel otomatis, satu arah, terus-menerus · **R-88** Nol langkah tambahan bagi petugas
-- **R-89** Kepemilikan kolom, bukan kepemilikan aplikasi · **R-90** "belum diisi" ≠ "belum tersinkron"
+- **Absensi Dulu** Absensi dikerjakan lebih dulu, sebelum DMS · **QR Satu Pintu** QR sesi satu pintu
+- **Sinkron Excel Otomatis** Integrasi Excel otomatis, satu arah, terus-menerus · **Nol Langkah Tambahan** Nol langkah tambahan bagi petugas
+- **Kepemilikan Kolom** Kepemilikan kolom, bukan kepemilikan aplikasi · **Status Berkas Jujur** "belum diisi" ≠ "belum tersinkron"
 
 ---
 

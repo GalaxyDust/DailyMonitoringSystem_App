@@ -42,10 +42,10 @@
    - 5.10 [Dashboard 2 — Panel Admin / Sinkronisasi `/admin`](#510-dashboard-2--panel-admin--sinkronisasi-admin)
    - 5.11 [Referensi API (12 route) dengan payload & kode error](#511-referensi-api-12-route-dengan-payload--kode-error)
 6. [Alur Utama End-to-End](#6-alur-utama-end-to-end)
-7. [Alur Absensi & Gerbang Sesi (R-81)](#7-alur-absensi--gerbang-sesi-r-81)
-8. [Alur Sinkron Excel Otomatis (R-85 – R-90)](#8-alur-sinkron-excel-otomatis-r-85--r-90)
+7. [Alur Absensi & Gerbang Sesi (Absensi Dulu)](#7-alur-absensi--gerbang-sesi-absensi-dulu)
+8. [Alur Sinkron Excel Otomatis (Sinkron Excel Otomatis – Status Berkas Jujur)](#8-alur-sinkron-excel-otomatis-sinkron-excel-otomatis--status-berkas-jujur)
 9. [Alur Data, Normalisasi & KPI](#9-alur-data-normalisasi--kpi)
-10. [Status Halaman & Keadaan Kosong (R-90)](#10-status-halaman--keadaan-kosong-r-90)
+10. [Status Halaman & Keadaan Kosong (Status Berkas Jujur)](#10-status-halaman--keadaan-kosong-status-berkas-jujur)
 11. [Model Data & Konfigurasi](#11-model-data--konfigurasi)
 12. [Cara Menjalankan & Operasional](#12-cara-menjalankan--operasional)
 13. [Aturan Sistem yang Mengikat](#13-aturan-sistem-yang-mengikat)
@@ -59,13 +59,13 @@
 
 DMS digital menggantikan papan fisik + rekap manual. Prinsipnya **satu kali isi, semua layar membaca angka yang sama**:
 
-- Petugas divisi **tetap mengisi Excel seperti biasa** (buka file, isi, `Ctrl+S`). Aplikasi **membaca** file itu secara otomatis — tidak ada upload, tidak ada form isian baru, tidak ada langkah tambahan (R-88).
-- Angka di layar **dihitung dari log kasus** hasil bacaan Excel, bukan diketik ulang (R-01).
-- TV menampilkan **satu divisi per layar** dengan kolom mengikuti kontrak kolom Excel divisi itu (R-80, R-83).
-- **Absensi dikerjakan paling awal** sebagai gerbang: rotasi divisi terkunci sampai kehadiran dikonfirmasi (R-81).
-- **QR sesi adalah satu pintu masuk** dari ponsel: absensi → data divisi → review, lewat satu tautan bertoken (R-82).
+- Petugas divisi **tetap mengisi Excel seperti biasa** (buka file, isi, `Ctrl+S`). Aplikasi **membaca** file itu secara otomatis — tidak ada upload, tidak ada form isian baru, tidak ada langkah tambahan (Nol Langkah Tambahan).
+- Angka di layar **dihitung dari log kasus** hasil bacaan Excel, bukan diketik ulang (Satu papan, satu catatan).
+- TV menampilkan **satu divisi per layar** dengan kolom mengikuti kontrak kolom Excel divisi itu (Satu Divisi per Layar, Kolom Ikuti Kontrak Excel).
+- **Absensi dikerjakan paling awal** sebagai gerbang: rotasi divisi terkunci sampai kehadiran dikonfirmasi (Absensi Dulu).
+- **QR sesi adalah satu pintu masuk** dari ponsel: absensi → data divisi → review, lewat satu tautan bertoken (QR Satu Pintu).
 
-Aplikasi **tidak pernah menulis** ke workbook Excel (R-85, satu arah). Koreksi angka selalu dilakukan di Excel; layar menyusul otomatis (R-89).
+Aplikasi **tidak pernah menulis** ke workbook Excel (Sinkron Excel Otomatis, satu arah). Koreksi angka selalu dilakukan di Excel; layar menyusul otomatis (Kepemilikan Kolom).
 
 ```mermaid
 flowchart LR
@@ -181,13 +181,13 @@ flowchart TB
 
 ```
 Group
- └── Plant            : Snack · EP · NP  (kode SN / EP / NP)
+ └── Plant            : Snack · EP · NP · Dairy  (kode SN / EP / NP / DR)
       └── Line        : * (semua line) atau Line 9, Line 10, …  (filter ?line=)
            └── Divisi : SHE · Quality · Produksi · Delivery · Teknik
                 └── Kasus : satu baris log dari sheet Resume <divisi>
 ```
 
-Setiap query data difilter `plant` (dan `line` bila dipilih) — tidak ada peran yang membaca plant lain kecuali Admin Group dan Auditor (R-07).
+Setiap query data difilter `plant` (dan `line` bila dipilih) — tidak ada peran yang membaca plant lain kecuali Admin Group dan Auditor (Batas Data per Plant).
 
 ---
 
@@ -209,13 +209,13 @@ Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` §2.1.
 | 8 | **Admin Group** | Semua plant | Template bersama, perbandingan plant, master grup |
 | 9 | **Auditor / DH Grup** | Semua plant, **hanya baca** | Audit jejak perubahan, tidak boleh mengubah |
 | 10 | **TV Device** | Satu profil tampilan | Hanya menampilkan + menerima ketukan absensi shift berjalan |
-| 11 | **PDCA** | Semua plant | Dashboard ringkasan — **akses semua plant** (Snack · EP · NP) (v1.1, A-02) |
+| 11 | **PDCA** | Semua plant | Dashboard ringkasan — **akses semua plant** (Snack · EP · NP · Dairy) (v1.1, A-02) |
 | 12 | **TL (Team Leader)** | Plant miliknya | Dashboard ringkasan — **hanya plant tempat ia bertugas** (v1.1, A-02) |
 
 > **Aturan akses Dashboard ringkasan (v1.1, 24 Nov 2026):**
 > - **A-01 — Landing untuk semua TV.** Halaman `/` (frontend React): menu 5 pilar + QR absensi sesi berjalan (`/qr/<token>.png`) adalah **permukaan TV** — tanpa login, dibuka fullscreen di setiap perangkat TV Device. TV **tidak** menampilkan link ke Dashboard.
 > - **A-02 — Dashboard (`/dashboard`) hanya untuk PDCA & TL terkait.** **PDCA** dapat melihat Dashboard ringkasan seluruh plant; **TL** hanya plant miliknya (plant switch terkunci). **Semua role lain** (termasuk Leader Line, Supervisor, DH, Admin, Auditor, TV Device) **tidak melihat dan tidak bisa membuka** `/dashboard` — rute terproteksi.
-> - Ringkasan untuk pengguna akhir: lihat **`docs/FRONTEND_STRUCTURE.md` §5.1**. Usulan pengukuhan menjadi aturan sistem **R-91/R-92** di versi berikutnya dari `DMS_Aturan_Sistem`.
+> - Ringkasan untuk pengguna akhir: lihat **`docs/FRONTEND_STRUCTURE.md` §5.1**. Usulan pengukuhan menjadi aturan sistem **Landing untuk Semua TV (A-01)/Dashboard PDCA & TL (A-02)** di versi berikutnya dari `DMS_Aturan_Sistem`.
 
 ### 4.2 Matriks hak (ringkasan)
 
@@ -234,10 +234,10 @@ Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` §2.1.
 
 Aturan kunci:
 
-- **R-08** — Divisi hanya mengubah bagiannya. Petugas SHE tidak dapat mengubah sel QC.
-- **R-09** — Pemisahan isi dan setujui: pengisi sebab tidak boleh menjadi satu-satunya penyetuju penutupan.
-- **R-10** — TV tidak punya hak ubah data papan; hanya menampilkan + menerima ketukan absensi.
-- **R-07** — Filter data per plant di setiap query.
+- **Satu Divisi, Satu Bagian** — Divisi hanya mengubah bagiannya. Petugas SHE tidak dapat mengubah sel QC.
+- **Pemisahan Isi dan Setujui** — Pemisahan isi dan setujui: pengisi sebab tidak boleh menjadi satu-satunya penyetuju penutupan.
+- **TV Tanpa Hak Ubah** — TV tidak punya hak ubah data papan; hanya menampilkan + menerima ketukan absensi.
+- **Batas Data per Plant** — Filter data per plant di setiap query.
 - **A-01 / A-02 (v1.1)** — TV (TV Device) menampilkan **landing** `/` saja (menu pilar + QR absensi); **Dashboard ringkasan** (`/dashboard`) hanya **PDCA** (semua plant) dan **TL** (plant miliknya). Lihat §4.1 dan `FRONTEND_STRUCTURE.md` §5.1.
 
 ### 4.3 Yang benar-benar ada di prototipe — **6 pelaku**
@@ -253,7 +253,7 @@ Prototipe **belum ada login/SSO**. Yang dibedakan hanya kolom `pelaku` di tabel 
 | `seed` / `auto` | `seed_demo.py` & `sesi_aktif()` | Isi awal daftar absensi demo & nama default sesi baru |
 | Pengawas folder | Thread `pengawas_folder` (sistem, bukan manusia) | Ingest diam-diam saat file berubah (tidak menulis audit manusia) |
 
-> **Catatan:** daftar nama absensi masih **daftar contoh** (28 nama di `seed_demo.py`). Di produksi diisi Admin/impor (R-31). Menulis absensi masih terbuka di prototipe — SSO adalah pekerjaan produksi (§14).
+> **Catatan:** daftar nama absensi masih **daftar contoh** (28 nama di `seed_demo.py`). Di produksi diisi Admin/impor (Daftar Nama dari Admin). Menulis absensi masih terbuka di prototipe — SSO adalah pekerjaan produksi (§14).
 
 ---
 
@@ -321,9 +321,9 @@ https://<host>/s/<token>
 
 | Langkah | Judul | Isi teks | Status SEBELUM konfirmasi | Status SETELAH konfirmasi (`dikonfirmasi_pada` terisi) |
 |---|---|---|---|---|
-| 1 | **Absensi** | "Tandai yang tidak hadir, lalu konfirmasi. Wajib selesai sebelum DMS (R-81)." | kelas `on`, tag `WAJIB DULU` | tanpa `on`, tag `SELESAI` (abu) |
-| 2 | **Data divisi** | "SHE, Quality, Produksi, Delivery, Teknik sudah masuk dari Excel masing-masing. **Tidak perlu isi ulang** — cukup simpan Excel seperti biasa (R-88)." | tag `TERKUNCI` (abu) | kelas `on`, tag `TERBUKA` |
-| 3 | **Review & kunci** | "Cek sebab, tindakan, PIC, dan tenggat. Koreksi angka dilakukan di Excel; layar menyusul otomatis (R-89)." | tag `OTOMATIS` | tag `OTOMATIS` |
+| 1 | **Absensi** | "Tandai yang tidak hadir, lalu konfirmasi. Wajib selesai sebelum DMS (Absensi Dulu)." | kelas `on`, tag `WAJIB DULU` | tanpa `on`, tag `SELESAI` (abu) |
+| 2 | **Data divisi** | "SHE, Quality, Produksi, Delivery, Teknik sudah masuk dari Excel masing-masing. **Tidak perlu isi ulang** — cukup simpan Excel seperti biasa (Nol Langkah Tambahan)." | tag `TERKUNCI` (abu) | kelas `on`, tag `TERBUKA` |
+| 3 | **Review & kunci** | "Cek sebab, tindakan, PIC, dan tenggat. Koreksi angka dilakukan di Excel; layar menyusul otomatis (Kepemilikan Kolom)." | tag `OTOMATIS` | tag `OTOMATIS` |
 
 #### 5.1.3 Tombol utama — dua keadaan
 
@@ -362,8 +362,8 @@ sequenceDiagram
 #### 5.1.6 Logic / aturan landing
 
 1. Token **tidak** permanen — satu token per sesi (plant·line·tanggal·shift).
-2. Di prototipe token belum diverifikasi kedaluwarsa di server (hanya dicocokkan ke tabel `sesi`); di produksi wajib kedaluwarsa + dapat dicabut Admin (R-82).
-3. Ketukan konfirmasi dari QR dan dari TV **menulis ke catatan absensi sesi yang sama** (R-33) — satu rekap, bukan dua.
+2. Di prototipe token belum diverifikasi kedaluwarsa di server (hanya dicocokkan ke tabel `sesi`); di produksi wajib kedaluwarsa + dapat dicabut Admin (QR Satu Pintu).
+3. Ketukan konfirmasi dari QR dan dari TV **menulis ke catatan absensi sesi yang sama** (Absensi TV/QR/Web) — satu rekap, bukan dua.
 4. Setelah konfirmasi, sisa `belum pasti` otomatis menjadi `hadir` (lihat §7.4).
 
 ---
@@ -413,7 +413,7 @@ const PAGES = ['absensi','she','quality','produksi','delivery','teknik','ringkas
 | Setelah sinkron paksa | tombol `S` → `POST /api/sync` → `load(true)` |
 | Query string | `?plant=EP` · `?line=Line%209` · `?demo=0` · `?tanggal=YYYY-MM-DD` |
 
-#### 5.2.3 Logic gerbang absensi (R-81) di TV
+#### 5.2.3 Logic gerbang absensi (Absensi Dulu) di TV
 
 ```
 load():
@@ -442,16 +442,16 @@ schedule():
 | `.abs-grid` | Chip nama 28 (demo) | setiap chip: avatar 2 huruf + nama + status |
 | chip `.chip` | Kelas warna: `hadir` → default, `sakit` → `sakit`, `belum pasti` → `belum`, lainnya (`izin/alpa/terlambat/dinas luar`) → `izin` | — |
 | chip klik | **Siklus status**: `hadir → sakit → izin → alpa → terlambat → belum pasti → hadir …` | `SIKLUS[]` di tv.js; `POST /api/absensi {nama, status, plant, line, perangkat:"tv"}` → `load(true)` |
-| chip setelah konfirmasi | Klik diabaikan (`if S.absensi.dikonfirmasi return;`) + server menolak **409** | R-81 |
+| chip setelah konfirmasi | Klik diabaikan (`if S.absensi.dikonfirmasi return;`) + server menolak **409** | Absensi Dulu |
 | `.abs-right .hd` | `SATU PINTU · QR SESI` | — |
 | gambar QR | `{host}/qr/<token>.png` | dari `S.sesi.token` |
 | `.u` | `Pindai untuk absen & masuk DMS` | — |
 | `.v` | `berlaku Shift <n> · <line> · token berputar tiap shift` | dari `S.sesi` |
 | `.steps` | 3 baris langkah mini: **1 Absensi** (AKTIF · wajib dulu / SELESAI), **2 Data divisi** (TERBUKA/terkunci), **3 Review & kunci** (otomatis) | status `on` mengikuti `dikonfirmasi` |
 | `button.go` | `KONFIRMASI KEHADIRAN` → setelah sukses: `KEHADIRAN TERKONFIRMASI` (nonaktif) | klik: `POST /api/konfirmasi {plant, line, pelaku:"leader"}` → `load(false)` → `idx = 1` (langsung ke halaman SHE) |
-| `.note` | "Data divisi sudah masuk dari Excel masing-masing — tidak perlu isi ulang (R-88). Isian divisi terbuka setelah kehadiran dikonfirmasi (R-81). Supervisor/DH dapat membuka ulang dengan alasan tercatat." | statis |
+| `.note` | "Data divisi sudah masuk dari Excel masing-masing — tidak perlu isi ulang (Nol Langkah Tambahan). Isian divisi terbuka setelah kehadiran dikonfirmasi (Absensi Dulu). Supervisor/DH dapat membuka ulang dengan alasan tercatat." | statis |
 
-**Siklus status absensi (R-32):** status awal semua nama = `hadir`; lapangan hanya menandai yang tidak hadir; `belum pasti` yang tersisa otomatis menjadi `hadir` saat konfirmasi.
+**Siklus status absensi (Status Awal Hadir):** status awal semua nama = `hadir`; lapangan hanya menandai yang tidak hadir; `belum pasti` yang tersisa otomatis menjadi `hadir` saat konfirmasi.
 
 ---
 
@@ -563,7 +563,7 @@ schedule():
 | Blok | Fitur | Sumber / logic |
 |---|---|---|
 | Kepala | Badge `DELIVERY` hijau | §5.2 |
-| Kepala halaman (bila `menunggu_berkas`) | **Blok keadaan kosong** (bukan angka karangan): tag `MENUNGGU BERKAS`, judul "Menunggu berkas divisi", pesan "Berkas Excel divisi ini belum didaftarkan (R-86). Halaman ini tetap tampil dan tidak dilewati (R-84)…" + ajakan "Daftarkan berkasnya di app/registry.json — tidak perlu membuat form baru (R-86)." | `emptyBlock()` di tv.js |
+| Kepala halaman (bila `menunggu_berkas`) | **Blok keadaan kosong** (bukan angka karangan): tag `MENUNGGU BERKAS`, judul "Menunggu berkas divisi", pesan "Berkas Excel divisi ini belum didaftarkan (Satu Berkas per Divisi). Halaman ini tetap tampil dan tidak dilewati (Kolom Statis, Isi Dinamis)…" + ajakan "Daftarkan berkasnya di app/registry.json — tidak perlu membuat form baru (Satu Berkas per Divisi)." | `emptyBlock()` di tv.js |
 | Bila aktif | KPI 5 baris + tabel + PICA | kolom di bawah |
 
 #### Kolom tabel DELIVERY
@@ -616,7 +616,7 @@ schedule():
 | Kartu · caption | `kasus tanggal ini` | — |
 | Kartu · baris kv | Open · Completion · Lewat tenggat | nilai dari KPI Harian masing-masing divisi |
 | Kartu · status `.stt` | Warna: hijau `#1E6B3A` (`tersinkron`) · merah `#B02F2F` (`belum_tersinkron`) · kuning `#8A6C10` (lainnya) | `.replace(/_/g,' ')` |
-| `.rfoot` (catatan kaki) | "Semua angka dihitung dari log kasus pada berkas Excel tiap divisi — aplikasi tidak menulis ke workbook (R-85) dan tidak meminta petugas mengunggah apa pun (R-88). Kolom milik Excel baca-saja; koreksi dilakukan di Excel lalu layar ini menyusul otomatis (R-89). Pengawas folder aktif: putaran `<n>`, perubahan terakhir `<waktu>`." | `S.pengawas` |
+| `.rfoot` (catatan kaki) | "Semua angka dihitung dari log kasus pada berkas Excel tiap divisi — aplikasi tidak menulis ke workbook (Sinkron Excel Otomatis) dan tidak meminta petugas mengunggah apa pun (Nol Langkah Tambahan). Kolom milik Excel baca-saja; koreksi dilakukan di Excel lalu layar ini menyusul otomatis (Kepemilikan Kolom). Pengawas folder aktif: putaran `<n>`, perubahan terakhir `<waktu>`." | `S.pengawas` |
 
 Catatan: kartu Ringkasan **hanya menampilkan angka Harian** per divisi (bukan periode lain) — supaya ringkas; detail per divisi ada di halaman masing-masing.
 
@@ -626,7 +626,7 @@ Catatan: kartu Ringkasan **hanya menampilkan angka Harian** per divisi (bukan pe
 
 **Berkas:** `app/templates/admin.html` · **Route:** `GET /admin` (shell) + `GET /api/admin` (data, refresh 10 dtk) · **Untuk:** Admin / IT / Supervisor
 
-Kepala halaman: "Panel sinkronisasi Excel" + sub "Aplikasi **membaca** berkas divisi, tidak pernah menulisnya (R-85). Tidak ada tombol upload untuk petugas (R-88). Pengawas folder berjalan di server ini."
+Kepala halaman: "Panel sinkronisasi Excel" + sub "Aplikasi **membaca** berkas divisi, tidak pernah menulisnya (Sinkron Excel Otomatis). Tidak ada tombol upload untuk petugas (Nol Langkah Tambahan). Pengawas folder berjalan di server ini."
 
 #### 5.10.1 Bar aksi (semua elemen)
 
@@ -646,7 +646,7 @@ Kepala halaman: "Panel sinkronisasi Excel" + sub "Aplikasi **membaca** berkas di
 | **Ditandai terhapus di sumber** | `COUNT(kasus WHERE terhapus=1)` |
 | **Putaran pengawas** | `WATCH_STATUS.putaran` |
 
-#### 5.10.3 Tabel "Daftar sumber · satu berkas per divisi (R-86)" — 9 kolom
+#### 5.10.3 Tabel "Daftar sumber · satu berkas per divisi (Satu Berkas per Divisi)" — 9 kolom
 
 | Kolom | Isi |
 |---|---|
@@ -670,7 +670,7 @@ Kepala halaman: "Panel sinkronisasi Excel" + sub "Aplikasi **membaca** berkas di
 
 #### 5.10.6 Baris catatan (`#note`)
 
-"Pengawas folder: **hidup/mati** · perubahan terakhir `<waktu>`. Delivery & Teknik belum ada di daftar sumber karena berkasnya belum diserahkan — halaman TV-nya tetap tampil dengan status **menunggu berkas**, bukan angka karangan (R-84, R-86)."
+"Pengawas folder: **hidup/mati** · perubahan terakhir `<waktu>`. Delivery & Teknik belum ada di daftar sumber karena berkasnya belum diserahkan — halaman TV-nya tetap tampil dengan status **menunggu berkas**, bukan angka karangan (Kolom Statis, Isi Dinamis, Satu Berkas per Divisi)."
 
 #### 5.10.7 Tabel "Jejak audit terbaru" (20 terbaru)
 
@@ -771,7 +771,7 @@ Catatan penting:
 
 ```mermaid
 flowchart TD
-    A["Shift mulai<br/>sesi dibuka (DIBUKA)<br/>token dibuat"] --> B["TV tampil halaman ABSENSI<br/>rotasi divisi terkunci (R-81)"]
+    A["Shift mulai<br/>sesi dibuka (DIBUKA)<br/>token dibuat"] --> B["TV tampil halaman ABSENSI<br/>rotasi divisi terkunci (Absensi Dulu)"]
     B --> C["Leader ketuk nama<br/>yang tidak hadir<br/>(TV atau QR ponsel)"]
     C --> D{"Konfirmasi<br/>kehadiran?"}
     D -- belum --> C
@@ -782,7 +782,7 @@ flowchart TD
     H --> I{"Ada nilai di bawah<br/>target / lewat tenggat?"}
     I -- tidak --> J["Rapat pagi memakai<br/>angka yang sama"]
     I -- ya --> K["Sebab + tindakan + PIC + due<br/>diperiksa di tabel & PICA"]
-    K --> L["Koreksi di Excel<br/>(kolom milik Excel, R-89)<br/>layar menyusul otomatis"]
+    K --> L["Koreksi di Excel<br/>(kolom milik Excel, Kepemilikan Kolom)<br/>layar menyusul otomatis"]
     L --> H
     J --> M["Akhir shift<br/>sesi tetap DIKONFIRMASI<br/>audit tersimpan"]
 ```
@@ -799,11 +799,11 @@ flowchart TD
 | 6 | 08.30 | Supervisor / DH | Rapat pagi memakai TV & ringkasan (angka yang sama) | Keputusan & penugasan |
 | 7 | Bila perlu | Supervisor / DH | Buka ulang sesi dengan alasan (`POST /api/buka`) | Sesi kembali `DIBUKA`, alasan di audit |
 
-> Papan **boleh terisi sebagian**. Divisi yang belum mengisi ditandai jujur (§10), bukan dikosongkan (R-12, R-14).
+> Papan **boleh terisi sebagian**. Divisi yang belum mengisi ditandai jujur (§10), bukan dikosongkan (Pengisian Paralel, TV Menampilkan yang Sudah Masuk).
 
 ---
 
-## 7. Alur Absensi & Gerbang Sesi (R-81)
+## 7. Alur Absensi & Gerbang Sesi (Absensi Dulu)
 
 ### 7.1 Status sesi
 
@@ -840,13 +840,13 @@ stateDiagram-v2
 
 ### 7.3 Aturan terkait
 
-- **R-31** — Daftar nama disiapkan Admin (impor Excel dianjurkan). Prototipe: daftar contoh.
-- **R-32** — Status awal **hadir**; lapangan hanya menandai yang tidak hadir.
-- **R-33** — TV dan QR menulis ke catatan absensi yang sama (satu rekap).
-- **R-35** — Setiap ketukan tercatat (waktu, perangkat, pengguna bila login).
-- **R-37** — Absensi terkonfirmasi menjadi penjelas output di halaman Produksi.
-- **R-38** — Absensi **tidak** dipakai menilai orang di dalam sistem.
-- **R-81** — Absensi dikerjakan lebih dulu; Supervisor/DH boleh membuka dengan alasan tercatat (override darurat).
+- **Daftar Nama dari Admin** — Daftar nama disiapkan Admin (impor Excel dianjurkan). Prototipe: daftar contoh.
+- **Status Awal Hadir** — Status awal **hadir**; lapangan hanya menandai yang tidak hadir.
+- **Absensi TV/QR/Web** — TV dan QR menulis ke catatan absensi yang sama (satu rekap).
+- **Ketukan Tercatat** — Setiap ketukan tercatat (waktu, perangkat, pengguna bila login).
+- **Absensi Penjelas Output** — Absensi terkonfirmasi menjadi penjelas output di halaman Produksi.
+- **Absensi Bukan Menilai Orang** — Absensi **tidak** dipakai menilai orang di dalam sistem.
+- **Absensi Dulu** — Absensi dikerjakan lebih dulu; Supervisor/DH boleh membuka dengan alasan tercatat (override darurat).
 
 ### 7.4 Urutan teknis konfirmasi (kode)
 
@@ -861,7 +861,7 @@ POST /api/konfirmasi {plant, line, pelaku}
 
 ---
 
-## 8. Alur Sinkron Excel Otomatis (R-85 – R-90)
+## 8. Alur Sinkron Excel Otomatis (Sinkron Excel Otomatis – Status Berkas Jujur)
 
 ### 8.1 Pengawas folder (watcher)
 
@@ -903,7 +903,7 @@ Detail implementasi (`app/dms_core.py`):
 7. **Upsert idempoten** (§8.3).
 8. **Tandai hilang:** baris yang ada di DB tetapi tidak ada lagi di Excel → `terhapus=1` (tidak dihapus fisik — retensi ≥ 5 tahun). Karantina lama sumber itu dibersihkan lalu ditulis ulang.
 
-**Satu berkas gagal tidak menahan divisi lain (R-86):** `ingest_file()` menangkap exception per berkas, menandai `sumber.status='gagal'` + pesan, mencatat `ingest_log`, lalu lanjut ke berkas berikutnya. Berkas hilang → `status='berkas hilang'`.
+**Satu berkas gagal tidak menahan divisi lain (Satu Berkas per Divisi):** `ingest_file()` menangkap exception per berkas, menandai `sumber.status='gagal'` + pesan, mencatat `ingest_log`, lalu lanjut ke berkas berikutnya. Berkas hilang → `status='berkas hilang'`.
 
 **Skip bila tidak berubah:** sidik file = `sha(mtime, size)`. Bila sama dan bukan `force`, ingest dilewati (`skip: true`, 0 tambah/0 ubah).
 
@@ -991,22 +991,22 @@ Urutan tampil di TV: **OPEN → PROGRESS → CLOSE**, lalu due terdekat. KPI men
 
 Kolom periode: **S1 · S2 · S3 · Harian · Minggu · Bulan** (minggu = pekan ISO, bulan = prefix `YYYY-MM` dari tanggal tampil). Kolom Harian diberi penanda `now` di TV (sel diberi kelas `now`).
 
-> **Mode demo tidak melanggar R-75** (historis tidak ke TV) karena seluruh layar diberi tanda MODE DEMO dan tidak dipakai untuk keputusan produksi. Mode demo memutar ulang tanggal dengan kasus terbanyak (`tanggal_terpadat()`), karena workbook acuan adalah data lampau.
+> **Mode demo tidak melanggar Historis Ditandai** (historis tidak ke TV) karena seluruh layar diberi tanda MODE DEMO dan tidak dipakai untuk keputusan produksi. Mode demo memutar ulang tanggal dengan kasus terbanyak (`tanggal_terpadat()`), karena workbook acuan adalah data lampau.
 
 ---
 
-## 10. Status Halaman & Keadaan Kosong (R-90)
+## 10. Status Halaman & Keadaan Kosong (Status Berkas Jujur)
 
 Setiap halaman divisi punya satu dari empat status, ditentukan di `bangun_halaman()`:
 
 | Status | Arti | Tampilan TV |
 |---|---|---|
 | `tersinkron` | Berkas terdaftar, pernah tersinkron, ada baris bertanggal tampil | Grid KPI + tabel + PICA normal |
-| `menunggu_berkas` | Berkas Excel divisi belum didaftarkan (Delivery & Teknik saat ini) | Blok kosong: "Menunggu berkas divisi" + pesan R-86 + petunjuk daftarkan di `registry.json` |
+| `menunggu_berkas` | Berkas Excel divisi belum didaftarkan (Delivery & Teknik saat ini) | Blok kosong: "Menunggu berkas divisi" + pesan Satu Berkas per Divisi + petunjuk daftarkan di `registry.json` |
 | `belum_tersinkron` | Berkas terdaftar tetapi belum pernah tersinkron | Blok kosong: "Belum tersinkron" + daftar berkas + statusnya |
 | `belum_diisi` | Tersinkron tetapi tidak ada baris bertanggal tampil | Blok kosong: "Belum ada isian tanggal ini" + daftar berkas |
 
-**R-90 — "belum diisi" ≠ "belum tersinkron":** halaman divisi tanpa data **tetap tampil dan tidak dilewati** (R-84) — supaya jelas siapa yang belum mengisi, bukan layar mati. Di halaman Ringkasan, status ditampilkan berwarna: hijau (`tersinkron`), merah (`belum_tersinkron`), kuning (`menunggu_berkas` / `belum_diisi`).
+**Status Berkas Jujur — "belum diisi" ≠ "belum tersinkron":** halaman divisi tanpa data **tetap tampil dan tidak dilewati** (Kolom Statis, Isi Dinamis) — supaya jelas siapa yang belum mengisi, bukan layar mati. Di halaman Ringkasan, status ditampilkan berwarna: hijau (`tersinkron`), merah (`belum_tersinkron`), kuning (`menunggu_berkas` / `belum_diisi`).
 
 **Keadaan kosong jujur:** Delivery & Teknik menampilkan "menunggu berkas", bukan angka karangan.
 
@@ -1038,11 +1038,11 @@ Indeks: `ix_kasus_tanggal(tanggal, divisi)`, `ix_kasus_sumber(sumber_id)`.
 | `EP-SHE` / `EP-QC` / `EP-PROD` | EP | she / quality / produksi | `Resume SHE` / `Resume QC` / `Resume Prod` | `12. Konsep Penilaian DMS EP Des 24.xlsx` |
 | `NP-SHE` / `NP-QC` / `NP-PROD` | NP | she / quality / produksi | `Resume SHE` / `Resume QC` / `Resume Prod` | `12. Konsep Penilaian DMS NP Des 24 (1).xlsx` |
 
-`_belum_terdaftar`: **Delivery** dan **Teknik** — berkas Excel belum diserahkan; halaman TV-nya tetap tampil "menunggu berkas" (R-84, R-86).
+`_belum_terdaftar`: **Delivery** dan **Teknik** — berkas Excel belum diserahkan; halaman TV-nya tetap tampil "menunggu berkas" (Kolom Statis, Isi Dinamis, Satu Berkas per Divisi).
 
 ### 11.3 Kolom per divisi di TV (`KOLOM` di `app/server.py`)
 
-Kolom **statis** (kontrak Excel, R-83/R-84); angka di bawahnya **dinamis** per tanggal. Bobot = lebar relatif kolom di layar.
+Kolom **statis** (kontrak Excel, Kolom Ikuti Kontrak Excel/Kolom Statis, Isi Dinamis); angka di bawahnya **dinamis** per tanggal. Bobot = lebar relatif kolom di layar.
 
 | Divisi | Kolom TV (jumlah) |
 |---|---|
@@ -1101,25 +1101,25 @@ Hasil seed (data asli, bukan contoh): **15.940 kasus** dari 9 berkas-divisi · 6
 
 ## 13. Aturan Sistem yang Mengikat
 
-Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` (R-01 … R-90) dan `docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` (R-80 … R-90).
+Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` (v1.1 — tanpa kode, nama manusiawi) dan `docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` (Satu Divisi per Layar … Status Berkas Jujur).
 
 | Aturan | Isi | Di mana ditegakkan |
 |---|---|---|
-| **R-01** | Satu papan, satu catatan — semua tampilan membaca catatan yang sama | `GET /api/state` satu sumber untuk TV, QR, admin |
-| **R-07** | Batas data per plant (filter `plant_id`) | Query `plant`/`line` di `api_state` |
-| **R-08** | Divisi hanya mengubah bagiannya | Kepemilikan berkas per divisi (R-86) |
-| **R-10** | TV tidak punya hak ubah data papan | TV hanya `GET /api/state` + absensi/konfirmasi |
-| **R-80** | Satu divisi per layar | Rotasi 7 halaman, 1 divisi = 1 halaman penuh |
-| **R-81** | Absensi dikerjakan lebih dulu, sebelum DMS | Gerbang sesi `DIBUKA` → `DIKONFIRMASI`; override via `/api/buka` + alasan |
-| **R-82** | QR sesi adalah satu pintu masuk | `/qr/<token>.png` → `/s/<token>`; token per sesi, 404 bila tidak dikenal |
-| **R-83** | Kolom TV & form mengikuti kontrak kolom Excel | `KOLOM` di `server.py` + `ALIASES` di `dms_core.py` |
-| **R-84** | Kolom statis, isi dinamis; kosong ≠ hilang | Kolom tetap; baris/KPI per tanggal; halaman kosong tetap tampil |
-| **R-85** | Integrasi Excel otomatis, satu arah, terus-menerus | Pengawas folder; aplikasi tidak pernah menulis workbook |
-| **R-86** | Satu berkas per divisi, sinkron per berkas | `registry.json` + `ingest_file` per `sumber_id` |
-| **R-87** | Setiap angka membawa sumber dan waktu | Badge `SUMBER: EXCEL` + `Sinkron Excel <jam>` di kaki TV |
-| **R-88** | Nol langkah tambahan bagi petugas | Tidak ada upload/ekspor/isi ulang; cukup `Ctrl+S` |
-| **R-89** | Kepemilikan kolom, bukan kepemilikan aplikasi | Kolom Excel baca-saja; koreksi di Excel, layar menyusul |
-| **R-90** | Bedakan "belum diisi" dan "belum tersinkron" | 4 status halaman (§10) |
+| **Satu papan, satu catatan** | Satu papan, satu catatan — semua tampilan membaca catatan yang sama | `GET /api/state` satu sumber untuk TV, QR, admin |
+| **Batas Data per Plant** | Batas data per plant (filter `plant_id`) | Query `plant`/`line` di `api_state` |
+| **Satu Divisi, Satu Bagian** | Divisi hanya mengubah bagiannya | Kepemilikan berkas per divisi (Satu Berkas per Divisi) |
+| **TV Tanpa Hak Ubah** | TV tidak punya hak ubah data papan | TV hanya `GET /api/state` + absensi/konfirmasi |
+| **Satu Divisi per Layar** | Satu divisi per layar | Rotasi 7 halaman, 1 divisi = 1 halaman penuh |
+| **Absensi Dulu** | Absensi dikerjakan lebih dulu, sebelum DMS | Gerbang sesi `DIBUKA` → `DIKONFIRMASI`; override via `/api/buka` + alasan |
+| **QR Satu Pintu** | QR sesi adalah satu pintu masuk | `/qr/<token>.png` → `/s/<token>`; token per sesi, 404 bila tidak dikenal |
+| **Kolom Ikuti Kontrak Excel** | Kolom TV & form mengikuti kontrak kolom Excel | `KOLOM` di `server.py` + `ALIASES` di `dms_core.py` |
+| **Kolom Statis, Isi Dinamis** | Kolom statis, isi dinamis; kosong ≠ hilang | Kolom tetap; baris/KPI per tanggal; halaman kosong tetap tampil |
+| **Sinkron Excel Otomatis** | Integrasi Excel otomatis, satu arah, terus-menerus | Pengawas folder; aplikasi tidak pernah menulis workbook |
+| **Satu Berkas per Divisi** | Satu berkas per divisi, sinkron per berkas | `registry.json` + `ingest_file` per `sumber_id` |
+| **Angka Bersumber** | Setiap angka membawa sumber dan waktu | Badge `SUMBER: EXCEL` + `Sinkron Excel <jam>` di kaki TV |
+| **Nol Langkah Tambahan** | Nol langkah tambahan bagi petugas | Tidak ada upload/ekspor/isi ulang; cukup `Ctrl+S` |
+| **Kepemilikan Kolom** | Kepemilikan kolom, bukan kepemilikan aplikasi | Kolom Excel baca-saja; koreksi di Excel, layar menyusul |
+| **Status Berkas Jujur** | Bedakan "belum diisi" dan "belum tersinkron" | 4 status halaman (§10) |
 
 ---
 
@@ -1127,16 +1127,16 @@ Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` (R-01 … R-90) dan `docs/laporan
 
 | Aspek | Prototipe (sekarang) | Target produksi |
 |---|---|---|
-| Login / SSO | **Belum ada** — semua halaman terbuka | SSO wajib untuk menulis; token QR per shift + kedaluwarsa + dapat dicabut (R-82) |
-| Daftar nama absensi | 28 nama contoh (`NAMA_DEMO`) | Diisi Admin/impor Excel (R-31); status awal hadir (R-32) |
+| Login / SSO | **Belum ada** — semua halaman terbuka | SSO wajib untuk menulis; token QR per shift + kedaluwarsa + dapat dicabut (QR Satu Pintu) |
+| Daftar nama absensi | 28 nama contoh (`NAMA_DEMO`) | Diisi Admin/impor Excel (Daftar Nama dari Admin); status awal hadir (Status Awal Hadir) |
 | Isian divisi di aplikasi | **Tidak ada** — semua dari Excel | Form web per divisi (kolom mengikuti Excel) untuk kolom yang tidak ada di Excel (bukti, konfirmasi, catatan) |
 | Dasbor L1–L3 | Hanya TV + ringkasan 5 divisi | Dasbor per level (line → plant → group) + laporan + ekspor |
-| Penutupan kasus & persetujuan | Status dari Excel (`OPEN/PROGRESS/CLOSE`) | Gerbang close (sebab + tindakan + bukti + PIC, R-45) + persetujuan peran berbeda (R-09) |
-| Tenggat & eskalasi | `due` dari Excel; lewat tenggat dihitung | Tenggat dihitung sistem dari dampak (A=1, B=3, C=5 hari kerja) + eskalasi L2/L3 (R-46, R-47) |
+| Penutupan kasus & persetujuan | Status dari Excel (`OPEN/PROGRESS/CLOSE`) | Gerbang close (sebab + tindakan + bukti + PIC, Empat Kolom Tutup Kasus) + persetujuan peran berbeda (Pemisahan Isi dan Setujui) |
+| Tenggat & eskalasi | `due` dari Excel; lewat tenggat dihitung | Tenggat dihitung sistem dari dampak (A=1, B=3, C=5 hari kerja) + eskalasi L2/L3 (Tenggat Kasus A/B/C, Eskalasi Otomatis) |
 | Insight / temuan | KPI dasar (completion, lewat tenggat, downtime) | 12 kartu temuan I-01…I-12 (berulang, menumpuk, tren, dst.) |
 | Delivery & Teknik | Menunggu berkas | Berkas didaftarkan → halaman aktif otomatis |
 | Kunci periode | Belum ada | Kunci per periode oleh Plant Head/Admin; koreksi hanya + alasan |
-| Arah sinkron | Satu arah (Excel → aplikasi) | Tetap satu arah untuk kolom Excel (R-85/R-89); kolom aplikasi-only ditulis di aplikasi |
+| Arah sinkron | Satu arah (Excel → aplikasi) | Tetap satu arah untuk kolom Excel (Sinkron Excel Otomatis/Kepemilikan Kolom); kolom aplikasi-only ditulis di aplikasi |
 | Mode demo | Aktif default (`demo=1`) dengan pita kuning | Mati di produksi; data hari berjalan |
 | Audit pelaku | Hanya kolom `pelaku` bebas-isi | Pelaku dari identitas SSO + perangkat |
 
@@ -1210,9 +1210,9 @@ Petugas buka Excel di laptop (file yang sama seperti biasa)
    → selesai. Tidak ada klik di aplikasi.
 ```
 
-Aplikasi di sisi server: pengawas folder (3 dtk) → deteksi perubahan → ingest → TV menyegar ≤ 15 dtk. Petugas tidak pernah diminta upload/ekspor/isi ulang (R-88).
+Aplikasi di sisi server: pengawas folder (3 dtk) → deteksi perubahan → ingest → TV menyegar ≤ 15 dtk. Petugas tidak pernah diminta upload/ekspor/isi ulang (Nol Langkah Tambahan).
 
-**Kalau datanya salah:** perbaiki di Excel, simpan lagi — TV menyusul (R-89). Kolom Excel bersifat baca-saja di aplikasi.
+**Kalau datanya salah:** perbaiki di Excel, simpan lagi — TV menyusul (Kepemilikan Kolom). Kolom Excel bersifat baca-saja di aplikasi.
 
 ### 15.4 Supervisor / DH — alur pengawasan & buka ulang
 
@@ -1306,8 +1306,8 @@ Hanya baca: `GET /api/state` + `GET /api/admin` (di produksi: dengan SSO role Au
 |---|---|
 | `app/README.md` | Cara menjalankan prototipe + yang sudah nyata + batas demo |
 | `docs/README.md` | Indeks seluruh dokumentasi proyek |
-| `docs/laporan/DMS_Aturan_Sistem_v1.md` | Aturan baku R-01 … R-90 (sumber §4 & §13) |
-| `docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` | Rancangan TV per divisi, QR satu pintu, integrasi Excel (R-80 … R-90) |
+| `docs/laporan/DMS_Aturan_Sistem_v1.md` | Aturan baku sistem (lihat `docs/laporan/DMS_Aturan_Sistem_v1.md` v1.1) (sumber §4 & §13) |
+| `docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` | Rancangan TV per divisi, QR satu pintu, integrasi Excel (Satu Divisi per Layar … Status Berkas Jujur) |
 | `docs/laporan/rancangan/01-KENAPA-DMS-DIGITAL.md` | Kenapa DMS digital dibuat + baseline angka |
 | `docs/laporan/rancangan/02-RANCANGAN-APLIKASI.md` | Rancangan aplikasi (layar, dasbor L1–L3, absensi) |
 | `docs/laporan/rancangan/03-ALUR-SISTEM.md` | Alur sistem rancangan (9 alur: harian, absensi, isian, downtime, kasus, tenggat, koreksi, TV, replikasi) |

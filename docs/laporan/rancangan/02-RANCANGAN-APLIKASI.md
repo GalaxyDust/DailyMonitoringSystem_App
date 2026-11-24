@@ -86,7 +86,7 @@ Prinsip arsitektur:
    OneDrive **satu kali oleh IT** dan di path lama dibuat *junction*, sehingga petugas tetap membuka
    file yang sama dan cukup Ctrl+S. OneDrive mengunggah sendiri; layanan sinkron membaca perubahan
    (Graph delta/webhook atau Power Automate), menormalkan, dan menyimpan idempoten. Aplikasi tidak
-   pernah menulis ke workbook dan **Excel tidak dibekukan** (R-85, R-88, R-89).
+   pernah menulis ke workbook dan **Excel tidak dibekukan** (Sinkron Excel Otomatis, Nol Langkah Tambahan, Kepemilikan Kolom).
    Detail: `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §5.
 
 ---
@@ -115,31 +115,31 @@ Navigasi kantor (sidebar): **Hari ini · Kasus terbuka · Tren pekan · Perbandi
 
 | Entitas | Isi pokok | Kunci aturan |
 |---|---|---|
-| `plant` | kode (SN/EP/NP/DR), nama, zona waktu, kalender libur | R-02, R-05 |
-| `bu_factory` | unit di plant (mis. Factory 10) | R-02 |
-| `line` | kode (SN-L09), nama seragam, plant, BU | R-06 (satu ejaan) |
+| `plant` | kode (SN/EP/NP/DR), nama, zona waktu, kalender libur | Hierarki Papan Tetap, Hari Kerja Senin–Jumat |
+| `bu_factory` | unit di plant (mis. Factory 10) | Hierarki Papan Tetap |
+| `line` | kode (SN-L09), nama seragam, plant, BU | Nama Line Diseragamkan (satu ejaan) |
 | `mesin` | kode, nama, line, jenis | dipakai Teknik |
-| `divisi` | SHE, Quality, Produksi, Teknik, Delivery; urutan, warna, ikon | R-11 |
-| `item` | nama, divisi, satuan, target, jenis isian, ritme, boleh-diisi-leader, **arah** (higher-better / lower-better / exact), **berlaku per line** (`item_line`: aktif/N-A per line) | R-13, R-24, R-73 |
-| `catatan` | **satu baris per sel**: line + tanggal + shift + item + nilai + status; UNIQUE(line, tanggal, shift, item) | R-01, R-04 |
-| `shift` | pola per plant: kode, jam mulai–selesai, lintas tengah malam (shift 3 milik **tanggal mulai**) | R-04, R-26, R-34 |
-| `kalender_libur` | tanggal libur per plant per tahun, dipelihara Admin | R-05 |
-| `temuan` | hasil mesin aturan: rule_code (I-01…I-12), periode, bukti, PIC, tenggat, status tindak lanjut | R-47, R-48, R-69 |
-| `pm_jadwal` | mesin, periode, item PM, PIC; status: selesai · tertunda(+alasan) · belum waktunya | R-19 |
-| `spare_part` | part kritis per mesin, stok minimum, stok, rencana pengadaan | R-20 |
-| `alat_ukur` | alat QC, kalibrasi terakhir, jatuh tempo, sertifikat; jatuh tempo → angka QC ditandai | R-21 |
-| `po` | nomor PO, line, plan vs real, keterlambatan (sumber item Delivery per PO) | R-24 |
-| `healthy_check` | nilai per plant per periode, diisi Admin, konstan dalam periode | R-28 |
-| `kasus` | kode, plant, line, mesin, divisi, dampak A/B/C, sebab, tindakan, PIC, bukti, tenggat, status | R-45–R-50 |
-| `pica` | kasus, tahap why-1..why-5, temuan, tindakan pencegahan | R-48 |
-| `work_order` | kasus, kategori sebab (5 pilihan), komponen, teknisi, mulai/selesai | R-15–R-18 |
-| `absensi` | tanggal, shift, line, orang, status, waktu ketuk, perangkat | R-31–R-39 |
-| `orang` | nama, NIK opsional, regu, divisi, line utama | R-31 |
-| `pengguna` | akun, peran, plant, line yang boleh diakses | R-07–R-10 |
-| `target_versi` | plant, periode berlaku, target & bobot per item | R-51–R-54 |
-| `profil_tv` | kode perangkat + token (bisa dicabut), cakupan **satu line atau grup line** (untuk plant berline banyak, R-59), pilar tampil, rotasi, mode | R-55–R-61 |
-| `koreksi` | catatan/kasus, nilai lama, nilai baru, alasan, penyetuju | R-40–R-44 |
-| `audit` | aktor, aksi, entitas, sebelum, sesudah, waktu, perangkat | R-53 |
+| `divisi` | SHE, Quality, Produksi, Teknik, Delivery; urutan, warna, ikon | Satu Sel Satu Pemilik |
+| `item` | nama, divisi, satuan, target, jenis isian, ritme, boleh-diisi-leader, **arah** (higher-better / lower-better / exact), **berlaku per line** (`item_line`: aktif/N-A per line) | Batas Leader, Satu Isian per Sel, Status N/A |
+| `catatan` | **satu baris per sel**: line + tanggal + shift + item + nilai + status; UNIQUE(line, tanggal, shift, item) | Satu papan, satu catatan, Satu Hari Satu Papan |
+| `shift` | pola per plant: kode, jam mulai–selesai, lintas tengah malam (shift 3 milik **tanggal mulai**) | Satu Hari Satu Papan, Cut-off 30 Menit, Absensi Shift Berjalan |
+| `kalender_libur` | tanggal libur per plant per tahun, dipelihara Admin | Hari Kerja Senin–Jumat |
+| `temuan` | hasil mesin aturan: rule_code (I-01…I-12), periode, bukti, PIC, tenggat, status tindak lanjut | Eskalasi Otomatis, Temuan Berulang, Kelengkapan Terukur |
+| `pm_jadwal` | mesin, periode, item PM, PIC; status: selesai · tertunda(+alasan) · belum waktunya | PM Terjadwal |
+| `spare_part` | part kritis per mesin, stok minimum, stok, rencana pengadaan | Spare Part Kritis |
+| `alat_ukur` | alat QC, kalibrasi terakhir, jatuh tempo, sertifikat; jatuh tempo → angka QC ditandai | Kalibrasi Alat Ukur |
+| `po` | nomor PO, line, plan vs real, keterlambatan (sumber item Delivery per PO) | Satu Isian per Sel |
+| `healthy_check` | nilai per plant per periode, diisi Admin, konstan dalam periode | Healthy Check |
+| `kasus` | kode, plant, line, mesin, divisi, dampak A/B/C, sebab, tindakan, PIC, bukti, tenggat, status | Empat Kolom Tutup Kasus–Kasus Dingin |
+| `pica` | kasus, tahap why-1..why-5, temuan, tindakan pencegahan | Temuan Berulang |
+| `work_order` | kasus, kategori sebab (5 pilihan), komponen, teknisi, mulai/selesai | Durasi vs Sebab–Eskalasi Teknik |
+| `absensi` | tanggal, shift, line, orang, status, waktu ketuk, perangkat | Daftar Nama dari Admin–Absensi per Line |
+| `orang` | nama, NIK opsional, regu, divisi, line utama | Daftar Nama dari Admin |
+| `pengguna` | akun, peran, plant, line yang boleh diakses | Batas Data per Plant–TV Tanpa Hak Ubah |
+| `target_versi` | plant, periode berlaku, target & bobot per item | Satu Angka per Catatan–Rumus Penilaian Terkunci |
+| `profil_tv` | kode perangkat + token (bisa dicabut), cakupan **satu line atau grup line** (untuk plant berline banyak, Rotasi TV), pilar tampil, rotasi, mode | TV Berbentuk Papan–Layar PC & Admin |
+| `koreksi` | catatan/kasus, nilai lama, nilai baru, alasan, penyetuju | Riwayat Koreksi–Tanpa Hapus Data |
+| `audit` | aktor, aksi, entitas, sebelum, sesudah, waktu, perangkat | Perubahan Konfigurasi Tercatat |
 
 ### 3.2 Relasi
 
@@ -169,7 +169,7 @@ catatan
 ├─ tanggal · shift · ritme                      (kapan berlaku)
 ├─ nilai_angka | nilai_pilihan | nilai_biner    (salah satu sesuai jenis item)
 ├─ status  : SESUAI | DI_BAWAH | LEWAT | NIHIL | BELUM | N_A
-│            (N_A hanya dari konfigurasi item_line, R-73 — bukan diketik;
+│            (N_A hanya dari konfigurasi item_line, Status N/A — bukan diketik;
 │             SESUAI/DI_BAWAH/LEWAT dihitung sistem memakai arah item)
 ├─ sebab_teks · tindakan_teks · pic_id
 ├─ kasus_id (opsional, bila memicu kasus)
@@ -203,9 +203,9 @@ Matriks penuh dan alasannya: `DMS_Aturan_Sistem_v1.md` bagian 2.
 
 ### 5.1 Isi papan (tablet/PC line)
 
-> **Kolom milik Excel bersifat baca-saja** (R-89). Untuk SHE/Quality/Produksi yang sudah punya
+> **Kolom milik Excel bersifat baca-saja** (Kepemilikan Kolom). Untuk SHE/Quality/Produksi yang sudah punya
 > Excel sendiri, layar ini menampilkan hasil sinkron + tanda "Perbaiki di Excel", bukan meminta
-> petugas mengetik ulang (R-88). Isian manual hanya untuk kolom yang tidak ada di Excel.
+> petugas mengetik ulang (Nol Langkah Tambahan). Isian manual hanya untuk kolom yang tidak ada di Excel.
 
 - **Kepala:** plant › line › tanggal, badge hari kerja, sisa waktu sebelum cut-off.
 - **Tab divisi:** SHE · Quality · Produksi · Teknik · Delivery (badge titik bila belum diisi).
@@ -216,35 +216,35 @@ Matriks penuh dan alasannya: `DMS_Aturan_Sistem_v1.md` bagian 2.
 
 ### 5.2 Papan lantai (TV)
 
-- **Satu divisi per layar** (R-80), bukan papan gabungan lima kolom. Bentuk tetap papan:
+- **Satu divisi per layar** (Satu Divisi per Layar), bukan papan gabungan lima kolom. Bentuk tetap papan:
   kepala papan → grid KPI (target vs S1/S2/S3/harian/mingguan/bulanan) → tabel kasus aktif →
   baris PICA → footer.
-- **Kolom mengikuti Excel** (R-83): SHE dari `Resume SHE` (Area, Category Safety, Problem Statement,
+- **Kolom mengikuti Excel** (Kolom Ikuti Kontrak Excel): SHE dari `Resume SHE` (Area, Category Safety, Problem Statement,
   Running Day→Umur, foto), Quality dari `Resume QC` (Priority Level, Validasi QCP, Case Category),
   Produksi dari `Resume Prod` (**DT (min)** ditonjolkan). Grid KPI dari `Template Penilaian →
   Summary DMS to KPI`; index dari `DMS_INDEX`.
 - Kepala papan: plant, line, divisi, tanggal, shift, index divisi, kasus terbuka, lewat tenggat,
-  hadir/total, **jam pembaruan terakhir + badge sumber** (R-87).
-- Rotasi (R-59): **Absensi → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan**, 20–30 detik
+  hadir/total, **jam pembaruan terakhir + badge sumber** (Angka Bersumber).
+- Rotasi (Rotasi TV): **Absensi → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan**, 20–30 detik
   per halaman, dengan penanda `Halaman n/N`. Urutan & durasi diatur Admin.
-- Kolom statis, baris & angka dinamis per hari (R-84). Divisi tanpa data tetap tampil "belum diisi".
+- Kolom statis, baris & angka dinamis per hari (Kolom Statis, Isi Dinamis). Divisi tanpa data tetap tampil "belum diisi".
 - Tanpa interaksi, kecuali tombol absensi. Tidak ada kolom pencarian plant/line.
 - Bila data hari ini belum ada: tampilkan angka kemarin dengan tanda **"data kemarin"**.
-- Delivery & Teknik belum punya sheet Excel → perlu sumber sendiri (R-86).
+- Delivery & Teknik belum punya sheet Excel → perlu sumber sendiri (Satu Berkas per Divisi).
 
 ### 5.3 Absensi
 
-- **Dikerjakan paling awal, sebelum isian DMS** (R-81). Sesi: `DIBUKA → ABSENSI → ISI DIVISI →
+- **Dikerjakan paling awal, sebelum isian DMS** (Absensi Dulu). Sesi: `DIBUKA → ABSENSI → ISI DIVISI →
   REVIEW → DIKUNCI`. Tombol kirim divisi terkunci sampai kehadiran dikonfirmasi; Supervisor/DH
   dapat membuka dengan alasan tercatat.
-- Pintu masuk: **QR sesi** di TV/papan (R-82) — token terikat plant/line/tanggal/shift, berputar
+- Pintu masuk: **QR sesi** di TV/papan (QR Satu Pintu) — token terikat plant/line/tanggal/shift, berputar
   tiap shift, dapat dicabut; menulis wajib SSO. Satu tautan untuk absensi, isian, PICA, dan review.
 - Sumber nama: impor daftar (Excel) atau tarik dari mesin absensi bila tersedia; default semua **hadir**.
 - Lapangan menandai yang tidak hadir: sakit · izin · alpa · terlambat · dinas luar.
 - Ketukan dari TV atau dari isian menulis ke catatan absensi yang sama.
 - Tersedia **urungkan 2 menit**; semua ketukan tercatat (waktu, perangkat, pengguna bila login).
 - Menutup otomatis saat cut-off shift. Shift yang **tidak pernah dikonfirmasi** sampai cut-off
-  ditandai "belum dikonfirmasi" — bukan dianggap hadir semua; penjelas output (R-37) hanya
+  ditandai "belum dikonfirmasi" — bukan dianggap hadir semua; penjelas output (Absensi Penjelas Output) hanya
   memakai absensi terkonfirmasi.
 
 ### 5.4 Dasbor L1–L3
@@ -278,7 +278,7 @@ Semua angka dapat diklik menuju daftar detailnya.
 - Target & bobot KPI **per versi** (berlaku per periode) + simulasi dampak sebelum simpan.
 - Profil TV: pilih halaman divisi yang tampil, urutan, durasi rotasi, absensi di awal, penanda halaman.
 - Daftar sumber **per berkas divisi**: plant · line · divisi · path lama di laptop · ID cloud ·
-  sheet · peta kolom · status. Satu berkas gagal tidak menahan divisi lain (R-86).
+  sheet · peta kolom · status. Satu berkas gagal tidak menahan divisi lain (Satu Berkas per Divisi).
 - Status sinkron, karantina, dan tombol "Sinkronkan sekarang"; peringatan bila laptop lama offline.
 - Daftar nama, regu, shift, line; impor Excel.
 - Kunci periode; buka kunci dengan alasan.
@@ -311,7 +311,7 @@ Rumus tetap; grain input berubah dari meeting harian menjadi sel papan per shift
 status_sel   = bandingkan(hasil, target, arah_item)      // SESUAI / DI_BAWAH / LEWAT
 V            = status SESUAI (atau NIHIL bila item kejadian dan tidak ada kejadian)
 O            = status DI_BAWAH / LEWAT yang berarti gagal target
-N/A          = dari konfigurasi item_line (R-73), keluar dari penyebut
+N/A          = dari konfigurasi item_line (Status N/A), keluar dari penyebut
 BELUM        = tidak dihitung V/O; menurunkan skor proses (kelengkapan)
 
 // ---------- SHIFT → HARI ----------
@@ -321,7 +321,7 @@ BELUM        = tidak dihitung V/O; menurunkan skor proses (kelengkapan)
 ach_kpi_harian = jumlah_V / (jumlah_V + jumlah_O)        // semua item KPI hari itu
 
 // ---------- HARI → PEKAN (denominator tetap, bukan hari terisi) ----------
-penyebut      = hari_kerja(Sen–Jum) − libur_plant        // R-05; hari belum isi = 0, bukan hilang
+penyebut      = hari_kerja(Sen–Jum) − libur_plant        // Hari Kerja Senin–Jumat; hari belum isi = 0, bukan hilang
 ach_checklist = Σ nilai_harian / (penyebut × target)     // target BAKU 0,8
 ach_kpi       = Σ ach_kpi_harian / (penyebut × target)
 
@@ -330,7 +330,7 @@ skor = 5 jika ach ≥ 1,20 · 4 jika ≥ 1,10 · 3 jika ≥ 1,00 · 2 jika ≥ 0
 
 // ---------- INDEX & PELAPISAN ----------
 DMS Index   = skor_KPI×0,4 + skor_Checklist×0,4 + skor_Healthy×0,2   // target 3, max 5
-skor_proses = kelengkapan pengisian (R-69) + ketepatan waktu (R-26)  // dilaporkan TERPISAH
+skor_proses = kelengkapan pengisian (Kelengkapan Terukur) + ketepatan waktu (Cut-off 30 Menit)  // dilaporkan TERPISAH
 skor_hasil  = pencapaian target pilar (V/O)                          // dilaporkan TERPISAH
 ```
 
@@ -338,11 +338,11 @@ Ketentuan:
 
 1. **Checklist meeting 6 item** (bobot 10/20/10/20/20/20) tetap dinilai per line per hari —
    menjadi bagian tab Produksi ritme harian; item on-time & kelengkapan dihitung sistem.
-2. **Healthy Check** konstan per periode (R-28), masuk index dengan bobot 0,2; perubahannya
-   wajib lewat simulasi dampak (R-54).
+2. **Healthy Check** konstan per periode (Healthy Check), masuk index dengan bobot 0,2; perubahannya
+   wajib lewat simulasi dampak (Rumus Penilaian Terkunci).
 3. Semua parameter (bobot, band, target, ambang) dari `target_versi` yang berlaku pada
-   periode tersebut — periode lalu tidak berubah (R-52).
-4. **Index tidak menggantikan skor proses/hasil** — ketiganya tampil berdampingan (R-71);
+   periode tersebut — periode lalu tidak berubah (Historis Beku).
+4. **Index tidak menggantikan skor proses/hasil** — ketiganya tampil berdampingan (Skor Proses & Hasil);
    index untuk perbandingan antar periode/plant, proses-hasil untuk tindakan.
 
 ---
@@ -356,8 +356,8 @@ Ketentuan:
 | Kesegaran TV | data terlihat ≤ 30 detik dari input | snapshot push, bukan polling berat |
 | Ketersediaan | jam produksi ≥ 99% | mode baca tetap jalan saat tulis gagal |
 | Offline sementara | draf tersimpan lokal di tablet | kirim otomatis saat jaringan kembali |
-| Keamanan | sesi login, hak per plant/line, audit penuh | TV memakai kode perangkat + token yang bisa dicabut Admin; dampak kebocoran terbatas: baca papan + absensi line itu (R-34) |
-| Retensi | kasus & catatan ≥ 5 tahun; **foto bukti ≥ 5 tahun mengikuti kasusnya** | bukti tidak boleh hilang lebih dulu dari kasusnya (R-29, R-45) |
+| Keamanan | sesi login, hak per plant/line, audit penuh | TV memakai kode perangkat + token yang bisa dicabut Admin; dampak kebocoran terbatas: baca papan + absensi line itu (Absensi Shift Berjalan) |
+| Retensi | kasus & catatan ≥ 5 tahun; **foto bukti ≥ 5 tahun mengikuti kasusnya** | bukti tidak boleh hilang lebih dulu dari kasusnya (Bukti Foto, Empat Kolom Tutup Kasus) |
 | Backup | harian penuh + log harian | uji restore tiap kuartal |
 | Aksesibilitas TV | kontras tinggi, huruf besar, warna + label | jangan bergantung pada warna saja |
 | Jejak audit | semua perubahan nilai & konfigurasi | tidak bisa dihapus peran mana pun |
@@ -419,7 +419,7 @@ Replikasi: Snack (8 pekan) → Exist Plant (4) → New Plant (4) → Dairy (4) =
 
 | Sumber | Nasib | Catatan |
 |---|---|---|
-| 17.201 kasus tiga workbook | arsip bertanda `historis` | dipakai pembanding; **tidak memicu kartu TV/eskalasi/I-02** (R-75) — masuk laporan kualitas-data & program pembersihan ber-PIC |
+| 17.201 kasus tiga workbook | arsip bertanda `historis` | dipakai pembanding; **tidak memicu kartu TV/eskalasi/I-02** (Historis Ditandai) — masuk laporan kualitas-data & program pembersihan ber-PIC |
 | Ringkasan sheet | **tidak diimpor** | dihitung ulang dari baris kasus |
 | Sel error (153) | dibuang, dicatat sebagai temuan mutu | tidak boleh masuk sistem |
 | Master line/mesin | dibersihkan dulu (satu ejaan) | syarat G1 |

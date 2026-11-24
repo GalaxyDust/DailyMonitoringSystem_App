@@ -4,7 +4,7 @@
 >
 > Versi: **v1** · 24 November 2026 · Untuk: backend developer (kamu).
 > Kontrak API yang dipegang frontend: **`docs/API_CONTRACT.md`** (v1).
-> Aturan bisnis: `docs/laporan/DMS_Aturan_Sistem_v1.md` (R-01…R-90).
+> Aturan bisnis: `docs/laporan/DMS_Aturan_Sistem_v1.md` (v1.1 — nama manusiawi, tanpa kode).
 
 ---
 
@@ -30,7 +30,7 @@
 ## 1. Tujuan & konteks
 
 DMS (Daily Monitoring System) adalah papan monitoring harian per line per shift untuk 3 plant
-(Snack, EP, NP) × 5 divisi (SHE, Quality, Produksi, Delivery, Teknik). Frontend dikerjakan teman
+(Snack, EP, NP, Dairy) × 5 divisi (SHE, Quality, Produksi, Delivery, Teknik). Frontend dikerjakan teman
 (branch `front-end`, Vite + React 19 + ESLint). Backend dikerjakan kamu.
 
 **Alur inti yang harus dilayani backend (tidak boleh berubah bentuk):**
@@ -38,17 +38,17 @@ DMS (Daily Monitoring System) adalah papan monitoring harian per line per shift 
 ```
 Excel divisi (petugas isi seperti biasa, Ctrl+S)
    → pengawas folder (3 dtk) → ingest & normalisasi → upsert idempoten → SQLite
-   → GET /api/state → TV / React (rotasi per divisi, gerbang absensi R-81)
+   → GET /api/state → TV / React (rotasi per divisi, gerbang absensi Absensi Dulu)
 Ponsel (QR) → POST /api/konfirmasi → sesi DIKONFIRMASI → rotasi divisi terbuka
 Panel admin (/admin) → status sync, karantina, jejak audit
 ```
 
 Prinsip yang mengikat (lihat juga `docs/ALUR_APLIKASI_DMS.md`):
 
-- **R-85** — satu arah: aplikasi **membaca** Excel, tidak pernah menulis.
-- **R-88** — nol langkah tambahan bagi petugas (tidak ada upload).
-- **R-01** — satu papan, satu catatan; semua tampilan membaca sumber yang sama.
-- **R-81** — absensi dikerjakan lebih dulu (gerbang), Supervisor/DH boleh buka ulang dengan alasan.
+- **Sinkron Excel Otomatis** — satu arah: aplikasi **membaca** Excel, tidak pernah menulis.
+- **Nol Langkah Tambahan** — nol langkah tambahan bagi petugas (tidak ada upload).
+- **Satu papan, satu catatan** — satu papan, satu catatan; semua tampilan membaca sumber yang sama.
+- **Absensi Dulu** — absensi dikerjakan lebih dulu (gerbang), Supervisor/DH boleh buka ulang dengan alasan.
 
 ---
 
@@ -84,7 +84,7 @@ upsert idempoten (0 tambah / 0 ubah saat baca ulang), TV menyegar otomatis, gerb
 | 4 | **Frontend tidak di-stack di dalam Flask secara permanen** — Flask menyajikan `dist/` hasil `vite build` *atau* di belakang reverse proxy | Satu origin untuk TV/QR; tanpa CORS di produksi |
 | 5 | **Kontrak API v1 dibekukan** (`docs/API_CONTRACT.md`) | Frontend bisa jalan paralel; perubahan bentuk = v2 |
 | 6 | **Auth = Entra ID (akun M365)** untuk endpoint tulis | Sesuai keputusan platform (`DMS_Keputusan_Platform_dan_Akses_Online_v1.md`); tanpa lisensi per pengguna |
-| 7 | **Excel tidak dibekukan & tetap baca-saja** | R-85, R-89 |
+| 7 | **Excel tidak dibekukan & tetap baca-saja** | Sinkron Excel Otomatis, Kepemilikan Kolom |
 
 ---
 
@@ -279,7 +279,7 @@ Kelebihan untuk fase ini: tanpa server DB, mudah di-backup (salin 1 file), query
 | # | Tugas | Selesai bila |
 |---|---|---|
 | C1 | Login frontend MSAL (Entra ID) pada `/admin` & aksi tulis | Token didapat |
-| C1b | **Akses Dashboard ringkasan (A-02):** grup Entra `DMS-PDCA-*` → **PDCA** (semua plant), grup `DMS-TL-*` + klaim plant → **TL** (plant sendiri). Frontend `/dashboard` dibungkus `RequireRole`; TV (`role=tv`) tidak boleh melihat/menautkan ke Dashboard. Endpoint agregat lintas plant → **403** untuk TL (R-07) | TV tanpa Dashboard; PDCA lihat semua plant; TL terkunci plant sendiri |
+| C1b | **Akses Dashboard ringkasan (A-02):** grup Entra `DMS-PDCA-*` → **PDCA** (semua plant), grup `DMS-TL-*` + klaim plant → **TL** (plant sendiri). Frontend `/dashboard` dibungkus `RequireRole`; TV (`role=tv`) tidak boleh melihat/menautkan ke Dashboard. Endpoint agregat lintas plant → **403** untuk TL (Batas Data per Plant) | TV tanpa Dashboard; PDCA lihat semua plant; TL terkunci plant sendiri |
 | C2 | Backend verifikasi JWT (PyJWT + JWKS tenant; `audience` = client id app) | 401 bila token invalid/expired |
 | C3 | Proteksi peran: `/api/buka`, `/api/sync`, `/admin` → Supervisor/DH/Admin; `/api/absensi`, `/api/konfirmasi` → terautentikasi | 403 sesuai peran |
 | C4 | QR sesi: token kedaluwarsa per shift + endpoint cabut token (`POST /api/sesi/cabut`, Admin) | Token lama ditolak (404/410) |
@@ -347,12 +347,12 @@ Firewall: buka port 8000 (atau 443 via reverse proxy). TV diarahkan ke `http://<
 |---|---|---|
 | Identitas | Tidak ada (semua terbuka) | Entra ID JWT; peran dari group mapping |
 | TV / landing | Terbuka (baca + ketuk absensi) | Tetap terbuka untuk baca (A-01); absensi butuh auth tahap C (atau batasi IP TV + signage) |
-| Dashboard ringkasan (`/dashboard` React) | Terbuka (v1) — hanya dijaga UI/operasi (A-02) | SSO + grup `DMS-PDCA-*` (semua plant) / `DMS-TL-*` + klaim plant (A-02); TL lintas plant → 403 (R-07) |
+| Dashboard ringkasan (`/dashboard` React) | Terbuka (v1) — hanya dijaga UI/operasi (A-02) | SSO + grup `DMS-PDCA-*` (semua plant) / `DMS-TL-*` + klaim plant (A-02); TL lintas plant → 403 (Batas Data per Plant) |
 | Penulisan | Terbuka | SSO wajib; Supervisor/DH/Admin untuk buka ulang & sync |
-| QR token | Statik per sesi, tidak kedaluwarsa | Per shift + TTL + cabut (R-82) |
+| QR token | Statik per sesi, tidak kedaluwarsa | Per shift + TTL + cabut (QR Satu Pintu) |
 | Input | Belum divalidasi | Validasi + 400/401/403 |
 | Secrets | Tidak ada di repo | `.env` tidak di-commit; `app/var/` di `.gitignore` |
-| Data Excel | Read-only oleh app | Tetap (R-85/R-89) |
+| Data Excel | Read-only oleh app | Tetap (Sinkron Excel Otomatis/Kepemilikan Kolom) |
 | Audit | `audit` table | Pelaku dari token; retensi ≥ 5 tahun |
 
 Catatan: jangan taruh kredensial/secret di repo, chat, atau dokumen — gunakan `.env`/variabel lingkungan server.
@@ -390,7 +390,7 @@ DailyMonitoringSystem_App/
 │   ├── ALUR_APLIKASI_DMS.md  peta alur (front & back)
 │   ├── API_CONTRACT.md       kontrak v1 (pegangan bersama)
 │   ├── BACKEND_PLAN.md       dokumen ini
-│   └── laporan/              aturan R-01…R-90 & keputusan platform
+│   └── laporan/              aturan sistem (lihat `docs/laporan/DMS_Aturan_Sistem_v1.md` v1.1) & keputusan platform
 ├── reference/                workbook acuan (read-only)
 └── tests/                    (baru) pytest
 ```
@@ -410,7 +410,7 @@ DailyMonitoringSystem_App/
 |---|---|---|
 | **M0** | Kontrak v1 disepakati (dokumen ini + API_CONTRACT) | Kedua pihak setuju, tidak ada endpoint "mengambang" |
 | **M1** | React bisa baca `/api/state` & tampilkan halaman absensi + 1 halaman divisi | Demo: React TV menampilkan data asli dari Flask |
-| **M2** | Paritas fitur React = TV HTML (7 halaman, rotasi, gerbang R-81, QR) | TV HTML bisa digantikan build React |
+| **M2** | Paritas fitur React = TV HTML (7 halaman, rotasi, gerbang Absensi Dulu, QR) | TV HTML bisa digantikan build React |
 | **M3** | Auth Entra ID (tahap C minimal C1–C3, termasuk **C1b A-02**) | Tulis tanpa token = 401; peran Supervisor/Admin berlaku; **Dashboard hanya PDCA/TL** (TV tanpa Dashboard) |
 | **M4** | Pilot Snack Line 9 (tahap A+B penuh, backup, runbook) | 1 minggu operasi tanpa insiden data |
 | **M5** | Produksi 3 plant + Delivery/Teknik onboard | 15.940+ kasus, semua divisi `tersinkron` |
@@ -428,7 +428,7 @@ DailyMonitoringSystem_App/
 | Token QR bocor (foto di grup WA) | Absensi/konfirmasi palsu di shift itu | TTL per shift + cabut token + audit (tahap C) |
 | Frontend ubah ekspektasi field diam-diam | TV rusak | Kontrak di PR; contract test (B5) |
 | Workbook Delivery/Teknik belum diserahkan | 2 halaman TV kosong | Status `menunggu_berkas` jujur; tidak menghalangi MV P |
-| Laptop petugas offline | TV basi | R-90: status "belum tersinkron" terlihat; bukan data palsu |
+| Laptop petugas offline | TV basi | Status Berkas Jujur: status "belum tersinkron" terlihat; bukan data palsu |
 
 ---
 

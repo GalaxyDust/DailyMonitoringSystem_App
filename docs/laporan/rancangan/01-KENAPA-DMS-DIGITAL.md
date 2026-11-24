@@ -117,7 +117,7 @@ Sepuluh pekerjaan manual yang **berhenti dikerjakan**, bukan dipindahkan:
 
 ### 4.2 Ukuran keberhasilan (dipakai evaluasi pekan ke-8)
 
-**Lima ukuran gerbang** (dipakai R-77, G4, dan gerbang replikasi — sama dengan deck hal. 20):
+**Lima ukuran gerbang** (dipakai Gerbang Replikasi, G4, dan gerbang replikasi — sama dengan deck hal. 20):
 
 | Ukuran | Kondisi hari ini | Target | Cara ukur |
 |---|---|---|---|
@@ -140,7 +140,7 @@ Ukuran tambahan (dipantau, bukan gerbang):
 
 | # | Prinsip | Konsekuensi praktis |
 |---|---|---|
-| P1 | **Papan tetap papan** | Bentuk papan dipertahankan (grid KPI × baris item × kolom shift), tetapi TV menyajikan **satu divisi per layar** dengan kolom mengikuti Excel (R-80, R-83) |
+| P1 | **Papan tetap papan** | Bentuk papan dipertahankan (grid KPI × baris item × kolom shift), tetapi TV menyajikan **satu divisi per layar** dengan kolom mengikuti Excel (Satu Divisi per Layar, Kolom Ikuti Kontrak Excel) |
 | P2 | **Satu catatan per sel** | tidak ada tabel ringkasan yang diisi tangan; ringkasan dihitung |
 | P3 | **Sekali isi, banyak layar** | TV, dasbor, laporan, ekspor membaca catatan yang sama |
 | P4 | **Tiap divisi pemilik bagiannya** | SHE/QC/Produksi/Teknik/Delivery mengisi tabnya, tidak bisa menimpa tab lain |

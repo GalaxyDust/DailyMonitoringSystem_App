@@ -16,7 +16,9 @@
 >    ke `main` bersamaan dengan implementasi**, isinya akan redundan.
 >
 > Perbedaan yang disengaja vs scaffold `front-end`:
-> - Aset DMS memakai **logo GARUDAFOOD** (`public/logo*.png`, `favicon-32x32.png`) — bukan ikon Vite.
+> - Plant **Dairy** (kode DR) ikut enum `plant` (4 plant: Snack · EP · NP · Dairy); belum ada berkas sumber — tampil `menunggu_berkas`.
+- Istilah aturan memakai **nama manusiawi** (Aturan Sistem v1.1) — tidak ada kode R-xx; lihat `docs/laporan/DMS_Aturan_Sistem_v1.md` Lampiran A bila merujuk dokumen lama.
+- Aset DMS memakai **logo GARUDAFOOD** (`public/logo*.png`, `favicon-32x32.png`) — bukan ikon Vite.
 > - `App.css`, `src/assets/react.svg|vite.svg|hero.png`, `public/icons.svg` **tidak dipakai** —
 >   gaya global di `src/index.css`; aset dari `Logo/` (root repo) atau `docs/assets/`.
 > - Routing & halaman sesuai spec (HashRouter, `/` landing TV, `/dashboard` PDCA/TL).

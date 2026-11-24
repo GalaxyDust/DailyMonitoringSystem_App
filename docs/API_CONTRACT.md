@@ -2,7 +2,7 @@
 
 > **Frontend (Vite + React, branch `front-end`) ↔ Backend (Flask, `app/`)**
 >
-> Versi kontrak: **v1.1** · 24 November 2026 (v1.1: §10 Aturan akses A-01/A-02 — tanpa perubahan skema endpoint) · Ditulis dari kode aktual `app/server.py` & `app/dms_core.py`.
+> Versi kontrak: **v1.2** · 24 November 2026 (v1.1: §10 A-01/A-02; v1.2: enum plant + `Dairy` — aditif; tanpa perubahan skema endpoint) · Ditulis dari kode aktual `app/server.py` & `app/dms_core.py`.
 > Kalau perilaku endpoint berubah di kode, kontrak ini **wajib** ikut diperbarui — frontend bergantung padanya.
 
 | Item | Keterangan |
@@ -46,8 +46,10 @@
 | `Snack` | Snack plant (kode SN) — default di semua endpoint |
 | `EP` | Exist Plant |
 | `NP` | New Plant |
+| `Dairy` | Dairy plant (kode DR) — **rollout keempat** (ikutan Urutan Replikasi: Snack → EP → NP → Dairy). **Belum ada berkas Excel sumber**; sampai didaftarkan di `app/registry.json`, seluruh halamannya tampil `menunggu_berkas` (lihat *Status Berkas Jujur* di `docs/laporan/DMS_Aturan_Sistem_v1.md` §10) |
 
 > Plant tidak divalidasi oleh server saat ini; nilai lain akan menghasilkan papan kosong.
+> `Dairy` ikut nomor/enum yang sama; menambah plant TIDAK mengubah endpoint — hanya butuh sumber Excel terdaftar (PR terpisah).
 
 ### 1.2 Enum `line`
 
@@ -84,10 +86,10 @@ Siklus klik di TV: `hadir → sakit → izin → alpa → terlambat → belum pa
 
 | Status | Arti |
 |---|---|
-| `tersinkron` | Berkas terdaftar, pernah tersinkron, ada baris bertanggal tampil |
-| `belum_diisi` | Tersinkron tetapi tidak ada baris bertanggal tampil |
-| `belum_tersinkron` | Berkas terdaftar tetapi belum pernah tersinkron |
-| `menunggu_berkas` | Berkas divisi belum didaftarkan (Delivery & Teknik) |
+| `tersinkron` | Berkas terdaftar, sinkron terakhir berhasil, ada baris bertanggal tampil |
+| `belum_diisi` | Sinkron **berhasil**, tetapi tidak ada baris bertanggal untuk tanggal tampil — **bukan** error; UI menampilkan jam terakhir pengecekan (Aturan Sistem v1.1 — Status Berkas Jujur) |
+| `belum_tersinkron` | Berkas terdaftar tetapi **gagal atau belum pernah dibaca** (laptop mati, OneDrive belum sync, sheet salah) — UI wajib menampilkan "sinkron terakhir berhasil hh.mm" (atau "belum pernah tersinkron") + angka basi bercap |
+| `menunggu_berkas` | Berkas divisi belum didaftarkan (Delivery & Teknik; menyusul: semua divisi plant Dairy) |
 
 ### 1.8 Kode warna KPI (`kpi[].vals[].st`)
 
@@ -98,7 +100,7 @@ Siklus klik di TV: `hadir → sakit → izin → alpa → terlambat → belum pa
 | `2` | Merah `#C22A26` | Lewat batas (mis. lewat tenggat > 0) |
 | `3` | Abu `#A9A9A2` | Belum diisi / tidak ada data |
 
-### 1.9 Struktur sel & kolom (kontrak Excel → layar, R-83/R-84)
+### 1.9 Struktur sel & kolom (kontrak Excel → layar, Kolom Ikuti Kontrak Excel/Kolom Statis, Isi Dinamis)
 
 `kolom` = kontrak kolom **statis** per divisi (nama + bobot lebar). `baris[].sel` = array string **sebaris dengan `kolom`**, sudah diformat untuk tampilan (`D Mon` untuk tanggal). Kolom yang tidak ada nilainya berisi string `"—"`. Format angka desimal memakai **koma** (`0,75`).
 
@@ -383,7 +385,7 @@ Efek samping (berurutan):
 
 ## 6. POST `/api/buka` — buka ulang sesi (Supervisor/DH)
 
-Jalan keluar darurat R-81 bila absensi salah setelah dikonfirmasi.
+Jalan keluar darurat Absensi Dulu bila absensi salah setelah dikonfirmasi.
 
 ### 6.1 Request
 
@@ -546,7 +548,7 @@ Item `hasil[]` — field umum:
 Penegakan A-02 **tidak** bisa dilakukan lewat kontrak ini di v1 (endpoint tetap publik); pembatasan sementara
 ada di sisi UI/operasi (TV hanya membuka `/`; `/dashboard` tidak ditautkan; guard `RequireRole`). Penegakan
 sesungguhnya menunggu **tahap C (MSAL Entra ID)**: JWT → klaim grup — `DMS-PDCA-*` (semua plant) vs
-`DMS-TL-*` + klaim plant (plant sendiri); endpoint agregat lintas plant wajib menjawab **403** untuk TL (R-07).
+`DMS-TL-*` + klaim plant (plant sendiri); endpoint agregat lintas plant wajib menjawab **403** untuk TL (Batas Data per Plant).
 
 **v2 (target produksi):**
 
@@ -557,9 +559,9 @@ sesungguhnya menunggu **tahap C (MSAL Entra ID)**: JWT → klaim grup — `DMS-P
 | `POST /api/konfirmasi` | SSO |
 | `POST /api/buka` | SSO + peran Supervisor/DH/Admin |
 | `POST /api/sync`, `GET /api/admin`, `/admin` | SSO + peran Admin/Supervisor |
-| Halaman `/dashboard` (React) + endpoint agregat lintas plant | SSO + peran **PDCA** (semua plant) atau **TL** (plant di klaim token) — A-02; TL lintas plant → **403** (R-07) |
+| Halaman `/dashboard` (React) + endpoint agregat lintas plant | SSO + peran **PDCA** (semua plant) atau **TL** (plant di klaim token) — A-02; TL lintas plant → **403** (Batas Data per Plant) |
 
-Rencana: frontend login via **MSAL** (Entra ID) → access token → header `Authorization: Bearer <token>` → backend verifikasi JWT (PyJWT + JWKS tenant). Token sesi QR kedaluwarsa per shift + dapat dicabut (R-82).
+Rencana: frontend login via **MSAL** (Entra ID) → access token → header `Authorization: Bearer <token>` → backend verifikasi JWT (PyJWT + JWKS tenant). Token sesi QR kedaluwarsa per shift + dapat dicabut (QR Satu Pintu).
 
 ---
 
@@ -582,7 +584,7 @@ Rencana: frontend login via **MSAL** (Entra ID) → access token → header `Aut
 
 ## 12. Perubahan kontrak & versioning
 
-- Kontrak ini **v1** (v1.1, 24 Nov 2026: **§10 ditambah aturan akses permukaan A-01/A-02** — landing untuk semua TV; Dashboard hanya PDCA/TL. **Tidak ada perubahan skema endpoint/field** — aditif, aman).
+- Kontrak ini **v1.2** (v1.1, 24 Nov 2026: **§10 A-01/A-02** — landing untuk semua TV; Dashboard hanya PDCA/TL; v1.2, 24 Nov 2026: **enum `plant` + `Dairy`** — belum ada berkas sumber; aditif, aman). **Tidak ada perubahan skema endpoint/field**.
 - Tambahan field baru bersifat aditif (aman); menghapus/mengubah nama field = **v2** dan wajib update frontend + dokumen ini.
 - Frontend harus **defensif**: abaikan field yang tidak dikenal; siapkan fallback untuk nilai `"—"` dan array kosong.
 - Setiap perubahan pada `app/server.py` yang menyentuh route/payload **wajib** menyertakan update `docs/API_CONTRACT.md` (checklist PR).
