@@ -60,7 +60,7 @@ Prototipe berjalan di `app/`:
 |---|---|---|
 | API + server | `app/server.py` (386 baris) | ✅ Jalan, 12 route |
 | Inti data (parser, ingest, KPI) | `app/dms_core.py` (539 baris) | ✅ Jalan, teruji manual |
-| Basis data | SQLite di `app/var/dms.sqlite3` | ✅ Berisi 15.940 kasus nyata (dari `reference/`) |
+| Basis data | SQLite di `app/var/dms.sqlite3` | ✅ Berisi 15.940 kasus nyata (dari `docs/reference/`) |
 | Skema | DDL di `dms_core.SCHEMA` (SQL) | ✅ 7 tabel, 2 indeks |
 | Seed | `app/seed_demo.py` | ✅ 9 sumber ter-ingest, sesi + 28 nama demo |
 | Pengawas folder | Thread di `server.py` | ✅ Poll 3 dtk, debounce 4 dtk, lewati `~$*.xlsx` |
@@ -367,9 +367,9 @@ Catatan: jangan taruh kredensial/secret di repo, chat, atau dokumen — gunakan 
 | Contract | Skema JSON `/api/state`, `/api/admin`, error 409/404 sesuai kontrak | pytest + `jsonschema` | Setiap perubahan route |
 | Integrasi | `seed_demo.py` di salinan DB sementara; POST absensi → konfirmasi → buka ulang → konfirmasi | pytest | Tahap B |
 | Manual | TV di browser (1600×900), ponsel QR, `/admin` sync | checklist | Rilis |
-| Data nyata | Ingest `reference/` = harus **0 tambah / 0 ubah** saat baca ulang | pytest (fixture) | CI opsional |
+| Data nyata | Ingest `docs/reference/` = harus **0 tambah / 0 ubah** saat baca ulang | pytest (fixture) | CI opsional |
 
-Fixtures: salinan kecil `reference/*.xlsx` ke `tests/fixtures/` **hanya bila ukurannya wajar**; jika tidak, generate workbook uji di test (openpyxl) dengan header bergeser & tanggal 5 format — lebih cepat & tidak memperbesar repo.
+Fixtures: salinan kecil `docs/reference/*.xlsx` ke `tests/fixtures/` **hanya bila ukurannya wajar**; jika tidak, generate workbook uji di test (openpyxl) dengan header bergeser & tanggal 5 format — lebih cepat & tidak memperbesar repo.
 
 ---
 
@@ -391,7 +391,7 @@ DailyMonitoringSystem_App/
 │   ├── API_CONTRACT.md       kontrak v1 (pegangan bersama)
 │   ├── BACKEND_PLAN.md       dokumen ini
 │   └── laporan/              aturan sistem (lihat `docs/laporan/DMS_Aturan_Sistem_v1.md` v1.1) & keputusan platform
-├── reference/                workbook acuan (read-only)
+├── docs/reference/                workbook acuan (read-only)
 └── tests/                    (baru) pytest
 ```
 

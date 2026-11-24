@@ -1,7 +1,7 @@
 # Digitalisasi DMS — Dokumen Logika & Desain v1
 
 **Plant pilot:** Snack (BU.E — Factory 10 & Factory 30)
-**Sumber acuan:** `reference/12. Konsep Penilaian DMS Snack Des 24.xlsx`
+**Sumber acuan:** `docs/reference/12. Konsep Penilaian DMS Snack Des 24.xlsx`
 **Status:** draft untuk diskusi — belum ada implementasi kode
 **Tanggal:** 29 Oktober 2026
 

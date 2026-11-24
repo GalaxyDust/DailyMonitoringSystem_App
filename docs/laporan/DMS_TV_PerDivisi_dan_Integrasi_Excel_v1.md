@@ -24,7 +24,7 @@ Dokumen ini melengkapi — bukan menggantikan — `DMS_Aturan_Sistem_v1.md`, `ra
 | 8 | Excel tetap dipakai terus | **Tidak dibekukan.** Yang dibagi adalah kepemilikan kolom, bukan waktu | Kepemilikan Kolom |
 | 9 | Tiap divisi punya Excel sendiri | Sinkron **per berkas** lewat registry; satu berkas gagal tidak menahan divisi lain | Satu Berkas per Divisi |
 
-**Catatan sumber:** tiga workbook di `reference/` hanya memuat `Resume SHE`, `Resume QC`, dan
+**Catatan sumber:** tiga workbook di `docs/reference/` hanya memuat `Resume SHE`, `Resume QC`, dan
 `Resume Prod` (`Summary DMS to KPI`: V=12 / O=5 / total 17). Menurut plant, **tiap divisi sudah punya
 Excel sendiri** — jadi berkas Delivery dan Teknik cukup **didaftarkan** (Satu Berkas per Divisi), bukan dibuat baru.
 Contoh kedua berkas itu belum ada di repo; pemetaan kolomnya menyusul (§10).
@@ -33,7 +33,7 @@ Contoh kedua berkas itu belum ada di repo; pemetaan kolomnya menyusul (§10).
 
 ## 1. Apa yang sebenarnya ada di Excel
 
-Dibaca langsung dari tiga workbook di `reference/` (read-only). Ketiga plant memakai skema kolom
+Dibaca langsung dari tiga workbook di `docs/reference/` (read-only). Ketiga plant memakai skema kolom
 yang sama; hanya posisi baris header berbeda.
 
 | Sheet | Baris header | Isi | Dipakai untuk |
@@ -539,7 +539,7 @@ Delivery & Teknik menampilkan "menunggu berkas" karena berkasnya belum diserahka
 
 | # | Perlu | Untuk apa | Siapa |
 |---|---|---|---|
-| 1 | Contoh file Excel **Delivery** dan **Teknik** | memetakan kolomnya seperti §2.3 — tiga workbook di `reference/` hanya memuat SHE/QC/Prod | Kepala divisi terkait |
+| 1 | Contoh file Excel **Delivery** dan **Teknik** | memetakan kolomnya seperti §2.3 — tiga workbook di `docs/reference/` hanya memuat SHE/QC/Prod | Kepala divisi terkait |
 | 2 | Daftar laptop + path folder kerja tiap divisi | skrip pemasangan satu kali (§5.1.1) | IT plant |
 | 3 | Kebijakan akun: akun kerja petugas atau akun layanan bersama | menentukan izin Graph dan kepemilikan berkas | IT + Admin DMS |
 | 4 | Laptop yang sering offline / tidak boleh cloud | dipakai untuk memilih Opsi 2 atau 3 pada laptop itu saja | IT plant |

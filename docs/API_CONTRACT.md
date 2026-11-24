@@ -471,7 +471,7 @@ Item `hasil[]` — field umum:
   "sumber": [
     {
       "sumber_id": "SN-SHE", "plant": "Snack", "line": "*", "divisi": "she",
-      "path": "reference/12. Konsep Penilaian DMS Snack Des 24.xlsx",
+      "path": "docs/reference/12. Konsep Penilaian DMS Snack Des 24.xlsx",
       "sheet": "auto", "status": "aktif",
       "sinkron_terakhir": "2026-11-24 06:31:12",
       "tambah": 12, "ubah": 340, "baris_terbaca": 352,
