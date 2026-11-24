@@ -14,9 +14,9 @@ from datetime import datetime
 from openpyxl import load_workbook
 
 FILES = {
-    "Snack": "reference/12. Konsep Penilaian DMS Snack Des 24.xlsx",
-    "Exist Plant": "reference/12. Konsep Penilaian DMS EP Des 24.xlsx",
-    "New Plant": "reference/12. Konsep Penilaian DMS NP Des 24 (1).xlsx",
+    "Snack": "docs/reference/12. Konsep Penilaian DMS Snack Des 24.xlsx",
+    "Exist Plant": "docs/reference/12. Konsep Penilaian DMS EP Des 24.xlsx",
+    "New Plant": "docs/reference/12. Konsep Penilaian DMS NP Des 24 (1).xlsx",
 }
 TODAY = datetime(2026, 11, 2)
 SHEETS = {"SHE": "Resume SHE", "QC": "Resume QC", "Prod": "Resume Prod"}

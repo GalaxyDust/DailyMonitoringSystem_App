@@ -4,7 +4,7 @@
 
 ## Status perbaikan (5 Nov 2026)
 
-Seluruh temuan P0 dan P1 **sudah diselaraskan di dokumen** (PPT dan folder `reference/` tidak
+Seluruh temuan P0 dan P1 **sudah diselaraskan di dokumen** (PPT dan folder `docs/reference/` tidak
 diubah — keduanya diperlakukan sebagai acuan tetap). Keputusan diambil mengikuti deck dan
 paket rancangan 5 November sebagai kanonik.
 
@@ -40,7 +40,7 @@ Aturan §14 / deck hal. 27 — cut-off leader, ambang downtime Teknik, sumber na
 
 ## Verifikasi ulang langsung dari xlsx (5 Nov 2026)
 
-Seluruh angka kanonik dihitung ulang **read-only** dari tiga workbook di `reference/`
+Seluruh angka kanonik dihitung ulang **read-only** dari tiga workbook di `docs/reference/`
 (openpyxl), dibandingkan dengan `docs/data/data_plants.json`, lalu ditelusuri ke dokumen.
 
 **Hasil: 78/78 statistik inti COCOK** — kasus, close, close-tanpa-sebab, root-cause %,

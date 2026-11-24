@@ -90,7 +90,7 @@ Detail lengkap: **[docs/ALUR_APLIKASI_DMS.md](docs/ALUR_APLIKASI_DMS.md)** · **
 # 1. Install dependency
 pip install -r app/requirements.txt
 
-# 2. Seed database (baca workbook di reference/ — read-only, tidak diubah)
+# 2. Seed database (baca workbook di docs/reference/ — read-only, tidak diubah)
 python3 app/seed_demo.py
 
 # 3. Jalankan server
@@ -123,15 +123,18 @@ python3 app/server.py        # → http://0.0.0.0:8000
 ├── ⚛️  frontend/                 ← KERANGKA STRUKTUR (kosong, placeholder TODO)
 │                              cermin scaffold branch front-end + FRONTEND_STRUCTURE.md;
 │                              isi kode di branch front-end — bukan di sini
+├── 🐍 backend/                   ← KERANGKA STRUKTUR (kosong, placeholder TODO)
+│                              peta backend target (BACKEND_PLAN A–D) — kode aktif tetap di app/
 ├── 🎨 Logo/                    ← Logo GARUDAFOOD Daily Monitoring (png + favicon)
-├── 📚 docs/                    ← DOKUMENTASI (alur, kontrak API, rencana backend, laporan)
+├── 📚 docs/                    ← DOKUMENTASI + DATA ACUAN
+│   ├── reference/              workbook acuan (read-only): 3 workbook DMS · NP_6Nov.jpeg · Snack.zip · SGA Akatsuki 2026.pptx
 │   ├── ALUR_APLIKASI_DMS.md    peta alur lengkap (peran · halaman · fitur · user flow)
-│   ├── API_CONTRACT.md         kontrak API v1 (pegangan frontend ↔ backend)
+│   ├── API_CONTRACT.md         kontrak API v1.2 (pegangan frontend ↔ backend)
 │   ├── BACKEND_PLAN.md         roadmap backend (Tahap A–D · SQLite → PostgreSQL)
 │   ├── FRONTEND_STRUCTURE.md   struktur & penempatan frontend (panduan developer front-end)
+│   ├── assets/                 mockup · font Kalam · foto papan asli
 │   └── laporan/                aturan sistem v1.1 (nama manusiawi, tanpa kode) · rancangan · deck
-├── 📊 reference/               ← workbook acuan (read-only, sumber data asli)
-└── 🖼️ Logo/ · docs/assets/     ← aset (mockup, papan asli, font Kalam)
+└── .gitignore                  ← deps/build · python · .env · app/var/ · log & OS
 ```
 
 ---

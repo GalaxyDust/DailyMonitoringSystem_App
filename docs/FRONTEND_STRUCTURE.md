@@ -83,7 +83,7 @@ root (branch front-end)/
 ├── app/            ← BACKEND (read-only untuk frontend; jangan ubah)
 ├── docs/           ← dokumen ini tinggal di sini
 ├── Logo/           ← sumber logo (salin yang perlu ke public/)
-├── reference/      ← workbook acuan (read-only)
+├── docs/reference/      ← workbook acuan (read-only)
 └── <isi frontend>  ← scaffold React yang sudah ada
 ```
 

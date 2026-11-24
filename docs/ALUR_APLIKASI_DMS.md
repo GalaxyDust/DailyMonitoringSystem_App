@@ -18,7 +18,7 @@
 | Stack | Python 3 · Flask · SQLite (`app/var/dms.sqlite3`) · openpyxl · qrcode · Pillow |
 | Plant terdaftar | Snack · EP (Exist Plant) · NP (New Plant) |
 | Divisi | SHE · Quality · Produksi · Delivery · Teknik |
-| Sumber data | Workbook Excel per divisi di `reference/` (read-only) via `app/registry.json` |
+| Sumber data | Workbook Excel per divisi di `docs/reference/` (read-only) via `app/registry.json` |
 
 ---
 
@@ -379,7 +379,7 @@ Panggung tetap **1600×900** lalu diskalakan: `scale = min(innerWidth/1600, (inn
 | Elemen (id) | Isi | Sumber/logic |
 |---|---|---|
 | `#wrap > #stage` | Panggung 1600×900 | diskalakan oleh `fit()` saat load + resize |
-| `#banner` | Pita MODE DEMO (kuning) | tampil bila `S.demo == true`: "MODE DEMO · memutar ulang data `<tanggal>` dari reference/ — bukan data hari ini (…). Angka dihitung dari log kasus asli." |
+| `#banner` | Pita MODE DEMO (kuning) | tampil bila `S.demo == true`: "MODE DEMO · memutar ulang data `<tanggal>` dari docs/reference/ — bukan data hari ini (…). Angka dihitung dari log kasus asli." |
 | `#head .h-title` | `DMS · <plant> · <line>` | `S.plant`, `S.label_line` |
 | `#h-badge` | Nama divisi / halaman | warna sesuai halaman (§5.0); teks `"SATU DIVISI PER LAYAR"` di subjudul untuk divisi |
 | `#h-sub` | `SATU DIVISI PER LAYAR` / `DIKERJAKAN SEBELUM DMS` / `AKHIR PUTARAN` | per halaman |
@@ -1030,7 +1030,7 @@ Indeks: `ix_kasus_tanggal(tanggal, divisi)`, `ix_kasus_sumber(sumber_id)`.
 
 ### 11.2 Registry (`app/registry.json`)
 
-9 sumber aktif — 3 plant × 3 divisi (SHE / Quality / Produksi), masing-masing menunjuk satu workbook di `reference/`:
+9 sumber aktif — 3 plant × 3 divisi (SHE / Quality / Produksi), masing-masing menunjuk satu workbook di `docs/reference/`:
 
 | Sumber | Plant | Divisi | Sheet | Berkas |
 |---|---|---|---|---|
@@ -1083,7 +1083,7 @@ Hasil seed (data asli, bukan contoh): **15.940 kasus** dari 9 berkas-divisi · 6
 - Berkas uji disimpan ulang → pengawas membaca dalam **±7 detik** → papan berubah.
 - Ubah kolom non-kunci (PIC/progress) → **1 ubah**, bukan baris baru.
 - Baca ulang berkas yang sama → **0 tambah / 0 ubah**.
-- `reference/` tidak tersentuh (read-only).
+- `docs/reference/` tidak tersentuh (read-only).
 
 ### 12.3 Operasional harian
 
