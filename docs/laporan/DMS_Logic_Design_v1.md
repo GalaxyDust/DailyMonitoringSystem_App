@@ -5,6 +5,13 @@
 **Status:** draft untuk diskusi — belum ada implementasi kode
 **Tanggal:** 29 Oktober 2026
 
+> **Status dokumen (5 Nov 2026):** sebagian digantikan oleh paket rancangan 5 November
+> (`DMS_Aturan_Sistem_v1.md` + `docs/laporan/rancangan/01–03`). Bila bertentangan, **paket 5 Nov menang**.
+> Yang tetap berlaku dari dokumen ini: pembongkaran rumus Excel (§3), katalog insight (§7,
+> dengan penyesuaian), dan analisis migrasi (§12). Angka baseline di bawah adalah **Snack saja,
+> definisi lama**; angka kanonik tiga plant ada di `DMS_Insight_xlsx_ke_Aplikasi.md` §8
+> (17.201 kasus · 3.220 tanpa sebab · 53 overdue · 729 pola berulang).
+
 ---
 
 ## 0. Ringkasan satu halaman
@@ -33,7 +40,7 @@ Baseline yang menjadi titik tolak (dari workbook asli):
 
 | # | Keputusan | Alasan / bukti |
 |---|---|---|
-| 1 | **2 role**: User & Admin, plus kanal TV read-only | TV bukan user — tidak punya identitas, tidak input |
+| 1 | ~~2 role~~ → **10 role** (Aturan §2.1) + kanal TV | Keputusan 2 role digantikan 5 Nov 2026; TV boleh menerima ketukan absensi (R-33) |
 | 2 | Hierarki **Group → Plant → Factory/BU → Line** | Satu plant Snack sudah punya Factory 10 (QC/Prod) dan Factory 30 (SHE) |
 | 3 | Template **core wajib + KPI tambahan plant**, versioned | Ditemukan 3 versi checklist berbeda (7 / 6 / 5 item) |
 | 4 | **Skor proses** → KPI orang; **skor hasil** → monitoring | 99,7% PIC kasus adalah Teknik, bukan leader |
@@ -196,9 +203,12 @@ Group
            └── Line   : Pilus L1 (9) · Pellet L1 (10) · Line A–F
 ```
 
-Kode stabil: `PLT-DRY`, `PLT-EX1`, `PLT-NW1`, `PLT-SNK`. Nama tampilan boleh berubah.
+Kode stabil: `SN`, `EP`, `NP`, `DR` (R-03). Kode `PLT-*` pada draft awal tidak dipakai. Nama tampilan boleh berubah.
 
 ### 5.2 Entitas inti
+
+> Model kanonik: rancangan/02 §3 (papan per shift + 5 divisi). Tabel di bawah model awal
+> meeting harian; `meeting`/`kpi_check` kini menjadi item ritme harian pada tab Produksi.
 
 | Entitas | Isi | Kunci |
 |---|---|---|
@@ -229,6 +239,8 @@ Kode stabil: `PLT-DRY`, `PLT-EX1`, `PLT-NW1`, `PLT-SNK`. Nama tampilan boleh ber
 
 ## 6. Role & akses
 
+> Matriks di bawah adalah model 2 role (draft awal). Matriks kanonik 10 role: `DMS_Aturan_Sistem_v1.md` §2.2.
+
 | Kemampuan | User | Admin Plant | Admin Group | TV |
 |---|---|---|---|---|
 | Isi form meeting | ✅ line sendiri | ✅ | ✅ | ❌ |
@@ -244,7 +256,14 @@ Kode stabil: `PLT-DRY`, `PLT-EX1`, `PLT-NW1`, `PLT-SNK`. Nama tampilan boleh ber
 
 ---
 
-## 7. Katalog insight (14 aturan)
+## 7. Katalog insight (14 aturan; **12 aktif sebagai kartu**)
+
+> **Kanonik (deck hal. 18):** kartu temuan = **I-01…I-12**. I-13 dan I-14 pensiun dari kartu
+> dan menjadi **pemeriksaan mutu data Admin** (kelengkapan = R-69; PIC non-controllable =
+> pemisahan skor proses/hasil, R-71). I-12 dijalankan sebagai **peringatan rule-based sederhana**
+> (PICA lemah + kasus baru naik), bukan model prediksi statistik — sesuai larangan analitik
+> prediktif fase 1 (rancangan/01 §6). Fase Insight mengaktifkan **I-01…I-08 lebih dulu**
+> (diperiksa G3), lalu I-09…I-12 sebelum fase Display.
 
 ### 7.1 Format baku setiap insight
 
@@ -263,7 +282,7 @@ PEMILIK     : siapa yang bertindak
 |---|---|---|---|
 | I-01 | Hari kerja tanpa meeting | "Line 10 tidak DMS 3 hari berturut — compliance pekan 60%" | L1, TV |
 | I-02 | Due date lewat + Open | "22 kasus lewat due date, tertua 1.045 hari" | TV, L1 |
-| I-03 | Signature sama ≥3× / 90 hari | "M03 BCAT 15× di Pilus L1 — recurrence tersembunyi" | TV, L2 |
+| I-03 | Signature (line, mesin/LBN, kategori sebab) sama ≥3× / 90 hari (R-48) | "M03 BCAT 15× di Pilus L1 — recurrence tersembunyi" | TV, L2 |
 | I-04 | Recurrence + root cause identik | "Ditutup dengan Correction yang sama 4× → naikkan Preventive" | L2 |
 | I-05 | Close tapi OPL/PM/AM/CRMO = O | "Close tanpa standardisasi — 88–98% tidak di-institutionalize" | L2, L3 |
 | I-06 | Close tanpa root cause / bukti | "973 kasus ditutup tanpa akar masalah" | Admin |
@@ -273,8 +292,8 @@ PEMILIK     : siapa yang bertindak
 | I-10 | Satu line/mesin >20% kasus | "Pilus L1 = 90% kasus; MHM 26,8%" | L3 |
 | I-11 | DT besar × frekuensi tinggi | "MHM38: 7×, median DT 50 menit" | L2 |
 | I-12 | PICA lemah + kasus baru naik | "PICA lemah pekan ini → prediksi lonjakan pekan depan" | L3 |
-| I-13 | Field wajib kosong >10% | "Kelengkapan data line ini 78% — insight tidak bisa dipercaya" | Admin |
-| I-14 | KPI non-controllable dinilai ke leader | "99,7% PIC = Teknik → bukan KPI leader" | Admin |
+| I-13 | Field wajib kosong >10% — **pensiun dari kartu → pemeriksaan Admin (R-69)** | "Kelengkapan data line ini 78% — insight tidak bisa dipercaya" | Admin |
+| I-14 | KPI non-controllable dinilai ke leader — **pensiun dari kartu → skor proses/hasil (R-71)** | "99,7% PIC = Teknik → bukan KPI leader" | Admin |
 
 ### 7.3 Peringkat tampil
 
@@ -308,6 +327,10 @@ Ditampilkan **maksimal 3** di TV & dashboard L1 (dapat diubah Admin). Sisanya di
 ---
 
 ## 9. Wireframe tekstual
+
+> Bentuk kanonik adalah **papan per shift** (rancangan/02 §5.1), bukan meeting harian.
+> Wireframe §9.2–9.3 di bawah adalah model awal; **V/O kini diturunkan sistem dari status sel,
+> tidak diketik tangan** (rancangan/02 §6.1).
 
 ### 9.1 User — Beranda (hari ini)
 
@@ -411,7 +434,7 @@ Foto bukti      : [📷 kamera]
 │ Healthy Check      nilai [0,8]  bobot [0,2]  mode [konstan]  │
 │ Bobot index        KPI [0,4]  Checklist [0,4]  Healthy [0,2] │
 │ Target DMS Index   [3]                                       │
-│ Hari wajib         [Sen][Sel][Rab][Kam][Jum]                 │
+│ Hari wajib         Sen–Jum (R-05, tetap — tidak diedit)      │
 │ Kalender libur     [ + tambah tanggal ]                      │
 │ Window recurrence  [90] hari    Ambang aging [30] hari       │
 ├──────────────────────────────────────────────────────────────┤
@@ -428,7 +451,7 @@ Foto bukti      : [📷 kamera]
 ├──────────────────────────────────────────────────────────────┤
 │ Plant/Line     [Snack / Factory 10 / Pilus L1]               │
 │ Jumlah kartu   [3]         Rotasi [20] detik                 │
-│ Refresh        [60] detik   Jam aktif [06:00]–[22:00]        │
+│ Refresh        [30] detik   Jam aktif [06:00]–[22:00]        │
 │ Jenis insight  ☑ I-01 ☑ I-02 ☑ I-03 ☐ I-05 ☐ I-10            │
 │ Urutan         [index] [meeting] [insight] [pareto]          │
 │ Ambang warna   hijau ≥[90]%  kuning ≥[75]%  merah <[75]%     │
@@ -436,7 +459,7 @@ Foto bukti      : [📷 kamera]
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 9.8 TV Display — 1920×1080
+### 9.8 TV Display — 1920×1080 · satu divisi per layar (R-80)
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -449,7 +472,7 @@ Foto bukti      : [📷 kamera]
 ├──────────────────────────────┴────────────────────────────────┤
 │ KASUS TERBUKA: 142   AGING >30 HARI: 37   RECURRENCE: 5,3%    │
 ├───────────────────────────────────────────────────────────────┤
-│ PERLU TINDAKAN (rotasi 20 detik)                              │
+│ PERLU TINDAKAN (halaman Ringkasan, akhir putaran)             │
 │ 🔴 MHM38 BCAT — 7× dalam 60 hari — PIC Teknik — sisa 4 hari   │
 │ 🟠 PICA Safety 75,4% < 90% — 37 kasus lewat due date          │
 │ 🟡 Checklist "PICA" skor < 8 tiga hari berturut               │
@@ -462,11 +485,20 @@ Aturan TV:
 |---|---|
 | Font teks isi | ≥ 40 px |
 | Font angka hero | ≥ 120 px |
-| Refresh | 30–60 detik (bukan websocket) |
+| Refresh | 20–30 detik, snapshot (kesegaran ≤ 30 detik — rancangan/02 §7) |
+| Rotasi halaman | Absensi (saat sesi dibuka) → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan; 20–30 s/halaman (R-59) |
+| Penanda halaman | wajib `Halaman n/N` + titik, supaya jelas masih ada divisi lain |
+| Kolom tabel | mengikuti kontrak kolom Excel divisi itu (R-83); kolom baru → staging |
+| Isi dinamis | kolom tetap, baris & angka per tanggal/shift (R-84); divisi kosong tetap tampil |
+| Sumber & sinkron | badge `Excel`/`Aplikasi` + jam sinkron terakhir di footer (R-87) |
+| Laptop offline | "belum tersinkron · terakhir hh.mm" — dibedakan dari "belum diisi" (R-90) |
 | Warna | hanya 3 status; tanpa gradasi |
 | Anti burn-in | panel bergulir, posisi jam digeser |
 | Gagal memuat | snapshot terakhir + timestamp |
-| Interaksi | tidak ada |
+| Interaksi | tidak ada, kecuali panel absensi (R-33, R-56) |
+
+Rincian susunan halaman per divisi, pemetaan kolom Excel→layar, dan alur QR satu pintu:
+`DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` §2–§5.
 
 Yang **tidak** ditampilkan di TV: ranking individu/PIC, angka mentah panjang, KPI di luar wewenang lantai.
 
@@ -492,11 +524,11 @@ Yang **tidak** ditampilkan di TV: ranking individu/PIC, angka mentah panjang, KP
 | Healthy Check (nilai & bobot) | 0,8 · 0,2 | ✅ | ✅ |
 | Bobot index | 0,4/0,4/0,2 | ✅ | ✅ |
 | Target DMS Index | 3 | ✅ | ✅ |
-| Hari wajib | Sen–Jum | ✅ | ✅ |
+| Hari wajib | Sen–Jum (R-05, tidak editable) | ❌ | — |
 | Kalender libur | nasional + cuti bersama | ✅ | ✅ |
 | Ambang aging | 30 hari | ✅ | ✅ |
 | Window recurrence | 90 hari | ✅ | ✅ |
-| Profil TV | 3 kartu · 20s · 60s | ✅ | — |
+| Profil TV | 3 kartu · rotasi 20s · refresh 30s | ✅ | — |
 
 > **Healthy Check:** karena nilainya konstan, bobot 0,2 berfungsi sebagai **lantai index**. Admin harus melihat **simulasi dampak** sebelum menyimpan, bukan angka tersembunyi.
 
@@ -546,8 +578,8 @@ Yang **tidak** ditampilkan di TV: ranking individu/PIC, angka mentah panjang, KP
 | Period lock | periode yang sudah dilaporkan tidak dapat diedit; koreksi = adjustment beralasan |
 | Snapshot | laporan terkirim tidak berubah retroaktif |
 | Offline resilience | autosave per field; antrian sinkron untuk sinyal lemah |
-| Akses TV | token read-only per perangkat, dapat dicabut |
-| Retensi | kebijakan arsip setelah 3 tahun (perlu keputusan) |
+| Akses TV | token per perangkat: baca papan + tulis absensi shift berjalan (R-34); dapat dicabut |
+| Retensi | kasus & catatan ≥ 5 tahun; foto bukti ≥ 5 tahun mengikuti kasusnya (keputusan 5 Nov, lihat rancangan/02 §7) |
 | Bahasa | Indonesia; istilah teknis (`Occurrence`, `OPL/WI`) dipertahankan |
 
 ---
@@ -559,12 +591,12 @@ Yang **tidak** ditampilkan di TV: ranking individu/PIC, angka mentah panjang, KP
 | **0. Fondasi** | master data bersih, config versioned, auth & scope | database terisi, login siap | 2 pekan |
 | **1. Capture** | form meeting + form kasus + approve | 5 line Snack mengisi harian | 3 pekan |
 | **2. Measure** | engine skor + dashboard L1 | index harian akurat | 2 pekan |
-| **3. Insight** | 8 aturan pertama (I-01…I-06, I-13, I-14) | kartu insight di L1 | 2 pekan |
+| **3. Insight** | 8 aturan pertama (I-01…I-08); I-13/I-14 menjadi pemeriksaan Admin | kartu insight di L1 | 2 pekan |
 | **4. Display** | TV + profil display | 1 TV di area Pilus L1 | 1 pekan |
 | **5. Analitik** | L2 + L3 + ekspor laporan | laporan manajemen otomatis | 2 pekan |
-| **6. Generalisasi** | template plant + rollout Exist → Dairy → New | multi-plant | setelah pilot stabil |
+| **6. Generalisasi** | template plant + rollout Exist → New → Dairy (R-76) | multi-plant | setelah pilot stabil |
 
-Kriteria keberhasilan pilot (terukur):
+Kriteria keberhasilan pilot (terukur) — **kanonik: 5 ukuran di rancangan/01 §4.2** (hari terisi, sebab lengkap, tenggat tercatat, overdue, pola berulang). Tabel di bawah adalah draft awal; "insight ditindaklanjuti" menjadi ukuran tambahan, bukan gerbang.
 
 | Metrik | Target 8 pekan |
 |---|---|
@@ -592,7 +624,7 @@ Kriteria keberhasilan pilot (terukur):
 
 | # | Keputusan | Status | Pemilik |
 |---|---|---|---|
-| 1 | 2 role + kanal TV | ✅ | bisnis |
+| 1 | ~~2 role + kanal TV~~ → 10 role (Aturan §2.1); TV boleh absensi | 🔁 digantikan 5 Nov | bisnis |
 | 2 | Hierarki 4 lapis | ✅ | bisnis |
 | 3 | Template core + KPI plant | ✅ | Production |
 | 4 | Skor proses vs skor hasil | ✅ | Production + HR |
@@ -606,9 +638,9 @@ Kriteria keberhasilan pilot (terukur):
 | 12 | Pilot Snack | ✅ | bisnis |
 | 13 | Skala audit menengah | ✅ | bisnis |
 | 14 | Sheet yang dipensiunkan | ✅ | IT |
-| 15 | Kalender libur: manual per tanggal vs master tahunan | ⏳ | Admin |
-| 16 | Item KPI bisa N/A | ⏳ | Production |
-| 17 | Data historis diimpor (dengan flag legacy) | ⏳ | bisnis |
+| 15 | Kalender libur: master tahunan per plant, dipelihara Admin | ✅ 5 Nov | Admin |
+| 16 | Item KPI bisa N/A (R-73); N/A ditetapkan di konfigurasi item, bukan diketik | ✅ 5 Nov | Production |
+| 17 | Data historis diimpor dengan flag legacy; kasus legacy tidak naik ke TV/eskalasi | ✅ 5 Nov | bisnis |
 
 ---
 

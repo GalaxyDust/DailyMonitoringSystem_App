@@ -117,6 +117,8 @@ Sepuluh pekerjaan manual yang **berhenti dikerjakan**, bukan dipindahkan:
 
 ### 4.2 Ukuran keberhasilan (dipakai evaluasi pekan ke-8)
 
+**Lima ukuran gerbang** (dipakai R-77, G4, dan gerbang replikasi — sama dengan deck hal. 20):
+
 | Ukuran | Kondisi hari ini | Target | Cara ukur |
 |---|---|---|---|
 | Hari terisi tanpa diingatkan | belum terukur | ≥ 90% | hari terisi ÷ hari wajib (Sen–Jum − libur) |
@@ -124,7 +126,13 @@ Sepuluh pekerjaan manual yang **berhenti dikerjakan**, bukan dipindahkan:
 | Tenggat tercatat | 0% di sheet SHE | ≥ 95% | kolom tenggat terisi sistem |
 | Kasus lewat tenggat | 53 kasus | turun 50% | umur kasus > tenggat |
 | Pola berulang punya tindakan | 729 pola | 100% | pola dengan pencegahan tertutup |
+
+Ukuran tambahan (dipantau, bukan gerbang):
+
+| Ukuran | Kondisi hari ini | Target | Cara ukur |
+|---|---|---|---|
 | Waktu rekap | 22 jam/bulan | ≤ 4 jam/bulan | jam kerja rekap per bulan |
+| Insight ditindaklanjuti | belum terukur | ≥ 70% | temuan dengan tindakan tercatat |
 
 ---
 
@@ -132,7 +140,7 @@ Sepuluh pekerjaan manual yang **berhenti dikerjakan**, bukan dipindahkan:
 
 | # | Prinsip | Konsekuensi praktis |
 |---|---|---|
-| P1 | **Papan tetap papan** | TV dan layar isian memakai bentuk empat pilar × baris item × kolom shift, bukan daftar kartu asing |
+| P1 | **Papan tetap papan** | Bentuk papan dipertahankan (grid KPI × baris item × kolom shift), tetapi TV menyajikan **satu divisi per layar** dengan kolom mengikuti Excel (R-80, R-83) |
 | P2 | **Satu catatan per sel** | tidak ada tabel ringkasan yang diisi tangan; ringkasan dihitung |
 | P3 | **Sekali isi, banyak layar** | TV, dasbor, laporan, ekspor membaca catatan yang sama |
 | P4 | **Tiap divisi pemilik bagiannya** | SHE/QC/Produksi/Teknik/Delivery mengisi tabnya, tidak bisa menimpa tab lain |
@@ -188,7 +196,7 @@ Prinsip ini yang mencegah aplikasi menjadi "Excel dengan warna baru".
 
 ```bash
 # gabung jadi satu dokumen utuh
-cd docs/rancangan
+cd docs/laporan/rancangan
 cat 01-KENAPA-DMS-DIGITAL.md 02-RANCANGAN-APLIKASI.md 03-ALUR-SISTEM.md > ../DMS_Rancangan_Lengkap.md
 
 # atau ke PDF/DOCX bila pandoc tersedia
@@ -202,6 +210,8 @@ Hubungan dengan dokumen lain:
 | **01 (ini)** | alasan, baseline angka, tujuan, prinsip | saat meminta persetujuan/anggaran |
 | **02 Rancangan Aplikasi** | modul, data, peran, teknologi, non-fungsional | saat membangun dan menguji |
 | **03 Alur Sistem** | alur harian, absensi, kasus, eskalasi, koreksi, laporan | saat sosialisasi ke plant dan saat uji terima |
-| `DMS_Aturan_Sistem_v1.md` | 79 aturan bernomor (WAJIB/BAKU/SARAN) | rujukan hukum sistem; tidak boleh dilanggar |
-| `DMS_Logic_Design_v1.md` | pembongkaran rumus Excel → logika aplikasi | saat memindahkan penilaian |
-| `DMS_Digitalisasi_v1.pptx` | deck 25 halaman untuk rapat | saat presentasi ke manajemen |
+| `DMS_Aturan_Sistem_v1.md` | 90 aturan bernomor (WAJIB/BAKU/SARAN) | rujukan hukum sistem; tidak boleh dilanggar |
+| `DMS_Logic_Design_v1.md` | pembongkaran rumus Excel → logika aplikasi (sebagian digantikan paket ini; lihat banner di dokumennya) | saat memindahkan penilaian |
+| `DMS_Review_Rancangan_v1.md` | review silang antar-dokumen + status perbaikan | saat mengecek konsistensi rancangan |
+| `DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md` | TV satu divisi per layar, absensi di awal, QR satu pintu, sinkron Excel otomatis | saat menyepakati tampilan TV dan cara integrasi Excel |
+| `DMS_Digitalisasi_v1.pptx` | deck 28 halaman untuk rapat | saat presentasi ke manajemen |

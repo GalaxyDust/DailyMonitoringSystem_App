@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Deck DMS memakai template_master.pptx (versi terbaru) DAN data tiga workbook:
-Snack, Exist Plant, New Plant (angka dibaca dari docs/data_plants.json).
+Deck DMS memakai docs/template/template_master.pptx (versi terbaru) DAN data tiga workbook:
+Snack, Exist Plant, New Plant (angka dibaca dari docs/data/data_plants.json).
 
 slide 1 template -> cover · slide 2 template -> halaman isi · slide 3 template -> penutup
 
-Jalankan: python3 docs/analyze_workbook.py && python3 docs/make_mockups.py && python3 docs/build_deck.py
-Hasil  : docs/DMS_Digitalisasi_v1.pptx
+Jalankan: python3 docs/scripts/analyze_workbook.py && python3 docs/scripts/make_mockups.py && python3 docs/scripts/build_deck.py
+Hasil  : docs/laporan/DMS_Digitalisasi_v1.pptx
 
-Template tidak disimpan di repo: taruh template_master.pptx di root sebelum build.
+Template tersimpan di docs/template/template_master.pptx.
 Foto papan dan ilustrasi layar sudah tersimpan di docs/assets/ (papan, mockup).
 """
 import json
@@ -21,9 +21,9 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
 
-SRC = "template_master.pptx"
-OUT = "docs/DMS_Digitalisasi_v1.pptx"
-DATA = json.load(open("docs/data_plants.json", encoding="utf-8"))
+SRC = "docs/template/template_master.pptx"
+OUT = "docs/laporan/DMS_Digitalisasi_v1.pptx"
+DATA = json.load(open("docs/data/data_plants.json", encoding="utf-8"))
 
 SN, EP, NP = DATA["Snack"], DATA["Exist Plant"], DATA["New Plant"]
 TOT = DATA["_total"]
@@ -362,6 +362,28 @@ def chart(slide, x, y, w, h, cats, series, kind, colors, number_format="0", lege
     return gf
 
 
+# Auto-fit judul: ukur dengan DejaVu Bold (lebih lebar dari Calibri -> konservatif),
+# kecilkan ukuran sampai judul tidak menabrak nomor halaman di kanan.
+try:
+    from PIL import ImageFont as _IF
+    _TITLE_FONT = _IF.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 100)
+except Exception:
+    _TITLE_FONT = None
+
+
+def _fit_title_size(title, start):
+    if _TITLE_FONT is None:
+        return start
+    size = start
+    while size > 14:
+        px = int(size * 96 / 72)
+        w_in = _TITLE_FONT.getlength(title) * (px / 100) / 96
+        if 2.05 + w_in <= 11.90:
+            return size
+        size -= 0.5
+    return size
+
+
 PAGE = [1]
 
 
@@ -374,6 +396,7 @@ def page(title, kicker, no=None, note=None):
             ph._element.getparent().remove(ph._element)
     title_ph = s.shapes.title
     size = 24 if len(title) <= 46 else (22.5 if len(title) <= 56 else 20.5)
+    size = _fit_title_size(title, size)
     if title_ph is not None:
         title_ph.left, title_ph.top = Inches(2.05), Inches(0.20)
         title_ph.width, title_ph.height = Inches(10.05), Inches(0.68)
@@ -656,31 +679,31 @@ sides(s, 8.20, 1.46, 4.50, [
 
 
 # ---- 2 · TV berbentuk papan
-s = page("Ilustrasi 2 · TV berbentuk papan, sama seperti hari ini",
+s = page("Ilustrasi 2 · TV satu divisi per layar, kolomnya mengikuti Excel",
          "Bagian 3 · ilustrasi sistem",
-         note="Bentuk papan dipertahankan: empat pilar, baris item, kolom shift, warna dibanding target")
+         note="Bentuk papan dipertahankan (grid KPI, tabel kasus, baris PICA) tetapi satu divisi penuh per halaman · contoh SHE dari Resume SHE (26 kolom)")
 shot(s, "docs/assets/mockup/tv.png", 0.62, 1.46,
-     "PAPAN DMS · TV AREA PRODUKSI · SNACK LINE 9",
-     "kepala papan, legenda warna, empat pilar berjajar, kolom shift", TEAL)
+     "HALAMAN 2/7 · SHE / SAFETY · SNACK LINE 9",
+     "grid KPI target vs S1–S3, tabel kasus berkolom Excel, baris PICA, penanda halaman", TEAL)
 sides(s, 8.20, 1.46, 4.50, [
-    ("Bentuknya papan, bukan kartu", "Orang lapangan langsung mengenali susunannya tanpa diajari ulang.", TEAL),
-    ("Kolom shift di tiap pilar", "Shift 1–3 berjajar seperti papan tulis; satu sel satu angka.", NAVY),
-    ("Warna menggantikan sorot mata", "Sesuai target, di bawah target, lewat batas, belum diisi — empat warna tetap.", GOLD),
-    ("Tidak pernah kosong", "Bagian yang belum diisi bertanda abu-abu, bukan hilang; TV tidak terlihat mati.", RED)])
+    ("Satu divisi, satu layar", "Tidak lagi lima kolom berdesakan. Kolom lengkap, huruf besar, terbaca dari 3–10 m.", TEAL),
+    ("Rotasi tujuh halaman", "Absensi → SHE → Quality → Produksi → Delivery → Teknik → Ringkasan, 20–30 detik per halaman.", NAVY),
+    ("Kolom mengikuti Excel", "Area, Category Safety, Problem Statement, Running Day jadi Umur, foto sebelum–sesudah.", GOLD),
+    ("Warna menggantikan sorot mata", "Biru = sesuai target, merah = di bawah/lewat batas, abu-abu = belum diisi.", RED)])
 
 
 # ---- 3 · absensi di TV
-s = page("Ilustrasi 3 · absensi di TV: lapangan tinggal mengetuk",
+s = page("Ilustrasi 3 · absensi dikerjakan paling awal, sebelum DMS",
          "Bagian 3 · ilustrasi sistem",
-         note="Daftar nama, regu, dan shift disiapkan tim admin · lapangan hanya memilih hadir atau tidak")
+         note="Halaman pertama saat sesi dibuka · isian divisi terbuka setelah kehadiran dikonfirmasi · daftar nama disiapkan Admin")
 shot(s, "docs/assets/mockup/tv_absen.png", 0.62, 1.46,
-     "PAPAN + PANEL ABSENSI · TV TANPA LOGIN",
-     "papan tetap terlihat, panel absensi shift berjalan di sisi kanan", GOLD)
+     "HALAMAN 1/7 · ABSENSI SHIFT 1 · TV TANPA LOGIN",
+     "28 nama siap ketuk, QR sesi di kanan, langkah isian divisi masih terkunci", GOLD)
 sides(s, 8.20, 1.46, 4.50, [
     ("Admin yang menyiapkan nama", "Nama, regu, shift, dan line diunggah Admin; lapangan tidak mengetik nama.", NAVY),
     ("Status awal sudah hadir", "Lapangan hanya menandai yang sakit, izin, alpa, atau terlambat.", TEAL),
     ("Satu ketukan, bisa diurungkan", "Salah ketuk masih bisa dibatalkan dalam dua menit; setiap ketukan tercatat.", RED),
-    ("Hasilnya bukan rekap baru", "Absensi yang sama dipakai TV, dasbor, dan laporan; tidak ada absen dua kali.", GOLD)])
+    ("Absensi jadi gerbang DMS", "Setelah dikonfirmasi, isian divisi terbuka dan TV mulai rotasi; tidak ada absen dua kali.", GOLD)])
 
 
 # ---- 4 · dasbor
@@ -1079,7 +1102,7 @@ table(s, [
     ["I-07", "Prioritas tidak membedakan", "High 100% di ketiga plant", "Admin"],
     ["I-08", "Nilai mendekati batas", "rawan selisih antar pencatat", "Admin"],
     ["I-09", "Tiga periode menurun", "checklist turun 4% per pekan", "L2 · L3"],
-    ["I-10", "Satu line menumpuk kasus", "Snack line 9 = 96,9% · Exist WS L02 = 22,6%", "L3"],
+    ["I-10", "Satu line menumpuk kasus", "Snack line 9 = 96,9% · Exist WS L02 = 22,9%", "L3"],
     ["I-11", "Downtime besar dan sering", "508.226 menit; median 50–60 menit/kasus", "L2"],
     ["I-12", "Tindakan perbaikan lemah", "prediksi lonjakan pekan depan", "L3"],
 ], [0.66, 2.76, 3.86, 1.10], 0.62, 1.24, row_h=0.36, head_h=0.34, fs=9.4,
@@ -1411,17 +1434,98 @@ for head_, body, col in cards_d:
     x += 3.92
 
 
+# ================================================================ 12b · TV QUALITY & PRODUKSI
+s = page("Setiap divisi punya kolomnya sendiri, mengikuti Excel",
+         "Bagian 4 · pembaruan rancangan",
+         note="Kolom dipetakan dari Resume QC (21 kolom) dan Resume Prod (22 kolom) · angka contoh Snack line 9")
+shot(s, "docs/assets/mockup/tv_quality.png", 0.62, 1.46,
+     "HALAMAN 3/7 · QUALITY",
+     "Priority Level, Validasi QCP, Case Category, Root Cause, Action Plan, PIC, Due, Status", GOLD,
+     maxw=5.70, maxh=4.10)
+shot(s, "docs/assets/mockup/tv_produksi.png", 6.78, 1.46,
+     "HALAMAN 4/7 · PRODUKSI",
+     "DT (min) ditonjolkan · Corrective/Preventive · Occurrence/Recurrence · 6 KPI harian", RED,
+     maxw=5.70, maxh=4.10)
+txt(s, 0.62, 6.62, 8.00, 0.28,
+    [("Kolom tetap; baris dan angka berubah setiap hari. Divisi tanpa data tetap tampil "
+      "dengan tanda \"belum diisi\".", 9.5, None, GREY)])
+
+
+# ================================================================ 12c · QR SATU PINTU
+s = page("QR satu pintu: absensi dulu, baru DMS",
+         "Bagian 4 · pembaruan rancangan",
+         note="Satu tautan sesi untuk semua peran · token berputar tiap shift dan dapat dicabut Admin · menulis tetap wajib SSO")
+shot(s, "docs/assets/mockup/tv_qr.png", 0.62, 1.46,
+     "SESI DIBUKA · PINDAI UNTUK MULAI",
+     "QR sesi di TV, urutan langkah: absensi → isi divisi → review → sesi terkunci", NAVY)
+sides(s, 8.20, 1.46, 4.50, [
+    ("Absensi jadi gerbang", "Isian divisi belum bisa dikirim sebelum kehadiran sesi dikonfirmasi leader.", TEAL),
+    ("Tidak ada isi ulang", "Data divisi sudah masuk dari Excel masing-masing; yang diisi di aplikasi hanya yang tidak ada di Excel.", NAVY),
+    ("Token terbatas & bisa dicabut", "Terikat plant, line, tanggal, dan shift; kedaluwarsa otomatis, dampak kebocoran kecil.", RED),
+    ("Ada jalan keluar darurat", "Supervisor/DH boleh membuka isian bila absensi tertunda, dengan alasan tercatat di jejak audit.", GOLD)])
+
+
+# ================================================================ 12d · EXCEL AUTO-SYNC
+s = page("Petugas cukup Ctrl+S — sistem yang mengurus sisanya",
+         "Bagian 4 · pembaruan rancangan",
+         note="File tetap di laptop petugas · folder dipindah ke OneDrive satu kali oleh IT · tidak ada tombol upload, tidak ada pelatihan baru")
+label(s, 0.62, 1.24, "DARI LAPTOP PETUGAS KE TV · TANPA LANGKAH TAMBAHAN", 8.0)
+flow = [("1", "Petugas Ctrl+S", "File dan shortcut yang sama seperti biasa.", NAVY),
+        ("2", "OneDrive unggah", "Folder dipindah IT sekali; junction di path lama.", NAVY),
+        ("3", "Pemicu perubahan", "Graph delta/webhook atau Power Automate.", TEAL),
+        ("4", "Normalisasi + upsert", "Per berkas divisi, idempoten, ada karantina.", TEAL),
+        ("5", "TV & dasbor", "Tersinkron 10–60 detik setelah disimpan.", GOLD)]
+fx = 0.62
+for no_, ttl, body, col in flow:
+    box(s, fx, 1.56, 2.24, 1.44, fill=WHITE, line=RULE, radius=0.05)
+    hline(s, fx + 0.01, 1.56, 2.22, col, 0.05)
+    txt(s, fx + 0.16, 1.68, 1.94, 0.24, [(no_ + " · " + ttl, 10, True, col)])
+    txt(s, fx + 0.16, 1.96, 1.94, 0.94, [(body, 9, None, GREY)], spacing=1.18)
+    if no_ != "5":
+        arrow(s, fx + 2.28, 2.16, 0.12, 0.20, "right", LGREY)
+    fx += 2.44
+
+label(s, 0.62, 3.20, "TIGA HAL YANG MEMBUAT PETUGAS TIDAK TERBEBANI", 8.0)
+opts = [("Nol langkah baru", "Tidak ada upload, ekspor CSV, kirim lampiran, atau isi ulang di aplikasi. "
+         "Bila sebuah rancangan menuntut langkah tambahan, rancangannya yang berubah.", "R-88", NAVY),
+        ("Excel tidak dibekukan", "Excel dipakai terus selamanya. Kolom milik Excel baca-saja di aplikasi; "
+         "koreksi cukup di Excel dan aplikasi menyusul otomatis.", "R-85 · R-89", TEAL),
+        ("Tiap divisi file sendiri", "Sinkron per berkas lewat daftar sumber. Berkas Quality bermasalah "
+         "tidak menahan halaman SHE atau Produksi.", "R-86", GOLD)]
+ox = 0.62
+for ttl, body, tag, col in opts:
+    box(s, ox, 3.52, 3.87, 1.62, fill=SOFT, line=RULE, radius=0.05)
+    box(s, ox, 3.52, 0.06, 1.62, fill=col, line=None, radius=0.5)
+    txt(s, ox + 0.20, 3.64, 3.50, 0.24, [(ttl, 10.5, True, col)])
+    txt(s, ox + 0.20, 3.92, 3.50, 0.86, [(body, 9, None, GREY)], spacing=1.18)
+    txt(s, ox + 0.20, 4.84, 3.50, 0.22, [(tag, 8.5, True, col)])
+    ox += 4.11
+
+label(s, 0.62, 5.34, "YANG MENJAGA DATA TETAP BENAR", 6.0)
+guards = [("Tidak dobel", "Kunci baris dari isi, bukan nomor urut Excel yang bisa berubah."),
+          ("Tidak setengah jadi", "Tunggu file selesai disimpan; lewati berkas kunci Excel."),
+          ("Offline ≠ belum diisi", "Laptop mati menulis \"belum tersinkron\"; perubahan tersusul saat online."),
+          ("Jelas sumbernya", "Badge Excel/Aplikasi + jam sinkron terakhir di TV dan dasbor.")]
+gx = 0.62
+for ttl, body in guards:
+    box(s, gx, 5.66, 2.85, 1.10, fill=WHITE, line=RULE, radius=0.05)
+    txt(s, gx + 0.16, 5.76, 2.55, 0.24, [(ttl, 10, True, NAVY)])
+    txt(s, gx + 0.16, 6.02, 2.55, 0.66, [(body, 8.8, None, GREY)], spacing=1.16)
+    gx += 3.05
+
+
 # ================================================================ 13 · KEPUTUSAN
 s = page("Keputusan yang diminta dan langkah berikutnya", "Penutup · keputusan",
          note="Semua keputusan mengacu pada angka tiga workbook; tidak ada tambahan asumsi baru")
 
 label(s, 0.62, 1.26, "TIGA KEPUTUSAN TERBUKA", 4.15)
 dec = [("1 · Cut-off edit papan",
-        "30 menit setelah shift, 60 menit, atau sampai akhir shift? Setelah itu hanya supervisor."),
-       ("2 · Ambang Teknik",
-        "Downtime mulai berapa menit menjadi work order Teknik: 30 menit, 60 menit, atau per jenis mesin?"),
+        "30 menit, 60 menit, atau sampai akhir shift?"),
+       ("2 · Ambang downtime jadi kasus Teknik",
+        "Mulai 30 menit, 60 menit, atau per jenis mesin?"),
        ("3 · Sumber daftar nama absensi",
-        "Admin mengetik sekali, impor Excel, atau tarik dari mesin absensi yang sudah ada?")]
+        "Admin ketik, impor Excel, atau tarik mesin absensi?"),
+       ]
 y = 1.58
 for name, q in dec:
     box(s, 0.62, y, 4.15, 0.98, fill=SOFT, line=RULE, radius=0.05)
@@ -1442,6 +1546,12 @@ for v, l, col in nums:
     hline(s, 5.02, y + 0.36, 3.20, RULE)
     y += 0.48
 
+box(s, 5.02, 4.14, 3.20, 0.78, fill=SOFT, line=RULE, radius=0.05)
+txt(s, 5.18, 4.20, 2.90, 0.20, [("SUDAH DIJAWAB · 6 NOV", 8.5, True, TEAL)])
+txt(s, 5.18, 4.42, 2.90, 0.46,
+    [("Excel di laptop → OneDrive + junction, petugas cukup Ctrl+S. Tiap divisi pakai Excel sendiri. "
+      "Excel tidak dibekukan.", 8, None, GREY)], spacing=1.14)
+
 label(s, 8.42, 1.26, "LANGKAH SETELAH SESI", 4.28)
 box(s, 8.42, 1.58, 4.28, 2.30, fill=None, line=RULE, radius=0.05)
 txt(s, 8.64, 1.70, 3.90, 2.10,
@@ -1458,7 +1568,7 @@ txt(s, 8.60, 4.06, 3.96, 0.48,
     [("Pemilik langkah: plant head tiap plant, diperiksa Group Manufacturing "
       "pada evaluasi pekan ke-8.", 8.5, None, GREY)], spacing=1.15)
 
-hline(s, 0.62, 4.80, 12.09, RULE)
+hline(s, 0.62, 4.98, 12.09, RULE)
 bx = 0.62
 for title_, name_, date_ in [("Disusun oleh", "Tim Daily Monitoring System", "Tanggal: ..............."),
                              ("Diperiksa oleh", "Plant Head / Dept Head", "Tanggal: ..............."),

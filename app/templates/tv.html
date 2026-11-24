@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS · TV Lantai — satu divisi per layar</title>
+<link rel="stylesheet" href="/static/tv.css">
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <div id="banner"></div>
+    <header id="head">
+      <div class="h-left">
+        <div class="h-title">DMS · <span id="h-plant">—</span> · <span id="h-line">—</span></div>
+        <div class="h-badge" id="h-badge">MEMUAT…</div>
+        <div class="h-sub" id="h-sub">SATU DIVISI PER LAYAR</div>
+      </div>
+      <div class="h-right">
+        <div class="h-date" id="h-date">—</div>
+        <div class="h-shift" id="h-shift">—</div>
+      </div>
+      <div class="h-legend">
+        <span><i style="background:#1C3E8A"></i>sesuai target</span>
+        <span><i style="background:#C22A26"></i>di bawah / lewat batas</span>
+        <span><i style="background:#A9A9A2"></i>belum diisi</span>
+      </div>
+    </header>
+    <main id="body"><div class="loading">Menghubungkan ke basis data…</div></main>
+    <footer id="foot">
+      <div class="f-left">
+        <span class="dot"></span>
+        <b id="f-sync">—</b>
+        <span class="f-badge" id="f-src">SUMBER: EXCEL</span>
+        <span id="f-extra">—</span>
+      </div>
+      <div class="f-right">
+        <span id="f-dots"></span>
+        <b id="f-page">Halaman 1/7</b>
+      </div>
+    </footer>
+  </div>
+</div>
+<div id="hint">
+  <b>←/→</b> pindah halaman · <b>spasi</b> jeda · <b>A</b> absensi · <b>S</b> sinkron sekarang ·
+  <a href="/admin" target="_blank">panel sinkron</a>
+</div>
+<script src="/static/tv.js"></script>
+</body>
+</html>

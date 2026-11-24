@@ -3,14 +3,14 @@
 Menggambar ulang slide dari XML: gambar latar, shape (kotak, panah, diamond),
 tabel, grafik batang (column/bar, bertumpuk), dan teks dengan bold/regular.
 
-Pemakaian: python3 docs/render_deck.py [file.pptx] -> /tmp/prev/sNN.png
+Pemakaian: python3 docs/scripts/render_deck.py [file.pptx] -> /tmp/prev/sNN.png
 """
 from pptx import Presentation
 from PIL import Image, ImageDraw, ImageFont
 import textwrap, os, io, sys
 from pptx.enum.chart import XL_CHART_TYPE
 
-p = Presentation(sys.argv[1] if len(sys.argv) > 1 else 'docs/DMS_Digitalisasi_v1.pptx')
+p = Presentation(sys.argv[1] if len(sys.argv) > 1 else 'docs/laporan/DMS_Digitalisasi_v1.pptx')
 W, H = 1280, 720
 os.makedirs('/tmp/prev', exist_ok=True)
 EMU = 914400

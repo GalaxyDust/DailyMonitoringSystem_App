@@ -56,15 +56,17 @@ sequenceDiagram
     participant S as Sistem
     participant SP as Supervisor / DH
 
-    S->>TV: tampilkan papan + daftar absensi shift
-    L->>TV: ketuk nama yang tidak hadir
+    S->>TV: buka sesi: tampilkan QR + halaman ABSENSI (divisi masih terkunci)
+    L->>S: pindai QR sesi (satu pintu)
+    L->>TV: tandai yang tidak hadir, lalu Konfirmasi kehadiran
     TV->>S: kirim status absensi (waktu, perangkat)
-    S-->>TV: ringkasan hadir/total
+    S-->>TV: ringkasan hadir/total + buka isian divisi (R-81)
 
     par Pengisian paralel
-        L->>S: isi tab Produksi (output, downtime, checklist)
+        D->>D: isi Excel divisi sendiri di laptop, Ctrl+S (kebiasaan lama)
+        S->>S: OneDrive unggah -> ingest otomatis -> papan terisi, tanpa upload
     and
-        D->>S: isi tab SHE / Quality / Teknik / Delivery
+        L->>S: isi kolom yang tidak ada di Excel (bukti, konfirmasi, catatan)
     end
 
     S->>S: validasi, hitung status, hitung kelengkapan
@@ -74,7 +76,7 @@ sequenceDiagram
         S->>S: buat kasus + tenggat otomatis
     end
 
-    S->>TV: perbarui papan (≤ 30 detik)
+    S->>TV: perbarui halaman divisi (≤ 30 detik), rotasi Absensi→SHE→Quality→Produksi→Delivery→Teknik
     S->>S: jalankan 12 aturan temuan
     S-->>SP: notifikasi temuan berperingkat
     S->>S: cut-off shift: kunci untuk leader
@@ -83,9 +85,9 @@ sequenceDiagram
 
 | Waktu | Siapa | Langkah | Keluaran |
 |---|---|---|---|
-| 06.00–06.30 | Sistem | siapkan papan + daftar absensi shift | papan kosong bertanda "belum diisi" |
-| 06.30–07.00 | Leader | konfirmasi absensi (hanya yang tidak hadir) | kehadiran shift |
-| 06.30–07.30 | Leader & divisi | isi bagian masing-masing | sel papan terisi |
+| 06.00–06.30 | Sistem | buka sesi: QR + halaman Absensi; isian divisi terkunci | sesi terbuka, QR aktif |
+| 06.30–07.00 | Leader | pindai QR → konfirmasi absensi (hanya yang tidak hadir) | kehadiran shift + isian terbuka |
+| 06.30–07.30 | Divisi | isi Excel masing-masing di laptop, Ctrl+S | papan terisi lewat sinkron otomatis |
 | 07.30 | Sistem | validasi & buat kasus bila di bawah target | kasus + tenggat |
 | 07.30 | Sistem | perbarui TV & dasbor | papan terkini |
 | 08.30 | Supervisor/DH | rapat pagi memakai temuan berperingkat | keputusan & penugasan |
@@ -254,19 +256,21 @@ flowchart LR
     A["Kasus dibuat"] --> B["Tenggat dihitung sistem<br/>A=1 hari · B=3 hari · C=5 hari kerja"]
     B --> C{"Lewat tenggat?"}
     C -- tidak --> D["Dikerjakan normal"]
-    C -- ya --> E["Naik L2: supervisor / DH"]
-    E --> F{"2 hari kerja<br/>masih lewat?"}
+    C -- ya --> E["Hari ke-0 lewat:<br/>naik L2 supervisor / DH"]
+    E --> F{"Hari ke-2 kerja<br/>masih lewat?"}
     F -- ya --> G["Naik L3: plant head"]
     F -- tidak --> D
-    G --> H["Masuk laporan Group<br/>+ prioritas rapat"]
+    G --> H{"Hari ke-4 kerja<br/>masih lewat?"}
+    H -- ya --> I2["Masuk laporan Group<br/>+ prioritas rapat"]
+    H -- tidak --> D
     D --> I["Ditutup dengan bukti"]
-    H --> I
+    I2 --> I
 ```
 
 | Aturan | Isi |
 |---|---|
 | R-46 | tenggat dihitung dari dampak, bukan diketik |
-| R-47 | naik satu tingkat tiap 2 hari kerja keterlambatan |
+| R-47 | lewat tenggat → L2 hari ke-0 · L3 hari ke-2 · laporan Group hari ke-4 (hari kerja) |
 | R-50 | tanpa aktivitas 14 hari → ditandai "dingin", ditanyakan di rapat (bukan ditutup) |
 
 Kartu di TV selalu menampilkan **umur kasus** dan **tingkat eskalasi** supaya tidak menunggu rapat.
@@ -307,7 +311,7 @@ Tidak ada fitur hapus untuk peran mana pun — hanya **batal** dan **arsip** (R-
 flowchart LR
     A["Catatan & kasus<br/>(satu sumber)"] --> B["Mesin aturan<br/>kelengkapan · temuan · skor"]
     B --> C["Snapshot papan<br/>tiap 20-30 detik"]
-    C --> D["TV lantai<br/>tanpa login"]
+    C --> D["TV lantai · satu divisi per layar<br/>Absensi → SHE → Quality → Produksi<br/>→ Delivery → Teknik → Ringkasan<br/>tanpa login"]
     B --> E["Dasbor L1-L3<br/>+ daftar kerja"]
     B --> F["Laporan bulanan<br/>skor proses vs hasil"]
     F --> G{"Periode<br/>dikunci?"}
@@ -325,8 +329,12 @@ TV tahan gangguan:
 | Data hari ini belum ada | tampilkan angka kemarin + tanda **"data kemarin"** |
 | Jaringan putus | tampilkan snapshot terakhir + jam pembaruan |
 | Pilar belum diisi | sel abu-abu "belum diisi", bukan kosong |
+| Divisi tanpa data hari itu | halaman tetap tampil "belum diisi" + siapa yang belum mengisi (R-84) |
+| Sesi baru dibuka | halaman **Absensi** tampil lebih dulu; rotasi divisi mulai setelah konfirmasi (R-81) |
+| Sinkron Excel tertunda | footer menampilkan jam sinkron terakhir + badge sumber; angka tidak disamarkan (R-87) |
+| Laptop petugas mati/offline | **"belum tersinkron · terakhir hh.mm"**, bukan "belum diisi"; tersusul saat online (R-90) |
 | Jaringan pulih | ambil snapshot baru, tanpa perlu restart |
-| Absensi | tetap bisa diketuk (terkirim saat jaringan kembali) |
+| Absensi | tetap bisa diketuk (terkirim saat jaringan kembali); ketukan yang tiba setelah cut-off masuk sebagai usulan koreksi ke Supervisor, bukan menimpa langsung |
 
 ---
 
@@ -336,9 +344,9 @@ TV tahan gangguan:
 flowchart LR
     A["Snack<br/>pilot 8 pekan"] --> G1{{"G4 siap<br/>replikasi"}}
     G1 --> B["Exist Plant<br/>4 pekan"]
-    B --> G2{{"uji<br/>4 ukuran"}}
+    B --> G2{{"uji<br/>5 ukuran"}}
     G2 --> C["New Plant<br/>4 pekan"]
-    C --> G3{{"uji<br/>4 ukuran"}}
+    C --> G3{{"uji<br/>5 ukuran"}}
     G3 --> D["Dairy<br/>4 pekan"]
     G1 -.gagal.-> A
     G2 -.gagal.-> B
@@ -380,7 +388,7 @@ Total: 8 + 4 + 4 + 4 = **20 pekan**.
 | 4 | Kasus downtime 48 menit dicatat Produksi | work order Teknik otomatis muncul dengan tenggat |
 | 5 | Kasus ditutup tanpa bukti | tombol nonaktif, pesan jelas |
 | 6 | Kasus berulang ke-3 dalam 90 hari | wajib PICA sebelum boleh ditutup |
-| 7 | Kasus lewat tenggat 2 hari | naik ke L2, muncul di dasbor supervisor |
+| 7 | Kasus lewat tenggat 2 hari kerja | sudah di L3 (plant head) sejak hari ke-2; L2 sejak hari ke-0; muncul di dasbor tingkatnya |
 | 8 | TV dimatikan saat jaringan putus | tetap menampilkan papan terakhir + jam |
 | 9 | Absensi diketuk di TV lalu dibuka di form | status sama, tidak ada duplikat |
 | 10 | Laporan Oktober dibuka setelah dikunci | hanya Admin, dengan alasan, versi baru |
