@@ -1,0 +1,449 @@
+# DMS — Struktur Frontend (Spesifikasi)
+
+> **Dokumen struktur & penempatan frontend DMS** — panduan untuk developer frontend (branch `front-end`).
+> Berisi: posisi repo, tech stack, **pohon folder lengkap**, fungsi setiap file, routing, pohon komponen,
+> bentuk data dari API, aturan gaya, aset, cara build/deploy, dan checklist pengerjaan.
+>
+> **Ini bukan berisi kode implementasi** — kode ditulis oleh developer frontend mengikuti struktur ini.
+> Kontrak data: **`docs/API_CONTRACT.md` (v1)**. Alur pengguna: **`docs/ALUR_APLIKASI_DMS.md` §15**.
+>
+> Versi: **v1** · 24 November 2026
+
+---
+
+## Daftar Isi
+
+1. [Tujuan & prinsip](#1-tujuan--prinsip)
+2. [Tech stack & posisi di repo](#2-tech-stack--posisi-di-repo)
+3. [Pohon folder lengkap](#3-pohon-folder-lengkap)
+4. [Fungsi setiap file](#4-fungsi-setiap-file)
+5. [Routing & halaman](#5-routing--halaman)
+6. [Pohon komponen per halaman](#6-pohon-komponen-per-halaman)
+7. [Data & API — pemetaan per halaman](#7-data--api--pemetaan-per-halaman)
+8. [State management & polling](#8-state-management--polling)
+9. [Styling & design tokens](#9-styling--design-tokens)
+10. [Aset & logo](#10-aset--logo)
+11. [Build, dev & deployment](#11-build-dev--deployment)
+12. [Naming convention & aturan folder](#12-naming-convention--aturan-folder)
+13. [Yang TIDAK boleh / tidak perlu dibuat](#13-yang-tidak-boleh--tidak-perlu-dibuat)
+14. [Checklist pengerjaan (M1 → M3)](#14-checklist-pengerjaan-m1--m3)
+
+---
+
+## 1. Tujuan & prinsip
+
+Frontend DMS menampilkan **satu kebenaran yang sama** dengan TV dan panel admin: angka dari log kasus
+Excel, lewat API Flask. Aplikasi ini **bukan** tempat mengisi data — semua isian lewat Excel petugas.
+
+Prinsip yang mengikat UI (aturan sistem R-01…R-90):
+
+| Aturan | Implikasi ke desain frontend |
+|---|---|
+| **R-01** satu papan satu catatan | Semua halaman membaca `GET /api/state` — tidak ada fetch ke endpoint lain yang tumpang tindih |
+| **R-80** satu divisi per layar | Satu halaman pilar = satu divisi penuh (bukan 5 kolom kecil) |
+| **R-81** absensi lebih dulu | Absensi adalah gerbang; UI harus menampilkan status sesi & mengunci rotasi |
+| **R-82** QR satu pintu | Landing `/s/<token>` (ponsel) satu alur: absensi → review |
+| **R-84** kolom statis, isi dinamis | Kolom tabel **statis** mengikuti kontrak Excel; baris dinamis per tanggal — jangan bikin kolom dinamis dari API |
+| **R-88** nol langkah tambahan | Tidak ada tombol upload/ekspor di mana pun |
+| **R-89** kepemilikan kolom | Tidak ada form edit sel kasus; koreksi dilakukan di Excel |
+| **R-90** belum diisi ≠ belum tersinkron | Empty state jujur — bedakan 4 status halaman |
+
+---
+
+## 2. Tech stack & posisi di repo
+
+| Aspek | Pilihan | Catatan |
+|---|---|---|
+| Framework | **React 19** | Sesuai scaffold di branch `front-end` |
+| Build tool | **Vite 8** + `@vitejs/plugin-react` | HMR, proxy dev ke Flask |
+| Routing | **react-router-dom** | `HashRouter` (aman untuk static hosting tanpa fallback server) atau `BrowserRouter` bila Nginx rewrite |
+| Bahasa | **JavaScript (JSX)** | TypeScript opsional di versi berikutnya (bukan wajib) |
+| Komponen UI | **Tidak ada library** | CSS murni + design tokens (sesuai §9); hindari MUI/Ant agar bundle kecil |
+| State | React hooks + context tipis | Tidak perlu Redux/Zustand untuk skala ini |
+| Lint | ESLint flat config (js/recommended + react-hooks + react-refresh) | Sudah ada di scaffold |
+| Test | Vitest (opsional) | Minimal: smoke test render beranda |
+
+**Posisi di repo:** aplikasi berada di **root branch `front-end`** (bukan di dalam folder `frontend/`).
+File scaffold yang sudah ada di sana (`index.html`, `src/`, `package.json`, `eslint.config.js`, `vite.config.js`)
+diisi mengikuti struktur di dokumen ini — **jangan duplikasi** scaffold.
+
+Struktur repo (konteks):
+
+```
+root (branch front-end)/
+├── app/            ← BACKEND (read-only untuk frontend; jangan ubah)
+├── docs/           ← dokumen ini tinggal di sini
+├── Logo/           ← sumber logo (salin yang perlu ke public/)
+├── reference/      ← workbook acuan (read-only)
+└── <isi frontend>  ← scaffold React yang sudah ada
+```
+
+---
+
+## 3. Pohon folder lengkap
+
+```
+front-end/                          (root branch)
+├── index.html                      shell HTML; mount #root; <title> DMS · Garudafood
+├── package.json                    scripts: dev · build · preview · lint
+├── package-lock.json               terkunci — jangan edit manual
+├── vite.config.js                  plugin react · proxy dev · allowedHosts
+├── eslint.config.js                flat config ESLint
+├── .gitignore
+├── README.md                       cara jalan (npm install · dev · build)
+├── public/                         ← aset statis (disalin 1:1 ke dist/)
+│   ├── logo.png                    logo utama (512px, dari Logo/Logo.png)
+│   ├── logo-192.png                apple-touch-icon
+│   └── favicon-32x32.png           favicon tab
+└── src/
+    ├── main.jsx                    entry: <StrictMode><App/></StrictMode>
+    ├── App.jsx                     router + layout + plant context
+    ├── index.css                   design tokens + semua kelas (§9)
+    ├── constants.js                PILARS · PLANTS · enum status/KPI/siklus (§4.2)
+    ├── api/
+    │   └── client.js               fetch wrapper + semua fungsi endpoint (§4.3)
+    ├── hooks/
+    │   ├── useDmsState.js          polling /api/state (15 dtk) + fallback data contoh (§8)
+    │   └── useNow.js               (opsional) jam berjalan untuk header
+    ├── context/
+    │   └── DmsContext.jsx          plant aktif + state global + online/offline (§8)
+    ├── data/
+    │   └── demoState.js            data contoh bentuk kontrak API (dipakai bila API mati)
+    ├── components/                 ← komponen reusable (dipakai lintas halaman)
+    │   ├── Layout.jsx              topbar + plant switch + konten + footer
+    │   ├── KpiGrid.jsx             grid KPI Target·S1·S2·S3·Harian·Minggu·Bulan
+    │   ├── KasusTable.jsx          tabel kasus (kolom statis dari API)
+    │   ├── PicaList.jsx            kartu PICA terbuka (≤4)
+    │   ├── StatusPill.jsx          pill status kasus & status halaman
+    │   ├── EmptyState.jsx          keadaan kosong jujur (R-84/R-90)
+    │   └── Toast.jsx               notifikasi aksi (konfirmasi, error 409)
+    └── pages/                      ← satu file per route
+        ├── Main.jsx                / — beranda/portal
+        ├── Dashboard.jsx           /dashboard — ringkasan 5 pilar
+        ├── Pillar.jsx              /pilar/:key — 5 pilar (generik, satu komponen)
+        ├── Absensi.jsx             /absensi — gerbang R-81
+        └── NotFound.jsx            * — 404
+```
+
+**Aturan penempatan:**
+
+- `components/` = reusable, tidak tahu route. `pages/` = tahu route, meracik komponen.
+- Satu komponen pilar **untuk lima divisi** — jangan buat `ShePage.jsx`, `QualityPage.jsx`, … (duplikasi).
+- Aset sumber (logo besar, font) **tidak** di-`src/assets/`; simpan di `public/` supaya tidak di-hash & mudah dirujuk.
+- File di luar pohon di atas hanya bila benar-benar perlu (mis. `src/styles/fonts.css` bila font di-bundle).
+
+---
+
+## 4. Fungsi setiap file
+
+### 4.1 Akar & entry
+
+| File | Fungsi | Isi kunci |
+|---|---|---|
+| `index.html` | Shell; `<div id="root">`; `<title>`, meta deskripsi, favicon | Bahasa `id`; title "DMS · Garudafood Daily Monitoring System" |
+| `src/main.jsx` | Bootstrap React | `createRoot(...render(<StrictMode><App/></StrictMode>))` |
+| `src/App.jsx` | Router + plant context provider | `HashRouter`; route `/`, `/dashboard`, `/pilar/:key`, `/absensi`, `*`; render `<Layout>` |
+| `src/index.css` | Design tokens + kelas | Variabel CSS (navy/teal/gold), layout shell, topbar, cards, tabel, pill, absensi chip, breakpoints |
+| `vite.config.js` | Build + dev proxy | `plugins:[react()]`; `server.proxy: {'/api':'http://localhost:8000', '/qr':…, '/s':…}`; `allowedHosts: true`; `host: true` |
+
+### 4.2 `src/constants.js`
+
+| Konstanta | Isi |
+|---|---|
+| `PILARS` | Array 5 pilar **urut backend**: `she` (merah `#B02F2F`) · `quality` (kuning `#D7B32A`, teks gelap) · `produksi` (`#A62E2E`) · `delivery` (`#2E7D46`) · `teknik` (`#2A5CA0`) — masing-masing: `key, nama, short, warna, teksGelap, deskripsi, sheet, aturan` |
+| `PLANTS` | `Snack` · `EP` · `NP` (+label panjang) |
+| `SIKLUS_ABSENSI` | `hadir → sakit → izin → alpa → terlambat → belum pasti` |
+| `STATUS_KASUS` | Map `OPEN/PROGRESS/CLOSE` → warna + label |
+| `STATUS_HALAMAN` | Map 4 status R-90 → label + warna |
+| `ST_WARNA` / `ST_JUDUL` | Warna sel KPI `st` 0–3 → hex & judul tooltip |
+
+### 4.3 `src/api/client.js`
+
+Satu module fetch wrapper, bukan library axios — kecil & cukup.
+
+| Bagian | Fungsi |
+|---|---|
+| `request(path, options)` | `AbortController` timeout **4 detik**; parse JSON aman; bila `!res.ok` lempar `Error(body.pesan \|\| 'HTTP '+status)` dengan `.status` & `.body` |
+| `getState({plant, line, demo, tanggal})` | `GET /api/state?…` — data TV/dashboard |
+| `getAdmin()` | `GET /api/admin` — data panel (opsional dipakai halaman admin internal) |
+| `postAbsensi({nama, status, plant, line, perangkat})` | `POST /api/absensi` — 409 → lempar `{status:409}` |
+| `postKonfirmasi({plant, line, pelaku})` | `POST /api/konfirmasi` |
+| `postBuka({plant, line, pelaku, alasan})` | `POST /api/buka` (Supervisor/DH) |
+| `postSync(sumberId?)` | `POST /api/sync` |
+| `health()` | `GET /healthz` |
+
+Aturan: **semua** call API lewat sini — tidak ada `fetch` liar di komponen.
+
+### 4.4 Hooks
+
+| Hook | Fungsi |
+|---|---|
+| `useDmsState({ plant, line, demo, tanggal, intervalMs = 15000 })` | `useState` + `useEffect` + `setInterval`; panggil `getState`; bila gagal → `buatDemoState(plant)` + flag `online=false`; return `{ state, online, loading, error, reload }` |
+| `useNow()` (opsional) | Tick tiap 30 dtk untuk jam header (`HH.MM` dengan titik) |
+
+### 4.5 Context
+
+`DmsContext.jsx` (opsional, bila ingin state global): `{ plant, setPlant, state, online }` dengan `plant` dipersist ke `localStorage["dms.plant"]`. Bila tanpa context, plant dipegang di `App` dan diteruskan via props — cukup untuk skala ini.
+
+### 4.6 Components
+
+| Komponen | Props | Tanggung jawab |
+|---|---|---|
+| `Layout` | `plant, onPlantChange, online, children` | Topbar (logo, nav: Beranda·Dashboard·5 short·Absensi, plant select, indikator LIVE/CONTOH), pita banner (demo/offline), `<main>`, footer (aturan R) |
+| `KpiGrid` | `kpi[], warna, gelap` | Tabel `Item · Target · S1 · S2 · S3 · Harian · Minggu · Bulan`; sel `st0–3` berwarna; tanda `now` pada kolom Harian; empty note bila `kpi` kosong |
+| `KasusTable` | `kolom[{nama,bobot}], baris[{sel,status,flag,kunci}]` | Judul `KASUS · sheet … · n baris`, tabel min-width scroll-X, maks 8 baris; sel status → `StatusPill`; sel PIC dengan `flag` → ⚠ + `title` |
+| `PicaList` | `baris[], kolom[]` | Filter `status != 'CLOSE'`, maks 4 kartu: Problem (bold), Rootcause, Action, PIC, Due |
+| `StatusPill` | `status` | Dua varian: status kasus (`open/progress/close`) & status halaman (`tersinkron/belum_diisi/belum_tersinkron/menunggu_berkas`) |
+| `EmptyState` | `status, pesan, berkas[]` | Tag besar status, judul humanis, pesan R-84, daftar `berkas[]` (`id · path · sheet · status`) atau ajakan daftarkan di `registry.json` |
+| `Toast` | `msg, onDone` | Overlay bawah-tengah, auto hilang 3,5 dtk; dipakai untuk 409/gagal konfirmasi |
+
+### 4.7 Pages
+
+| Page | Route | Fungsi |
+|---|---|---|
+| `Main.jsx` | `/` | Beranda: hero (logo + tagline + 2 CTA), strip highlight (3 plant · 5 pilar · 7 halaman TV · 0 upload), kartu **5 pilar** (head berwarna, deskripsi, badge sheet, link `→ /pilar/:key`), section **Alur Satu Pintu** (4 langkah ikon) |
+| `Dashboard.jsx` | `/dashboard` | Ringkasan per tanggal: strip 4 KPI agregat (total kasus, open, completion rata-rata, lewat tenggat), kartu per pilar (angka besar, progress bar completion, Open/Completion/Lewat, `PageStatusPill`), bar chart CSS perbandingan beban antar pilar |
+| `Pillar.jsx` | `/pilar/:key` | **Generik**: baca `useParams().key` → validasi terhadap `PILAR_KEYS` (redirect `/dashboard` bila aneh); hero pilar (nama, sheet, status sinkron, aturan); bila `status !== 'tersinkron'` → `EmptyState`; selain itu `KpiGrid` + `KasusTable` + `PicaList`; navigasi prev/next pilar + "Semua Pilar" |
+| `Absensi.jsx` | `/absensi` | Dua kolom: kiri ringkasan hadir (angka besar + detail + progress) + grid chip nama (klik = siklus status → `postAbsensi`; terkunci bila `dikonfirmasi`/offline) ; kanan kartu **Gerbang R-81** (tombol konfirmasi → `postKonfirmasi` pelaku `web`, note audit) + kartu "Kenapa tidak ada tombol upload?" |
+| `NotFound.jsx` | `*` | 404 sederhana + link Beranda/Dashboard |
+
+---
+
+## 5. Routing & halaman
+
+| Route | Halaman | Pita banner | Data |
+|---|---|---|---|
+| `/` | `Main` | opsional | statis |
+| `/dashboard` | `Dashboard` | ya (offline/demo) | `state.ringkasan`, `state.tanggal`, `state.jam`, `state.pengawas`, `state.absensi.dikonfirmasi` |
+| `/pilar` | → redirect `/dashboard` | — | — |
+| `/pilar/she` … `/pilar/teknik` | `Pillar` | ya | `state.halaman.find(h => h.key === key)` |
+| `/absensi` | `Absensi` | ya | `state.absensi`, `state.sesi` |
+| `*` | `NotFound` | — | — |
+
+Catatan: **TV rotasi (`/` di Flask) dan landing QR (`/s/<token>`) tetap dirender Flask/HTML** atau dibuat halaman React terpisah di tahap berikutnya — jangan dipaksakan masuk SPA ini pada fase 1 (lihat `BACKEND_PLAN.md` §5).
+
+---
+
+## 6. Pohon komponen per halaman
+
+```
+App
+└── Layout (topbar · banner · footer)
+    └── Routes
+        ├── / ................ Main
+        │     ├── Hero (stats, CTA → /dashboard, /absensi)
+        │     ├── PilarGrid → 5 × Link.pilar-card → /pilar/<key>
+        │     └── AlurSatuPintu (4 langkah)
+        ├── /dashboard ....... Dashboard
+        │     ├── StripKpi (4 tile: total · open · completion rata² · lewat)
+        │     ├── PilarDashGrid → 5 × Link.pillar-dash (angka · progress · kv rows · pill)
+        │     └── BarPerbandingan (bar CSS per pilar, max = nilai terbesar)
+        ├── /pilar/:key ...... Pillar
+        │     ├── PillarHero (nama · sheet · aturan · PageStatusPill · sinkron terakhir · jumlah)
+        │     ├── EmptyState            ← bila status ≠ tersinkron
+        │     └── (else) KpiGrid + KasusTable + PicaList
+        ├── /absensi ......... Absensi
+        │     ├── AbsensiRingkasan (angka besar hadir/total + det + progress)
+        │     ├── ChipGrid → n × ChipNama (avatar 2 huruf · nama · status; onClick siklus)
+        │     ├── GerbangCard (status sesi · tombol KONFIRMASI → postKonfirmasi)
+        │     └── InfoCard (Kenapa tidak ada tombol upload?)
+        └── * ................ NotFound
+```
+
+---
+
+## 7. Data & API — pemetaan per halaman
+
+Semua field mengikuti **`docs/API_CONTRACT.md`**. Endpoint yang dipakai: `GET /api/state` (polling 15 dtk)
++ `POST /api/absensi` & `POST /api/konfirmasi` (aksi). Panel admin (`/api/admin`) tidak dibutuhkan fase 1.
+
+| Halaman | Field yang dibaca | Aksi |
+|---|---|---|
+| Global (`Layout`) | `state.plant`, `state.label_line`, `state.sesi.status`, `state.demo`, `online` (lokal) | plant switch → refetch |
+| `Dashboard` | `ringkasan[]` (`key,nama,warna,jumlah,status,open,completion,lewat`), `tanggal`, `hari_ini`, `jam`, `pengawas.hidup/putaran`, `sesi.status/shift`, `absensi.dikonfirmasi` | — (link ke pilar) |
+| `Pillar` | `halaman[]` item: `key,nama,warna,status,pesan,jumlah,sinkron_terakhir,kpi[],kolom[],baris[],berkas[]`, `durasi` (abaikan), `tanggal` | — |
+| `Absensi` | `absensi.nama[]` (`nama,status`), `absensi.total`, `absensi.hitung{…7 kunci}`, `absensi.dikonfirmasi`, `sesi.shift/status`, `plant`, `line` | `postAbsensi` per chip, `postKonfirmasi` tombol |
+| `Main` | statis | — |
+
+**Pemetaan visual KPI (`st` → warna):** `0 → #1C3E8A` biru · `1 → #C22A26` merah-bawah target · `2 → #C22A26` merah-lewat batas · `3 → #A9A9A2` abu (belum diisi). Kolom `Harian` diberi outline emas (`now`).
+
+**Format angka:** desimal memakai **koma** (`0,75`) dari server — tampilkan apa adanya.
+**Urutan baris kasus:** sudah terurut server (OPEN → PROGRESS → CLOSE, due terdekat) — jangan di-sort ulang.
+
+---
+
+## 8. State management & polling
+
+```
+App (plant, setPlant)  ──pass──►  Layout(plant, online)  ──pass──►  pages
+      │
+      └─ useDmsState({ plant, line:'*', demo:'1', intervalMs:15000 })
+             └─ state = GET /api/state … tiap 15 dtk (tanpa re-render kedip: setState replace)
+                     └─ error → demoState(plant) + online=false (pita merah wajib tampil)
+```
+
+Aturan:
+
+1. **Satu sumber state** — setiap halaman menerima `state` dari App lewat props; tidak ada fetch kedua.
+2. Setelah aksi (`postAbsensi` / `postKonfirmasi`) → panggil `reload()` (fetch sekali langsung), jangan tunggu 15 dtk.
+3. Polling berhenti otomatis saat tab ditutup (interval dibersihkan di `useEffect` return).
+4. Plant tersimpan di `localStorage` — refresh tidak mereset pilihan.
+5. **Optimistic UI minimal**: untuk chip absensi, panggil API dulu lalu `reload()`; jangan ubah lokal diam-diam (sumber kebenaran = server).
+6. Error 409 (konfirmasi sudah dilakukan) → tampilkan toast "Absensi sudah dikonfirmasi; koreksi lewat Supervisor", bukan silent fail.
+
+---
+
+## 9. Styling & design tokens
+
+### 9.1 Token (variabel CSS)
+
+```
+--navy:#1B2C57  --navy-2:#16224A   (topbar, judul, grid KPI head)
+--teal:#2E868C  --teal-2:#22666C   (aksen, tombol primer)
+--gold:#C8A52B  --gold-2:#8A6C10   (CTA emas, tagline)
+--bg:#F4F6FA    --card:#FFF  --rule:#DDE2EA   (latar, kartu, garis)
+--text:#1E2430  --grey:#5C6472
+--blue:#1C3E8A  --red:#C22A26  --grey-3:#A9A9A2  (sel KPI st0/1/2/3)
+--green:#1E6B3A --green-bg:#E8F5EC   (pill OK)
+--red-bg:#FDECEA                      (pill danger)
+--warn-bg:#FBF3D9                     (pill warning)
+--radius:14px   --shadow / --shadow-sm
+```
+
+### 9.2 Kelas utama (yang diharapkan tersedia di `index.css`)
+
+- Layout shell: `.shell`, `.main`, `.topbar`, `.topbar-inner`, `.nav`, `.navlink(.active)`, `.brand`, `.plant-select`, `.conn(.off)`, `.footer`
+- Banner: `.banner.demo` (kuning MODE DEMO) · `.banner.offline` (merah DATA CONTOH)
+- Tombol: `.btn`, `.btn-primary`, `.btn-gold`, `.btn-outline`, `.btn-sm`
+- Kartu: `.card`, `.card-pad`, `.section-title`, `.kpi-tile`, `.progress`, `.pill(.ok/.warn/.bad/.open/.progress/.close)`
+- Hero Main: `.hero`, `.hero-eyebrow`, `.hero-cta`, `.hero-meta`, `.hero-card`, `.step-row/.step-num`
+- Kartu pilar: `.pilar-grid/.pilar-card/.pilar-head/.pilar-body/.pilar-tag/.pilar-link`, `.pillar-dash-grid/.pillar-dash/.pd-head/.pd-num/.pd-kv`
+- KPI: `.kpi-table`, `.cell.st0–st3`, `.cell.now`
+- Kasus: `.kasus-table`, `.mono`, `.flag-ico`
+- PICA: `.pica-grid`, `.pica-item`
+- Absensi: `.abs-wrap`, `.abs-big`, `.abs-grid`, `.chip(.sakit/.izin/.alpa/.terlambat/.belum)`, `.confirm-box`, `.toast`
+- Util: `.empty-state`, `.legend`, `.loading`
+
+### 9.3 Aturan gaya
+
+- Breakpoints: **≤1100px** kartu pilar 3 kolom & hero jadi 1 kolom; **≤760px** nav tersembunyi, pilar 2 kolom.
+- Font: `system-ui` stack — tidak meng-download font web; terminal/pabrik friendly.
+- Warna pilar **tidak boleh** menyimpang dari backend (`PILARS` di `constants.js` = `dms_core.DIVISI`).
+- Angka KPI: `font-variant-numeric: tabular-nums`.
+- Kontras: teks putih di atas `#D7B32A` (Quality) tidak lolos — pakai teks gelap `#2B2B28` (flag `teksGelap`).
+
+---
+
+## 10. Aset & logo
+
+| Aset | Sumber | Tujuan |
+|---|---|---|
+| `public/logo.png` | `Logo/Logo.png` → resize 512px | Header brand (40px) + hero bila perlu |
+| `public/logo-192.png` | resize 192px | `apple-touch-icon` |
+| `public/favicon-32x32.png` | `Logo/favicon-32x32.png` | Tab browser |
+| `docs/assets/mockup/tv.png` | referensi desain (bukan aset app) | Acuan visual saat review design |
+
+Jangan menyimpan aset > 300 KB di `public/`; jangan menyimpan logo master asli (1000px, 1,4 MB) — simpan versi resize mengikuti tabel di atas.
+
+---
+
+## 11. Build, dev & deployment
+
+### 11.1 Dev
+
+```bash
+npm install
+npm run dev          # http://localhost:5173 (proxy /api,/qr,/s → http://localhost:8000)
+python3 app/server.py  # backend, port 8000 — wajib untuk data asli
+```
+
+Bila backend mati, UI tetap render dengan pita **DATA CONTOH** (fallback `demoState.js`) — ini sengaja,
+supaya desain bisa dikerjakan tanpa server.
+
+### 11.2 Production build
+
+```bash
+npm run build        # → dist/ (hashed assets)
+npm run preview      # serve dist/ :4173
+```
+
+### 11.3 Deploy (opsi, selaras `BACKEND_PLAN.md` §5)
+
+| Opsi | Cara | Catatan |
+|---|---|---|
+| **P1 · Flask serve `dist/`** | Flask route `/` → `FileResponse(dist/index.html)`; `/assets/*` static | Satu origin, tanpa CORS |
+| **P2 · Nginx di depan** | `location / { root /path/dist; try_files $uri /index.html; }` + `location /api { proxy_pass http://127.0.0.1:8000; }` | Gunakan bila butuh HTTPS/caching |
+
+`HashRouter` membuat P1 paling sederhana (tidak perlu rewrite `try_files`). Bila memilih `BrowserRouter`, wajib `try_files … /index.html` di Nginx atau equivalent di Flask.
+
+### 11.4 Environment
+
+Tidak ada secret di frontend. Satu-satunya konfigurasi: base URL API — **kosong** (same-origin) di produksi;
+dev mengandalkan proxy Vite. Bila perlu beda host, tambah `VITE_API_BASE` di `.env` dan pakai sebagai prefix di `api/client.js`.
+
+---
+
+## 12. Naming convention & aturan folder
+
+| Aspek | Aturan |
+|---|---|
+| Komponen file | `PascalCase.jsx` (`KasusTable.jsx`) |
+| Hook | `useCamelCase.js` (`useDmsState.js`) |
+| Util/api | `camelCase.js` (`client.js`) |
+| Konstanta | `UPPER_SNAKE` di `constants.js` |
+| CSS | satu file global `index.css` dengan kelas kebab-case `.pilar-grid` — hindari CSS-in-JS/module di fase 1 |
+| Folder | `components/` · `pages/` · `hooks/` · `api/` · `data/` · `context/` — tanpa folder `utils/` kosong |
+| Bahasa | Identifier/kode **Inggris**; teks UI **Indonesia** |
+| Komentar | Bahasa Indonesia, singkat; kaitkan ke nomor aturan (`R-81` …) bila relevan |
+
+---
+
+## 13. Yang TIDAK boleh / tidak perlu dibuat
+
+1. ❌ **Tombol/form upload Excel** — melanggar R-85/R-88.
+2. ❌ **Form edit sel kasus** — kolom milik Excel, baca-saja (R-89).
+3. ❌ **Kolom tabel dinamis dari API** — kolom kontrak statis; baris saja yang dinamis (R-84).
+4. ❌ **Lima file halaman pilar** (`ShePage`, `QualityPage`, …) — satu `Pillar.jsx` generik.
+5. ❌ **Library UI besar** (MUI, AntD, Chakra) — CSS tokens cukup.
+6. ❌ **State global kompleks** (Redux) — context/props cukup.
+7. ❌ **Grafik custom dari nol** — fase 1 cukup bar chart CSS; library chart menyusul bila diminta.
+8. ❌ **Halaman admin baru** — panel admin sudah ada di Flask (`/admin`); React cukup menautkan.
+9. ❌ **Halaman TV rotasi di fase 1** — tetap Flask; menyusul di fase TV-React (`BACKEND_PLAN.md` M2).
+10. ❌ **Hardcode plant/divisi/warna di luar `constants.js`** — satu sumber.
+
+---
+
+## 14. Checklist pengerjaan (M1 → M3)
+
+### M1 — Kerangka & halaman inti (estimasi 2–3 hari)
+
+- [x] Scaffold Vite + React di root `front-end` (sudah ada)
+- [ ] Salin aset logo ke `public/` (§10)
+- [ ] `constants.js`, `api/client.js`, `index.css` (§4.2, §4.3, §9)
+- [ ] `Layout` + `App` router + plant switch (localStorage)
+- [ ] `useDmsState` + `demoState` fallback
+- [ ] `Main.jsx` (beranda) selesai — bisa direview desain
+- [ ] `Dashboard.jsx` selesai — KPI agregat cocok dengan TV
+- [ ] `Pillar.jsx` untuk `she` jalan end-to-end dari `/api/state`
+
+### M2 — Paritas & aksi (estimasi 2–4 hari)
+
+- [ ] 5 pilar via satu komponen — Delivery/Teknik tampil `EmptyState`
+- [ ] `Absensi.jsx` — chip siklus + konfirmasi + toast 409
+- [ ] Plant switch EP/NP menampilkan data plant itu
+- [ ] Polling 15 dtk + `reload()` setelah aksi
+- [ ] Pita MODE DEMO & DATA CONTOH bekerja
+- [ ] `NotFound`, favicon, title/meta
+- [ ] `npm run build` bersih, bundle < 350 KB gzip
+
+### M3 — Produksi (setelah backend Tahap C–D)
+
+- [ ] Login MSAL (Entra ID) bila endpoint dilindungi
+- [ ] Serve `dist/` lewat Flask/Nginx (§11.3)
+- [ ] Smoke test: TV + ponsel QR + admin bersamaan
+
+**Definisi selesai M1/M2:** demo internal — buka `/`, klik Dashboard, klik setiap pilar, konfirmasi absensi, semua angka sama dengan TV Flask (`http://localhost:8000/`).
+
+---
+
+*Dokumen ini v1 (24 Nov 2026). Perubahan struktur folder harus diperbarui di sini agar developer frontend tidak bekerja dari asumsi.*

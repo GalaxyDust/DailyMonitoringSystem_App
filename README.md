@@ -106,7 +106,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 | `/healthz` | ❤️ Health check |
 
 > 💡 Tekan **`S`** di TV untuk paksa sinkron, **`spasi`** untuk jeda rotasi, **`←/→`** pindah halaman, **`A`** ke Absensi.
-> Frontend React ada di **`frontend/`** (lihat [frontend/README.md](frontend/README.md)) — jalan dengan `npm install && npm run dev` (proxy otomatis ke `:8000`); branch `front-end` berisi scaffold React temanmu.
+> Frontend React ada di branch **`front-end`** — strukturnya dijelaskan di **[docs/FRONTEND_STRUCTURE.md](docs/FRONTEND_STRUCTURE.md)** (pohon folder, routing, komponen, data flow); kontrak API: [docs/API_CONTRACT.md](docs/API_CONTRACT.md).
 
 ---
 
@@ -120,17 +120,12 @@ python3 app/server.py        # → http://0.0.0.0:8000
 │   ├── seed_demo.py            seed awal (demo / produksi)
 │   ├── registry.json           daftar sumber Excel (9 aktif · Delivery & Teknik menunggu)
 │   └── setup_onedrive.ps1      pemasangan OneDrive + junction (sekali, oleh IT)
-├── ⚛️  frontend/                 ← FRONTEND (React + Vite) — Main · Dashboard 5 Pilar · Absensi
-│   ├── src/pages/Main.jsx      beranda (hero + kartu 5 pilar)
-│   ├── src/pages/Dashboard.jsx ringkasan 5 pilar + perbandingan beban
-│   ├── src/pages/Pillar.jsx    halaman generik per pilar (KPI · tabel kasus · PICA)
-│   ├── src/pages/Absensi.jsx   absensi shift (gerbang R-81)
-│   └── README.md               cara jalan (npm install · npm run dev)
 ├── 🎨 Logo/                    ← Logo GARUDAFOOD Daily Monitoring (png + favicon)
 ├── 📚 docs/                    ← DOKUMENTASI (alur, kontrak API, rencana backend, laporan)
 │   ├── ALUR_APLIKASI_DMS.md    peta alur lengkap (peran · halaman · fitur · user flow)
 │   ├── API_CONTRACT.md         kontrak API v1 (pegangan frontend ↔ backend)
 │   ├── BACKEND_PLAN.md         roadmap backend (Tahap A–D · SQLite → PostgreSQL)
+│   ├── FRONTEND_STRUCTURE.md   struktur & penempatan frontend (panduan developer front-end)
 │   └── laporan/                aturan sistem R-01…R-90 · rancangan · deck
 ├── 📊 reference/               ← workbook acuan (read-only, sumber data asli)
 └── 🖼️ Logo/ · docs/assets/     ← aset (mockup, papan asli, font Kalam)
@@ -145,6 +140,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 | [docs/ALUR_APLIKASI_DMS.md](docs/ALUR_APLIKASI_DMS.md) | 🗺️ Semua alur: role (10 kanonik), landing QR, 2 dashboard, sinkron Excel, KPI, model data |
 | [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | 🔌 Kontrak endpoint: payload, response, enum, kode warna KPI, known gaps |
 | [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) | 🛠️ Rencana backend: integrasi Vite, auth Entra ID, deploy, testing, milestone M0–M6 |
+| [docs/FRONTEND_STRUCTURE.md](docs/FRONTEND_STRUCTURE.md) | ⚛️ Struktur & penempatan frontend: pohon folder, routing, komponen, data flow, checklist |
 | [docs/README.md](docs/README.md) | 📑 Indeks seluruh dokumentasi & cara build deck |
 | [docs/laporan/DMS_Aturan_Sistem_v1.md](docs/laporan/DMS_Aturan_Sistem_v1.md) | 📏 Aturan sistem R-01…R-90 |
 | [docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md](docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md) | 📺 TV per divisi · QR satu pintu · sinkron Excel |
