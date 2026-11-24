@@ -60,7 +60,7 @@ sequenceDiagram
     L->>S: pindai QR sesi (satu pintu)
     L->>TV: tandai yang tidak hadir, lalu Konfirmasi kehadiran
     TV->>S: kirim status absensi (waktu, perangkat)
-    S-->>TV: ringkasan hadir/total + buka isian divisi (R-81)
+    S-->>TV: ringkasan hadir/total + buka isian divisi (Absensi Dulu)
 
     par Pengisian paralel
         D->>D: isi Excel divisi sendiri di laptop, Ctrl+S (kebiasaan lama)
@@ -94,7 +94,7 @@ sequenceDiagram
 | akhir shift + 30 mnt | Sistem | cut-off untuk leader | catatan terkunci |
 
 > Papan **boleh terisi sebagian**. Pilar yang belum diisi ditandai "belum diisi" + jam terakhir dicek,
-> bukan dikosongkan (R-12, R-14).
+> bukan dikosongkan (Pengisian Paralel, TV Menampilkan yang Sudah Masuk).
 
 ---
 
@@ -120,13 +120,13 @@ Aturan kunci:
 
 | Aturan | Isi |
 |---|---|
-| R-31 | daftar nama disiapkan Admin (impor Excel dianjurkan) |
-| R-32 | status awal **hadir**; lapangan hanya menandai yang tidak hadir |
-| R-33 | TV dan form menulis ke catatan absensi yang sama |
-| R-34 | TV hanya bisa absen untuk shift berjalan & line miliknya |
-| R-35 | setiap ketukan tercatat; urungkan 2 menit |
-| R-37 | absensi jadi penjelas otomatis bila output di bawah target |
-| R-38 | absensi **tidak** dipakai menilai orang di dalam sistem |
+| Daftar Nama dari Admin | daftar nama disiapkan Admin (impor Excel dianjurkan) |
+| Status Awal Hadir | status awal **hadir**; lapangan hanya menandai yang tidak hadir |
+| Absensi TV/QR/Web | TV dan form menulis ke catatan absensi yang sama |
+| Absensi Shift Berjalan | TV hanya bisa absen untuk shift berjalan & line miliknya |
+| Ketukan Tercatat | setiap ketukan tercatat; urungkan 2 menit |
+| Absensi Penjelas Output | absensi jadi penjelas otomatis bila output di bawah target |
+| Absensi Bukan Menilai Orang | absensi **tidak** dipakai menilai orang di dalam sistem |
 
 Status yang tersedia: `hadir` · `sakit` · `izin` · `alpa` · `terlambat` · `dinas luar`.
 
@@ -168,7 +168,7 @@ flowchart LR
 | 5 | Sistem | tandai pilar "belum diisi" + jam cek terakhir | berjalan |
 | 6 | Divisi | kirim bagian sendiri (tombol kirim per divisi) | kapan saja |
 
-Divisi **tidak bisa** menimpa sel divisi lain (R-08) — inilah yang mencegah angka pilar ditimpa.
+Divisi **tidak bisa** menimpa sel divisi lain (Satu Divisi, Satu Bagian) — inilah yang mencegah angka pilar ditimpa.
 
 ---
 
@@ -212,7 +212,7 @@ sequenceDiagram
 | 4 | Teknik | serah terima: mesin jalan / uji coba | setelah perbaikan |
 | 5 | Produksi | konfirmasi normal atau kasus dibuka lagi | 1 shift berikutnya |
 
-Kategori sebab **dikunci lima pilihan** supaya antar plant bisa dibandingkan (R-16).
+Kategori sebab **dikunci lima pilihan** supaya antar plant bisa dibandingkan (Lima Kategori Sebab).
 
 ---
 
@@ -235,7 +235,7 @@ stateDiagram-v2
     Ditutup --> [*]
 ```
 
-Gerbang penutupan (R-45):
+Gerbang penutupan (Empat Kolom Tutup Kasus):
 
 | Kolom | Isi minimal | Bila kosong |
 |---|---|---|
@@ -244,8 +244,8 @@ Gerbang penutupan (R-45):
 | Bukti | ≥ 1 foto/dokumen | tombol ajukan nonaktif |
 | PIC | nama pemilik kasus | tombol ajukan nonaktif |
 
-Tambahan: **persetujuan** harus dari peran berbeda dengan pengaju (R-09), dan kasus berulang ≥3×/90 hari
-wajib memuat **PICA + tindakan pencegahan** (R-48).
+Tambahan: **persetujuan** harus dari peran berbeda dengan pengaju (Pemisahan Isi dan Setujui), dan kasus berulang ≥3×/90 hari
+wajib memuat **PICA + tindakan pencegahan** (Temuan Berulang).
 
 ---
 
@@ -269,9 +269,9 @@ flowchart LR
 
 | Aturan | Isi |
 |---|---|
-| R-46 | tenggat dihitung dari dampak, bukan diketik |
-| R-47 | lewat tenggat → L2 hari ke-0 · L3 hari ke-2 · laporan Group hari ke-4 (hari kerja) |
-| R-50 | tanpa aktivitas 14 hari → ditandai "dingin", ditanyakan di rapat (bukan ditutup) |
+| Tenggat Kasus A/B/C | tenggat dihitung dari dampak, bukan diketik |
+| Eskalasi Otomatis | lewat tenggat → L2 hari ke-0 · L3 hari ke-2 · laporan Group hari ke-4 (hari kerja) |
+| Kasus Dingin | tanpa aktivitas 14 hari → ditandai "dingin", ditanyakan di rapat (bukan ditutup) |
 
 Kartu di TV selalu menampilkan **umur kasus** dan **tingkat eskalasi** supaya tidak menunggu rapat.
 
@@ -301,7 +301,7 @@ flowchart TD
 | **Terkunci** | supervisor, DH, kepala divisi | wajib alasan; nilai lama disimpan |
 | **Arsip** | admin plant | koreksi = versi baru, bukan menimpa |
 
-Tidak ada fitur hapus untuk peran mana pun — hanya **batal** dan **arsip** (R-44).
+Tidak ada fitur hapus untuk peran mana pun — hanya **batal** dan **arsip** (Tanpa Hapus Data).
 
 ---
 
@@ -329,10 +329,10 @@ TV tahan gangguan:
 | Data hari ini belum ada | tampilkan angka kemarin + tanda **"data kemarin"** |
 | Jaringan putus | tampilkan snapshot terakhir + jam pembaruan |
 | Pilar belum diisi | sel abu-abu "belum diisi", bukan kosong |
-| Divisi tanpa data hari itu | halaman tetap tampil "belum diisi" + siapa yang belum mengisi (R-84) |
-| Sesi baru dibuka | halaman **Absensi** tampil lebih dulu; rotasi divisi mulai setelah konfirmasi (R-81) |
-| Sinkron Excel tertunda | footer menampilkan jam sinkron terakhir + badge sumber; angka tidak disamarkan (R-87) |
-| Laptop petugas mati/offline | **"belum tersinkron · terakhir hh.mm"**, bukan "belum diisi"; tersusul saat online (R-90) |
+| Divisi tanpa data hari itu | halaman tetap tampil "belum diisi" + siapa yang belum mengisi (Kolom Statis, Isi Dinamis) |
+| Sesi baru dibuka | halaman **Absensi** tampil lebih dulu; rotasi divisi mulai setelah konfirmasi (Absensi Dulu) |
+| Sinkron Excel tertunda | footer menampilkan jam sinkron terakhir + badge sumber; angka tidak disamarkan (Angka Bersumber) |
+| Laptop petugas mati/offline | **"belum tersinkron · terakhir hh.mm"**, bukan "belum diisi"; tersusul saat online (Status Berkas Jujur) |
 | Jaringan pulih | ambil snapshot baru, tanpa perlu restart |
 | Absensi | tetap bisa diketuk (terkirim saat jaringan kembali); ketukan yang tiba setelah cut-off masuk sebagai usulan koreksi ke Supervisor, bukan menimpa langsung |
 

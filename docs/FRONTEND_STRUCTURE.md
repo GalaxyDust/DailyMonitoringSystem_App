@@ -7,7 +7,7 @@
 > **Ini bukan berisi kode implementasi** — kode ditulis oleh developer frontend mengikuti struktur ini.
 > Kontrak data: **`docs/API_CONTRACT.md` (v1)**. Alur pengguna: **`docs/ALUR_APLIKASI_DMS.md` §15**.
 >
-> Versi: **v1.1** · 24 November 2026 — tambah **§5.1 Role & akses** (A-01 landing untuk semua TV · A-02 dashboard hanya PDCA/TL)
+> Versi: **v1.2** · 24 November 2026 — v1.1 tambah **§5.1 Role & akses** (A-01 landing untuk semua TV · A-02 dashboard hanya PDCA/TL); v1.2 **plant Dairy** (4 plant) + rujukan Aturan Sistem v1.1 (nama manusiawi, tanpa kode R-xx)
 
 ---
 
@@ -35,27 +35,27 @@
 Frontend DMS menampilkan **satu kebenaran yang sama** dengan TV dan panel admin: angka dari log kasus
 Excel, lewat API Flask. Aplikasi ini **bukan** tempat mengisi data — semua isian lewat Excel petugas.
 
-Prinsip yang mengikat UI (aturan sistem R-01…R-90):
+Prinsip yang mengikat UI (aturan sistem (lihat `docs/laporan/DMS_Aturan_Sistem_v1.md` v1.1 — nama manusiawi, tanpa kode R-xx)):
 
 | Aturan | Implikasi ke desain frontend |
 |---|---|
-| **R-01** satu papan satu catatan | Semua halaman membaca `GET /api/state` — tidak ada fetch ke endpoint lain yang tumpang tindih |
-| **R-80** satu divisi per layar | Satu halaman pilar = satu divisi penuh (bukan 5 kolom kecil) |
-| **R-81** absensi lebih dulu | Absensi adalah gerbang; UI harus menampilkan status sesi & mengunci rotasi |
-| **R-82** QR satu pintu | Landing `/s/<token>` (ponsel) satu alur: absensi → review |
-| **R-84** kolom statis, isi dinamis | Kolom tabel **statis** mengikuti kontrak Excel; baris dinamis per tanggal — jangan bikin kolom dinamis dari API |
-| **R-88** nol langkah tambahan | Tidak ada tombol upload/ekspor di mana pun |
-| **R-89** kepemilikan kolom | Tidak ada form edit sel kasus; koreksi dilakukan di Excel |
-| **R-90** belum diisi ≠ belum tersinkron | Empty state jujur — bedakan 4 status halaman |
+| **Satu papan, satu catatan** satu papan satu catatan | Semua halaman membaca `GET /api/state` — tidak ada fetch ke endpoint lain yang tumpang tindih |
+| **Satu Divisi per Layar** satu divisi per layar | Satu halaman pilar = satu divisi penuh (bukan 5 kolom kecil) |
+| **Absensi Dulu** absensi lebih dulu | Absensi adalah gerbang; UI harus menampilkan status sesi & mengunci rotasi |
+| **QR Satu Pintu** QR satu pintu | Landing `/s/<token>` (ponsel) satu alur: absensi → review |
+| **Kolom Statis, Isi Dinamis** kolom statis, isi dinamis | Kolom tabel **statis** mengikuti kontrak Excel; baris dinamis per tanggal — jangan bikin kolom dinamis dari API |
+| **Nol Langkah Tambahan** nol langkah tambahan | Tidak ada tombol upload/ekspor di mana pun |
+| **Kepemilikan Kolom** kepemilikan kolom | Tidak ada form edit sel kasus; koreksi dilakukan di Excel |
+| **Status Berkas Jujur** (v1.1) | 4 status yang bisa dibedakan sistem (`tersinkron` / `belum_diisi` / `belum_tersinkron` / `menunggu_berkas`) + **jam acuan selalu tampil** + angka basi **bercap waktu** ("data terakhir hh.mm") — rincian di `DMS_Aturan_Sistem_v1.md` §10 |
 
 **Aturan akses (v1.1, 24 Nov 2026 — keputusan produk):**
 
 | Aturan | Implikasi ke desain frontend |
 |---|---|
 | **A-01 · Landing untuk semua TV** | Halaman `/` (menu 5 pilar + QR absensi sesi berjalan) adalah **permukaan TV**: tanpa login, dibuka fullscreen di setiap perangkat TV Device. TV tidak menampilkan link apa pun ke `/dashboard` |
-| **A-02 · Dashboard hanya untuk PDCA & TL terkait** | `/dashboard` **hanya** untuk role **PDCA** (lihat semua plant: Snack · EP · NP) dan **TL / Team Leader** (**hanya plant miliknya**). Role lain — termasuk perangkat TV — tidak melihat dan tidak bisa membuka `/dashboard` (rute terproteksi, bukan sekadar menu disembunyikan) |
+| **A-02 · Dashboard hanya untuk PDCA & TL terkait** | `/dashboard` **hanya** untuk role **PDCA** (lihat semua plant: Snack · EP · NP · Dairy) dan **TL / Team Leader** (**hanya plant miliknya**). Role lain — termasuk perangkat TV — tidak melihat dan tidak bisa membuka `/dashboard` (rute terproteksi, bukan sekadar menu disembunyikan) |
 
-Kedua aturan ini diusulkan menjadi **R-91/R-92** pada `DMS_Aturan_Sistem` v1.1; selama dokumen itu belum direvisi, referensikan sebagai **A-01/A-02** seperti di atas.
+Kedua aturan ini diusulkan menjadi **Landing untuk Semua TV (A-01)/Dashboard PDCA & TL (A-02)** pada `DMS_Aturan_Sistem` v1.1; selama dokumen itu belum direvisi, referensikan sebagai **A-01/A-02** seperti di atas.
 
 ---
 
@@ -72,9 +72,9 @@ Kedua aturan ini diusulkan menjadi **R-91/R-92** pada `DMS_Aturan_Sistem` v1.1; 
 | Lint | ESLint flat config (js/recommended + react-hooks + react-refresh) | Sudah ada di scaffold |
 | Test | Vitest (opsional) | Minimal: smoke test render beranda |
 
-**Posisi di repo:** aplikasi berada di **root branch `front-end`** (bukan di dalam folder `frontend/`).
-File scaffold yang sudah ada di sana (`index.html`, `src/`, `package.json`, `eslint.config.js`, `vite.config.js`)
-diisi mengikuti struktur di dokumen ini — **jangan duplikasi** scaffold.
+**Posisi di repo:** implementasi berada di **root branch `front-end`** (bukan di dalam folder `frontend/`) — itu scaffold milik tim frontend (`index.html`, `src/`, `package.json`, … di root).
+
+> **Kerangka kosong tersedia:** folder **`frontend/`** di branch backend (`arena/ca138dd1-…`) berisi struktur yang sama (per folder, dengan `README.md` penjelas + berkas placeholder berisi komentar TODO — **tanpa kode**). Gunakan sebagai peta penempatan saat mengisi branch `front-end`; isinya tidak untuk di-merge ke `main`.
 
 Struktur repo (konteks):
 
@@ -125,13 +125,13 @@ front-end/                          (root branch)
     │   ├── KasusTable.jsx          tabel kasus (kolom statis dari API)
     │   ├── PicaList.jsx            kartu PICA terbuka (≤4)
     │   ├── StatusPill.jsx          pill status kasus & status halaman
-    │   ├── EmptyState.jsx          keadaan kosong jujur (R-84/R-90)
+    │   ├── EmptyState.jsx          keadaan kosong jujur (Kolom Statis, Isi Dinamis/Status Berkas Jujur)
     │   └── Toast.jsx               notifikasi aksi (konfirmasi, error 409)
     └── pages/                      ← satu file per route
         ├── Main.jsx                / — beranda/portal
         ├── Dashboard.jsx           /dashboard — ringkasan 5 pilar
         ├── Pillar.jsx              /pilar/:key — 5 pilar (generik, satu komponen)
-        ├── Absensi.jsx             /absensi — gerbang R-81
+        ├── Absensi.jsx             /absensi — gerbang Absensi Dulu
         └── NotFound.jsx            * — 404
 ```
 
@@ -161,10 +161,10 @@ front-end/                          (root branch)
 | Konstanta | Isi |
 |---|---|
 | `PILARS` | Array 5 pilar **urut backend**: `she` (merah `#B02F2F`) · `quality` (kuning `#D7B32A`, teks gelap) · `produksi` (`#A62E2E`) · `delivery` (`#2E7D46`) · `teknik` (`#2A5CA0`) — masing-masing: `key, nama, short, warna, teksGelap, deskripsi, sheet, aturan` |
-| `PLANTS` | `Snack` · `EP` · `NP` (+label panjang) |
+| `PLANTS` | `Snack` · `EP` · `NP` · `Dairy` (+label panjang) · kode DR · rollout ke-4 (tanpa data — halaman tampil *menunggu berkas*) |
 | `SIKLUS_ABSENSI` | `hadir → sakit → izin → alpa → terlambat → belum pasti` |
 | `STATUS_KASUS` | Map `OPEN/PROGRESS/CLOSE` → warna + label |
-| `STATUS_HALAMAN` | Map 4 status R-90 → label + warna |
+| `STATUS_HALAMAN` | Map 4 status Status Berkas Jujur → label + warna |
 | `ST_WARNA` / `ST_JUDUL` | Warna sel KPI `st` 0–3 → hex & judul tooltip |
 | `ROLES` | Role login interim (v1, pre-MSAL): `tv` (default perangkat TV) · `pdca` · `tl`; kunci `localStorage["dms.role"]`; dipakai `RequireRole` & `Layout`. **Diganti klaim MSAL Entra ID pada tahap C** (A-02) — lihat `BACKEND_PLAN.md` §7.3 |
 | `ROLE_LABEL` | Map `tv/pdca/tl` → label tampilan (`TV Device` / `PDCA` / `Team Leader`) |
@@ -207,7 +207,7 @@ Aturan: **semua** call API lewat sini — tidak ada `fetch` liar di komponen.
 | `KasusTable` | `kolom[{nama,bobot}], baris[{sel,status,flag,kunci}]` | Judul `KASUS · sheet … · n baris`, tabel min-width scroll-X, maks 8 baris; sel status → `StatusPill`; sel PIC dengan `flag` → ⚠ + `title` |
 | `PicaList` | `baris[], kolom[]` | Filter `status != 'CLOSE'`, maks 4 kartu: Problem (bold), Rootcause, Action, PIC, Due |
 | `StatusPill` | `status` | Dua varian: status kasus (`open/progress/close`) & status halaman (`tersinkron/belum_diisi/belum_tersinkron/menunggu_berkas`) |
-| `EmptyState` | `status, pesan, berkas[]` | Tag besar status, judul humanis, pesan R-84, daftar `berkas[]` (`id · path · sheet · status`) atau ajakan daftarkan di `registry.json` |
+| `EmptyState` | `status, pesan, berkas[], sinkronTerakhir?` | Sesuai **Status Berkas Jujur** v1.1: tag besar status (4 nilai) · judul humanis · pesan penyebab (dari `pesan` API) · **jam acuan** — `belum_diisi` → "dicek terakhir hh.mm"; `belum_tersinkron` → "sinkron terakhir berhasil hh.mm" (+"belum pernah tersinkron" bila `sinkronTerakhir` kosong) · daftar `berkas[]` (`id · path · sheet · status`) atau ajakan daftarkan di `registry.json` (`menunggu_berkas`). Angka basi yang masih tampil diberi cap "data terakhir hh.mm" |
 | `Toast` | `msg, onDone` | Overlay bawah-tengah, auto hilang 3,5 dtk; dipakai untuk 409/gagal konfirmasi |
 
 ### 4.7 Pages
@@ -215,9 +215,9 @@ Aturan: **semua** call API lewat sini — tidak ada `fetch` liar di komponen.
 | Page | Route | Fungsi |
 |---|---|---|
 | `Main.jsx` | `/` | **Landing TV (A-01)**: hero (logo + tagline singkat), **menu 5 pilar** (kartu SHE→Teknik — head berwarna, deskripsi, badge sheet, klik → `/pilar/:key`), **panel QR absensi** besar (dari `state.sesi.token` → gambar `/qr/<token>.png` + teks "Pindai untuk absensi" + status sesi: DIBUKA/DIKONFIRMASI). **Tanpa** CTA/link Dashboard (A-02). Optimal untuk layar TV/kiosk (font besar, kontras tinggi) |
-| `Dashboard.jsx` | `/dashboard` | **Hanya PDCA & TL (A-02)** — dibungkus `<RequireRole allow={['pdca','tl']}>` di `App.jsx`. Ringkasan per tanggal: strip 4 KPI agregat, kartu per pilar, bar chart CSS perbandingan beban antar pilar. **PDCA**: plant switch Snack/EP/NP bebas; **TL**: plant terkunci ke plant miliknya |
+| `Dashboard.jsx` | `/dashboard` | **Hanya PDCA & TL (A-02)** — dibungkus `<RequireRole allow={['pdca','tl']}>` di `App.jsx`. Ringkasan per tanggal: strip 4 KPI agregat, kartu per pilar, bar chart CSS perbandingan beban antar pilar. **PDCA**: plant switch Snack/EP/NP/Dairy bebas; **TL**: plant terkunci ke plant miliknya |
 | `Pillar.jsx` | `/pilar/:key` | **Generik**: baca `useParams().key` → validasi terhadap `PILAR_KEYS` (redirect `/` bila aneh — **bukan** `/dashboard`, A-02); hero pilar (nama, sheet, status sinkron, aturan); bila `status !== 'tersinkron'` → `EmptyState`; selain itu `KpiGrid` + `KasusTable` + `PicaList`; navigasi prev/next pilar + "Semua Pilar" |
-| `Absensi.jsx` | `/absensi` | Dua kolom: kiri ringkasan hadir (angka besar + detail + progress) + grid chip nama (klik = siklus status → `postAbsensi`; terkunci bila `dikonfirmasi`/offline) ; kanan kartu **Gerbang R-81** (tombol konfirmasi → `postKonfirmasi` pelaku `web`, note audit) + kartu "Kenapa tidak ada tombol upload?" |
+| `Absensi.jsx` | `/absensi` | Dua kolom: kiri ringkasan hadir (angka besar + detail + progress) + grid chip nama (klik = siklus status → `postAbsensi`; terkunci bila `dikonfirmasi`/offline) ; kanan kartu **Gerbang Absensi Dulu** (tombol konfirmasi → `postKonfirmasi` pelaku `web`, note audit) + kartu "Kenapa tidak ada tombol upload?" |
 | `NotFound.jsx` | `*` | 404 sederhana + link Beranda (Dashboard hanya ditampilkan bila role `pdca`/`tl`) |
 
 ---
@@ -256,7 +256,7 @@ Setiap perangkat TV (TV Device)          Perangkat internal (laptop/HP)
 
 | Role | Singkatan | Plant | Dashboard ringkasan |
 |---|---|---|---|
-| **PDCA** | PDCA | **Semua** (Snack · EP · NP) | ✅ lihat semua plant; plant switch bebas |
+| **PDCA** | PDCA | **Semua** (Snack · EP · NP · Dairy) | ✅ lihat semua plant; plant switch bebas |
 | **TL (Team Leader)** | TL | Plant miliknya saja | ✅ hanya plant plant sendiri; plant switch **terkunci** |
 | Semua role lain (Leader Line, Petugas, Supervisor, DH, Admin, Auditor, **TV Device**) | — | — | ❌ tidak melihat menu, tidak bisa membuka `/dashboard` |
 
@@ -271,7 +271,7 @@ Setiap perangkat TV (TV Device)          Perangkat internal (laptop/HP)
   Ini guard sisi klien; **enforcement server menunggu tahap C** (lihat di bawah).
 - Saat MSAL tersedia (tahap C), mekanisme `?role=` **dihapus** dan diganti: grup Entra **`DMS-PDCA-*`**
   → PDCA (semua plant), grup **`DMS-TL-*`** + klaim plant → TL (plant sendiri). Backend menolak `/api/state`
-  agregat lintas plant untuk TL (403) — R-07.
+  agregat lintas plant untuk TL (403) — Batas Data per Plant.
 
 **Yang harus terlihat di TV vs tidak:**
 
@@ -282,7 +282,7 @@ Setiap perangkat TV (TV Device)          Perangkat internal (laptop/HP)
 | Link Dashboard di topbar | ❌ | ✅ | ✅ |
 | Halaman `/pilar/<key>` | ✅ | ✅ | ✅ |
 | `/dashboard` via URL langsung | ❌ (redirect `/`) | ✅ | ✅ plant sendiri |
-| Plant switch Snack/EP/NP | ❌/terkunci (dari profil TV) | ✅ bebas | 🔒 terkunci plant sendiri |
+| Plant switch Snack/EP/NP/Dairy | ❌/terkunci (dari profil TV) | ✅ bebas | 🔒 terkunci plant sendiri |
 
 ---
 
@@ -354,7 +354,7 @@ Aturan:
 4. Plant tersimpan di `localStorage` — refresh tidak mereset pilihan.
 5. **Optimistic UI minimal**: untuk chip absensi, panggil API dulu lalu `reload()`; jangan ubah lokal diam-diam (sumber kebenaran = server).
 6. Error 409 (konfirmasi sudah dilakukan) → tampilkan toast "Absensi sudah dikonfirmasi; koreksi lewat Supervisor", bukan silent fail.
-7. **Role & plant (v1.1):** `role` dibaca sekali dari `localStorage["dms.role"]` (default `tv`). **TL:** `plant` terkunci (dari profil/login), plant switch nonaktif — hanya melihat data plant-nya (A-02). **PDCA:** plant switch bebas (Snack/EP/NP). **tv:** topbar tanpa Dashboard, plant dari profil TV (`?plant=`). Setelah tahap C (MSAL), `dms.role` tidak dipakai lagi.
+7. **Role & plant (v1.1):** `role` dibaca sekali dari `localStorage["dms.role"]` (default `tv`). **TL:** `plant` terkunci (dari profil/login), plant switch nonaktif — hanya melihat data plant-nya (A-02). **PDCA:** plant switch bebas (Snack/EP/NP/Dairy). **tv:** topbar tanpa Dashboard, plant dari profil TV (`?plant=`). Setelah tahap C (MSAL), `dms.role` tidak dipakai lagi.
 
 ---
 
@@ -468,15 +468,15 @@ dev mengandalkan proxy Vite. Bila perlu beda host, tambah `VITE_API_BASE` di `.e
 | CSS | satu file global `index.css` dengan kelas kebab-case `.pilar-grid` — hindari CSS-in-JS/module di fase 1 |
 | Folder | `components/` · `pages/` · `hooks/` · `api/` · `data/` · `context/` — tanpa folder `utils/` kosong |
 | Bahasa | Identifier/kode **Inggris**; teks UI **Indonesia** |
-| Komentar | Bahasa Indonesia, singkat; kaitkan ke nomor aturan (`R-81` …) bila relevan |
+| Komentar | Bahasa Indonesia, singkat; kaitkan ke nomor aturan (`Absensi Dulu` …) bila relevan |
 
 ---
 
 ## 13. Yang TIDAK boleh / tidak perlu dibuat
 
-1. ❌ **Tombol/form upload Excel** — melanggar R-85/R-88.
-2. ❌ **Form edit sel kasus** — kolom milik Excel, baca-saja (R-89).
-3. ❌ **Kolom tabel dinamis dari API** — kolom kontrak statis; baris saja yang dinamis (R-84).
+1. ❌ **Tombol/form upload Excel** — melanggar Sinkron Excel Otomatis/Nol Langkah Tambahan.
+2. ❌ **Form edit sel kasus** — kolom milik Excel, baca-saja (Kepemilikan Kolom).
+3. ❌ **Kolom tabel dinamis dari API** — kolom kontrak statis; baris saja yang dinamis (Kolom Statis, Isi Dinamis).
 4. ❌ **Lima file halaman pilar** (`ShePage`, `QualityPage`, …) — satu `Pillar.jsx` generik.
 5. ❌ **Library UI besar** (MUI, AntD, Chakra) — CSS tokens cukup.
 6. ❌ **State global kompleks** (Redux) — context/props cukup.
@@ -520,7 +520,7 @@ dev mengandalkan proxy Vite. Bila perlu beda host, tambah `VITE_API_BASE` di `.e
 
 ### M3 — Produksi (setelah backend Tahap C–D)
 
-- [ ] **Hapus mekanisme interim `?role=`/`dms.role`** — diganti MSAL (Entra ID): grup `DMS-PDCA-*` → PDCA (semua plant), grup `DMS-TL-*` + klaim plant → TL (plant sendiri); backend 403 untuk TL lintas plant (R-07, A-02)
+- [ ] **Hapus mekanisme interim `?role=`/`dms.role`** — diganti MSAL (Entra ID): grup `DMS-PDCA-*` → PDCA (semua plant), grup `DMS-TL-*` + klaim plant → TL (plant sendiri); backend 403 untuk TL lintas plant (Batas Data per Plant, A-02)
 - [ ] Login MSAL (Entra ID) bila endpoint dilindungi
 - [ ] Serve `dist/` lewat Flask/Nginx (§11.3)
 - [ ] Setup kiosk TV: `/` fullscreen, tanpa Dashboard (A-01)
