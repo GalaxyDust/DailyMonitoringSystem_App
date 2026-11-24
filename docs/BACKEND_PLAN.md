@@ -167,7 +167,8 @@ Rekomendasi: **P1 dulu**, P2 saat trafik/HA butuh.
 
 | Kebutuhan | Endpoint | Polling |
 |---|---|---|
-| State TV/React (semua halaman) | `GET /api/state?plant=&line=&demo=&tanggal=` | 15 dtk |
+| State landing TV & pilar (A-01, semua TV) | `GET /api/state?plant=&line=&demo=&tanggal=` | 15 dtk |
+| State Dashboard ringkasan (A-02, PDCA/TL) | `GET /api/state?plant=…` — PDCA kirim semua plant; TL terkunci plant sendiri | 15 dtk |
 | Ketuk absensi | `POST /api/absensi` | per aksi |
 | Konfirmasi kehadiran | `POST /api/konfirmasi` | per aksi |
 | Panel admin | `GET /api/admin` + `POST /api/sync` | 10 dtk |
@@ -278,6 +279,7 @@ Kelebihan untuk fase ini: tanpa server DB, mudah di-backup (salin 1 file), query
 | # | Tugas | Selesai bila |
 |---|---|---|
 | C1 | Login frontend MSAL (Entra ID) pada `/admin` & aksi tulis | Token didapat |
+| C1b | **Akses Dashboard ringkasan (A-02):** grup Entra `DMS-PDCA-*` → **PDCA** (semua plant), grup `DMS-TL-*` + klaim plant → **TL** (plant sendiri). Frontend `/dashboard` dibungkus `RequireRole`; TV (`role=tv`) tidak boleh melihat/menautkan ke Dashboard. Endpoint agregat lintas plant → **403** untuk TL (R-07) | TV tanpa Dashboard; PDCA lihat semua plant; TL terkunci plant sendiri |
 | C2 | Backend verifikasi JWT (PyJWT + JWKS tenant; `audience` = client id app) | 401 bila token invalid/expired |
 | C3 | Proteksi peran: `/api/buka`, `/api/sync`, `/admin` → Supervisor/DH/Admin; `/api/absensi`, `/api/konfirmasi` → terautentikasi | 403 sesuai peran |
 | C4 | QR sesi: token kedaluwarsa per shift + endpoint cabut token (`POST /api/sesi/cabut`, Admin) | Token lama ditolak (404/410) |
@@ -296,7 +298,7 @@ Kelebihan untuk fase ini: tanpa server DB, mudah di-backup (salin 1 file), query
 | D6 | (Opsional) `db.py` abstraction → PostgreSQL bila dipicu §6.4 | Migrasi < 1 hari |
 | D7 | Notifikasi Teams/email via Power Automate (konektor standard): karantina baru, lewat tenggat | PIC dapat kabar |
 | D8 | Monitoring `/healthz` (uptime check eksternal) | Alert bila mati |
-| D9 | SSO role mapping dari Entra ID groups → peran DMS | Tidak perlu set manual |
+| D9 | SSO role mapping dari Entra ID groups → peran DMS (termasuk **PDCA** = semua plant & **TL** = plant sendiri, A-02) | Tidak perlu set manual |
 | D10 | Runbook insiden (TV mati, Excel corrupt, DB corrupt, token bocor) | Ada dokumen & diuji |
 
 **FastAPI (opsional, di akhir C atau awal D):** angkat route Flask → FastAPI bertahap (`/api/state` paling akhir). `dms_core.py` dipakai apa adanya; validasi otomatis dari kontrak; dokumentasi di `/docs` untuk frontend. **Bukan keharusan** — Flask yang dirapikan (B+C) sudah cukup lama.
@@ -344,7 +346,8 @@ Firewall: buka port 8000 (atau 443 via reverse proxy). TV diarahkan ke `http://<
 | Area | Sekarang | Target |
 |---|---|---|
 | Identitas | Tidak ada (semua terbuka) | Entra ID JWT; peran dari group mapping |
-| TV / landing | Terbuka (baca + ketuk absensi) | Tetap terbuka untuk baca; absensi butuh auth tahap C (atau batasi IP TV + signage) |
+| TV / landing | Terbuka (baca + ketuk absensi) | Tetap terbuka untuk baca (A-01); absensi butuh auth tahap C (atau batasi IP TV + signage) |
+| Dashboard ringkasan (`/dashboard` React) | Terbuka (v1) — hanya dijaga UI/operasi (A-02) | SSO + grup `DMS-PDCA-*` (semua plant) / `DMS-TL-*` + klaim plant (A-02); TL lintas plant → 403 (R-07) |
 | Penulisan | Terbuka | SSO wajib; Supervisor/DH/Admin untuk buka ulang & sync |
 | QR token | Statik per sesi, tidak kedaluwarsa | Per shift + TTL + cabut (R-82) |
 | Input | Belum divalidasi | Validasi + 400/401/403 |
@@ -408,7 +411,7 @@ DailyMonitoringSystem_App/
 | **M0** | Kontrak v1 disepakati (dokumen ini + API_CONTRACT) | Kedua pihak setuju, tidak ada endpoint "mengambang" |
 | **M1** | React bisa baca `/api/state` & tampilkan halaman absensi + 1 halaman divisi | Demo: React TV menampilkan data asli dari Flask |
 | **M2** | Paritas fitur React = TV HTML (7 halaman, rotasi, gerbang R-81, QR) | TV HTML bisa digantikan build React |
-| **M3** | Auth Entra ID (tahap C minimal C1–C3) | Tulis tanpa token = 401; peran Supervisor/Admin berlaku |
+| **M3** | Auth Entra ID (tahap C minimal C1–C3, termasuk **C1b A-02**) | Tulis tanpa token = 401; peran Supervisor/Admin berlaku; **Dashboard hanya PDCA/TL** (TV tanpa Dashboard) |
 | **M4** | Pilot Snack Line 9 (tahap A+B penuh, backup, runbook) | 1 minggu operasi tanpa insiden data |
 | **M5** | Produksi 3 plant + Delivery/Teknik onboard | 15.940+ kasus, semua divisi `tersinkron` |
 | **M6** | (Opsional) PostgreSQL & HA | Migrasi sesuai §6.4 |

@@ -100,7 +100,7 @@ flowchart LR
 
 | Ukuran | Jumlah | Rincian |
 |---|---|---|
-| **Role kanonik (target produksi)** | **10** | Leader Line · Petugas Divisi · Supervisor · DH · Kepala Divisi · Plant Head · Admin Plant · Admin Group · Auditor/DH Grup · TV Device |
+| **Role kanonik (target produksi)** | **12** | Leader Line · Petugas Divisi · Supervisor · DH · Kepala Divisi · Plant Head · Admin Plant · Admin Group · Auditor/DH Grup · TV Device · **PDCA** · **TL** (v1.1) |
 | **Pelaku yang benar-benar tercatat di prototipe** | **6** | `tv` · `leader` · `QR sesi` · `supervisor` (buka ulang) · `seed`/`auto` · pengawas folder (sistem) |
 | **Login/SSO di prototipe** | **0** | Semua halaman terbuka; hanya field `pelaku` di audit yang membedakan (§14) |
 
@@ -193,7 +193,7 @@ Setiap query data difilter `plant` (dan `line` bila dipilih) — tidak ada peran
 
 ## 4. Role / Peran & Hak Akses (berapa & siapa)
 
-### 4.1 Role kanonik (target produksi) — **10 role**
+### 4.1 Role kanonik (target produksi) — **12 role** (+2 per 24 Nov 2026)
 
 Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` §2.1.
 
@@ -209,6 +209,13 @@ Sumber: `docs/laporan/DMS_Aturan_Sistem_v1.md` §2.1.
 | 8 | **Admin Group** | Semua plant | Template bersama, perbandingan plant, master grup |
 | 9 | **Auditor / DH Grup** | Semua plant, **hanya baca** | Audit jejak perubahan, tidak boleh mengubah |
 | 10 | **TV Device** | Satu profil tampilan | Hanya menampilkan + menerima ketukan absensi shift berjalan |
+| 11 | **PDCA** | Semua plant | Dashboard ringkasan — **akses semua plant** (Snack · EP · NP) (v1.1, A-02) |
+| 12 | **TL (Team Leader)** | Plant miliknya | Dashboard ringkasan — **hanya plant tempat ia bertugas** (v1.1, A-02) |
+
+> **Aturan akses Dashboard ringkasan (v1.1, 24 Nov 2026):**
+> - **A-01 — Landing untuk semua TV.** Halaman `/` (frontend React): menu 5 pilar + QR absensi sesi berjalan (`/qr/<token>.png`) adalah **permukaan TV** — tanpa login, dibuka fullscreen di setiap perangkat TV Device. TV **tidak** menampilkan link ke Dashboard.
+> - **A-02 — Dashboard (`/dashboard`) hanya untuk PDCA & TL terkait.** **PDCA** dapat melihat Dashboard ringkasan seluruh plant; **TL** hanya plant miliknya (plant switch terkunci). **Semua role lain** (termasuk Leader Line, Supervisor, DH, Admin, Auditor, TV Device) **tidak melihat dan tidak bisa membuka** `/dashboard` — rute terproteksi.
+> - Ringkasan untuk pengguna akhir: lihat **`docs/FRONTEND_STRUCTURE.md` §5.1**. Usulan pengukuhan menjadi aturan sistem **R-91/R-92** di versi berikutnya dari `DMS_Aturan_Sistem`.
 
 ### 4.2 Matriks hak (ringkasan)
 
@@ -231,6 +238,7 @@ Aturan kunci:
 - **R-09** — Pemisahan isi dan setujui: pengisi sebab tidak boleh menjadi satu-satunya penyetuju penutupan.
 - **R-10** — TV tidak punya hak ubah data papan; hanya menampilkan + menerima ketukan absensi.
 - **R-07** — Filter data per plant di setiap query.
+- **A-01 / A-02 (v1.1)** — TV (TV Device) menampilkan **landing** `/` saja (menu pilar + QR absensi); **Dashboard ringkasan** (`/dashboard`) hanya **PDCA** (semua plant) dan **TL** (plant miliknya). Lihat §4.1 dan `FRONTEND_STRUCTURE.md` §5.1.
 
 ### 4.3 Yang benar-benar ada di prototipe — **6 pelaku**
 
@@ -253,6 +261,10 @@ Prototipe **belum ada login/SSO**. Yang dibedakan hanya kolom `pelaku` di tabel 
 
 Ada **tiga pintu** ke aplikasi: **1 landing page** (QR ponsel) dan **2 menu dashboard** (TV lantai + panel admin). Ketiganya membaca state yang sama dari `GET /api/state` / `GET /api/admin`.
 
+> **Dua permukaan frontend React (branch `front-end`, lihat `docs/FRONTEND_STRUCTURE.md` §5.1):**
+> - **Landing `/` (A-01)** — tampil di **semua TV**: menu 5 pilar (SHE → Teknik) + panel **QR absensi** (gambar `/qr/<token>.png`, status sesi DIBUKA/DIKONFIRMASI). Tanpa login (TV Device).
+> - **Dashboard `/dashboard` (A-02)** — **hanya PDCA (semua plant) dan TL (plant miliknya)**; rute terproteksi — role lain dialihkan ke `/`. Tidak ditautkan dari UI TV.
+
 ### 5.0 Daftar semua halaman/menu
 
 | # | Halaman/Menu | Route | Untuk siapa | Fitur utama | Refresh |
@@ -266,6 +278,8 @@ Ada **tiga pintu** ke aplikasi: **1 landing page** (QR ponsel) dan **2 menu dash
 | 7 | Font | `GET /fonts/<nama>` | CSS TV | Kalam | static |
 | 8 | Kesehatan | `GET /healthz` | monitoring | `{"ok":true,"pengawas":bool}` | on demand |
 | 9 | Health / state (lain) | `GET /api/...` | — | lihat §5.11 | — |
+
+> **Catatan akses v1.1 (React frontend):** `/` (landing: menu pilar + QR) = **semua TV** (A-01, tanpa login); `/dashboard` (Dashboard ringkasan) = **PDCA (semua plant) · TL (plant miliknya)** (A-02). TV Device tidak boleh diarahkan ke `/dashboard`; role lain tidak melihatnya. Detail: `FRONTEND_STRUCTURE.md` §5.1.
 
 **Peta halaman TV (7 halaman, urutan rotasi):**
 

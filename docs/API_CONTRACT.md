@@ -2,7 +2,7 @@
 
 > **Frontend (Vite + React, branch `front-end`) ↔ Backend (Flask, `app/`)**
 >
-> Versi kontrak: **v1** · 24 November 2026 · Ditulis dari kode aktual `app/server.py` & `app/dms_core.py`.
+> Versi kontrak: **v1.1** · 24 November 2026 (v1.1: §10 Aturan akses A-01/A-02 — tanpa perubahan skema endpoint) · Ditulis dari kode aktual `app/server.py` & `app/dms_core.py`.
 > Kalau perilaku endpoint berubah di kode, kontrak ini **wajib** ikut diperbarui — frontend bergantung padanya.
 
 | Item | Keterangan |
@@ -534,6 +534,20 @@ Item `hasil[]` — field umum:
 
 **v1 (sekarang):** tanpa header auth; semua endpoint terbuka di jaringan.
 
+**Aturan akses permukaan frontend (v1.1, 24 Nov 2026 — keputusan produk, "A-01/A-02"):**
+
+| Permukaan | Siapa | Mekanisme |
+|---|---|---|
+| **Landing `/` (React, menu pilar + QR absensi)** | **Semua perangkat TV (TV Device)** | A-01 — **tampil di semua TV, tanpa login**; sumbernya `GET /api/state` + `GET /qr/<token>.png` (publik) |
+| **Dashboard `/dashboard` (React)** | **PDCA** (semua plant) · **TL / Team Leader** (plant miliknya) | A-02 — **hanya untuk PDCA & TL terkait**; rute terproteksi di frontend (lihat `docs/FRONTEND_STRUCTURE.md` §5.1); menu disembunyikan untuk role lain, termasuk TV |
+| `/api/state`, `/api/absensi`, `/api/konfirmasi`, `/qr/*.png`, `/s/<token>` | TV / sesi absensi / ponsel | Tetap publik di v1 (layar bersama + token sesi per shift) |
+| `/api/admin`, `/api/buka`, `/api/sync`, `/admin` | Admin / IT / Supervisor | Publik di v1 — wajib dibatasi di v2/tahap C |
+
+Penegakan A-02 **tidak** bisa dilakukan lewat kontrak ini di v1 (endpoint tetap publik); pembatasan sementara
+ada di sisi UI/operasi (TV hanya membuka `/`; `/dashboard` tidak ditautkan; guard `RequireRole`). Penegakan
+sesungguhnya menunggu **tahap C (MSAL Entra ID)**: JWT → klaim grup — `DMS-PDCA-*` (semua plant) vs
+`DMS-TL-*` + klaim plant (plant sendiri); endpoint agregat lintas plant wajib menjawab **403** untuk TL (R-07).
+
 **v2 (target produksi):**
 
 | Endpoint | Auth |
@@ -543,6 +557,7 @@ Item `hasil[]` — field umum:
 | `POST /api/konfirmasi` | SSO |
 | `POST /api/buka` | SSO + peran Supervisor/DH/Admin |
 | `POST /api/sync`, `GET /api/admin`, `/admin` | SSO + peran Admin/Supervisor |
+| Halaman `/dashboard` (React) + endpoint agregat lintas plant | SSO + peran **PDCA** (semua plant) atau **TL** (plant di klaim token) — A-02; TL lintas plant → **403** (R-07) |
 
 Rencana: frontend login via **MSAL** (Entra ID) → access token → header `Authorization: Bearer <token>` → backend verifikasi JWT (PyJWT + JWKS tenant). Token sesi QR kedaluwarsa per shift + dapat dicabut (R-82).
 
@@ -567,7 +582,8 @@ Rencana: frontend login via **MSAL** (Entra ID) → access token → header `Aut
 
 ## 12. Perubahan kontrak & versioning
 
-- Kontrak ini **v1**. Tambahan field baru bersifat aditif (aman); menghapus/mengubah nama field = **v2** dan wajib update frontend + dokumen ini.
+- Kontrak ini **v1** (v1.1, 24 Nov 2026: **§10 ditambah aturan akses permukaan A-01/A-02** — landing untuk semua TV; Dashboard hanya PDCA/TL. **Tidak ada perubahan skema endpoint/field** — aditif, aman).
+- Tambahan field baru bersifat aditif (aman); menghapus/mengubah nama field = **v2** dan wajib update frontend + dokumen ini.
 - Frontend harus **defensif**: abaikan field yang tidak dikenal; siapkan fallback untuk nilai `"—"` dan array kosong.
 - Setiap perubahan pada `app/server.py` yang menyentuh route/payload **wajib** menyertakan update `docs/API_CONTRACT.md` (checklist PR).
 - Header versi kontrak opsional nanti: `X-DMS-Contract: v1`.

@@ -137,7 +137,7 @@ python3 app/server.py        # → http://0.0.0.0:8000
 
 | Dokumen | Isi |
 |---|---|
-| [docs/ALUR_APLIKASI_DMS.md](docs/ALUR_APLIKASI_DMS.md) | 🗺️ Semua alur: role (10 kanonik), landing QR, 2 dashboard, sinkron Excel, KPI, model data |
+| [docs/ALUR_APLIKASI_DMS.md](docs/ALUR_APLIKASI_DMS.md) | 🗺️ Semua alur: role (12 kanonik, +PDCA/TL v1.1), landing QR, 2 dashboard, sinkron Excel, KPI, model data |
 | [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | 🔌 Kontrak endpoint: payload, response, enum, kode warna KPI, known gaps |
 | [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md) | 🛠️ Rencana backend: integrasi Vite, auth Entra ID, deploy, testing, milestone M0–M6 |
 | [docs/FRONTEND_STRUCTURE.md](docs/FRONTEND_STRUCTURE.md) | ⚛️ Struktur & penempatan frontend: pohon folder, routing, komponen, data flow, checklist |
