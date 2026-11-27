@@ -1,0 +1,2 @@
+# placeholder — TODO (BACKEND_PLAN Tahap D, D1): service app (:8000) + [postgres opsional, §6.4];
+# volume backup dms.sqlite3 terjadwal; restart: unless-stopped

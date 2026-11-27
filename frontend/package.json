@@ -1,0 +1,12 @@
+{
+  "name": "dms-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "KOSONG — kerangka struktur. Isi mengikuti branch front-end (root repo) & docs/FRONTEND_STRUCTURE.md",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  }
+}
