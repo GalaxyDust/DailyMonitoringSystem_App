@@ -1,111 +1,548 @@
+/* ══════════════════════════════════════════════════════════════
+   DMS — index.css (tema gelap)
+   Token & gaya mengikuti docs/mockup/index.html (layar LANDING · TV).
+   Nama kelas mengikuti FRONTEND_STRUCTURE.md §9.2.
+   Layar TV: font besar, kontras tinggi, tanpa hiasan berlebihan.
+   ══════════════════════════════════════════════════════════════ */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Dasar papan */
+  --navy: #1b2c57;
+  --navy-2: #141f3f;
+  --ink: #eaeef8;
+  --muted: #9aa6c8;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Aksen */
+  --teal: #2e868c;
+  --gold: #c8a52b;
+  --gold-2: #8a6c10;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Permukaan */
+  --card: rgba(255, 255, 255, 0.055);
+  --line: rgba(255, 255, 255, 0.14);
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* Warna pilar — WAJIB sama dengan dms_core.DIVISI */
+  --she: #b02f2f;
+  --quality: #d7b32a;
+  --quality-text: #2b2b28;
+  --produksi: #a62e2e;
+  --delivery: #2e7d46;
+  --teknik: #2a5ca0;
+
+  /* Status */
+  --ok: #2f9e63;
+  --warn: #e0b93e;
+  --warn-bg: rgba(224, 185, 62, 0.16);
+
+  --radius: 20px;
+  --shadow: 0 22px 40px rgba(0, 0, 0, 0.45);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
+  background: var(--navy-2);
+  color: var(--ink);
+  font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ═══════════ Shell layar ═══════════ */
+.screen {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 26px 34px 20px;
+  background: radial-gradient(1200px 700px at 70% -10%, #1d2e5c 0%, var(--navy-2) 55%, #0b1330 100%);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ═══════════ Header papan ═══════════ */
+.board-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+.board-head .brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+.board-head .brand img {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
-p {
+
+.brand h1 {
   margin: 0;
+  font-size: 23px;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.brand h1 small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
 }
 
-code {
+.head-spacer {
+  flex: 1;
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+}
+
+.chip b {
+  font-size: 18px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.chip b.big {
+  font-size: 30px;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.chip span {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ═══════════ Landing: grid utama ═══════════ */
+.landing-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 26px;
+  min-height: 0;
+  padding: 22px 0 12px;
+}
+
+/* ═══════════ Panel QR ═══════════ */
+.qr-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 26px;
+  overflow: hidden;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+
+.qr-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(420px 260px at 50% 0%, rgba(46, 134, 140, 0.28), transparent 70%);
+}
+
+.qr-panel > * {
+  position: relative;
+}
+
+.qr-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--teal);
+}
+
+.qr-title {
+  margin: 0;
+  font-size: 31px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 0.03em;
+}
+
+.qr-box {
+  padding: 14px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.45),
+    0 0 0 6px rgba(200, 165, 43, 0.35);
+}
+
+.qr-box img {
+  display: block;
+  width: 212px;
+  height: 212px;
+  image-rendering: pixelated;
+}
+
+.qr-meta {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.qr-meta b {
+  color: var(--ink);
+}
+
+.hadir {
+  margin: 0;
   font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  color: #c9d3ec;
+}
+
+.hadir b {
+  font-size: 22px;
+  color: #fff;
+}
+
+/* ═══════════ Pill status ═══════════ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  border: 1px solid;
+  border-radius: 999px;
+}
+
+.pill .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill .dot.blink {
+  animation: blink 1.4s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.pill.open {
+  color: #ffd97a;
+  background: var(--warn-bg);
+  border-color: rgba(224, 185, 62, 0.5);
+}
+
+.pill.ok {
+  color: #7fe0a8;
+  background: rgba(47, 158, 99, 0.18);
+  border-color: rgba(47, 158, 99, 0.5);
+}
+
+/* ═══════════ Menu pilar ═══════════ */
+.menu-pilar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.menu-title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 2px 2px 12px;
+}
+
+.menu-title h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+}
+
+.menu-title span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #5e6c93;
+}
+
+.pillars {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
+  min-height: 0;
+}
+
+.pilar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+a.pilar:hover,
+a.pilar:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: var(--shadow);
+}
+
+.pilar .head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.pilar .head .num {
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  opacity: 0.85;
+}
+
+.pilar .head .nama {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Warna kepala per pilar */
+.pilar.she .head {
+  background: var(--she);
+}
+
+.pilar.quality .head {
+  background: var(--quality);
+  color: var(--quality-text);
+}
+
+.pilar.quality .head .num {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.pilar.produksi .head {
+  background: var(--produksi);
+}
+
+.pilar.delivery .head {
+  background: var(--delivery);
+}
+
+.pilar.teknik .head {
+  background: var(--teknik);
+}
+
+.pilar .body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.pilar .desc {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #e4e9f8;
+}
+
+.pilar .sheet {
+  margin: 0;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.pilar .sheet code {
+  padding: 1px 7px;
+  font-family: inherit;
+  font-size: 10.5px;
+  color: #d7dff5;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.pilar .sheet code.st.ok {
+  color: #7fe0a8;
+  border-color: rgba(47, 158, 99, 0.45);
+}
+
+.pilar .sheet code.st.warn {
+  color: #ffd97a;
+  border-color: rgba(224, 185, 62, 0.45);
+}
+
+.pilar .sheet code.st.bad {
+  color: #ffb0a6;
+  border-color: rgba(228, 87, 75, 0.45);
+}
+
+.pilar .go {
+  margin-top: auto;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+}
+
+.pilar .go.muted {
+  color: #7c88ad;
+}
+
+/* Kartu ringkasan: penanda rotasi TV, bukan tautan */
+.pilar.ringkasan {
+  background: transparent;
+  border-style: dashed;
+}
+
+.pilar.ringkasan .head {
+  background: var(--navy);
+}
+
+/* ═══════════ Footer strip ═══════════ */
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #7c88ad;
+}
+
+.strip b {
+  color: #b9c4e4;
+}
+
+.strip .a01 {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: rgba(200, 165, 43, 0.12);
+  border: 1px solid var(--gold-2);
+  border-radius: 8px;
+}
+
+/* ═══════════ Breakpoints (§9.3) ═══════════ */
+@media (max-width: 1100px) {
+  .screen {
+    padding: 18px 18px 14px;
+  }
+
+  .landing-main {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .qr-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .qr-title {
+    font-size: 24px;
+  }
+
+  .pillars {
+    grid-template-rows: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .board-head {
+    gap: 12px;
+  }
+
+  .chip {
+    padding-left: 12px;
+  }
+
+  .chip b {
+    font-size: 15px;
+  }
+
+  .chip b.big {
+    font-size: 22px;
+  }
+
+  .pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qr-box img {
+    width: 168px;
+    height: 168px;
+  }
 }
