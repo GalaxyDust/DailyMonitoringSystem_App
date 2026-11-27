@@ -1,17 +1,28 @@
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import Main from './pages/Main'
+import NotFound from './pages/NotFound'
 
 /**
- * Root aplikasi.
+ * Router aplikasi — FRONTEND_STRUCTURE.md §4.1.
  *
- * Inilah satu-satunya baris yang menentukan apa yang tampil saat membuka `/`.
- * `index.html` sudah memanggil `/src/main.jsx`, dan `src/main.jsx` merender
- * komponen ini — jadi cukup ganti isi file ini, tanpa menyentuh `main.jsx`.
+ * `HashRouter` dipakai karena aplikasi bisa dilayani sebagai berkas statis
+ * tanpa aturan rewrite di server (§2 baris "Routing").
  *
- * Fase ini hanya Landing TV (A-01): tampilan statis, tanpa fetch/API,
- * tanpa router, dan tanpa tautan /dashboard (A-02).
- * Halaman lain (/pilar/:key, /absensi, /dashboard) menyusul sesuai
- * docs/FRONTEND_STRUCTURE.md §14.
+ * Route yang sudah ada:
+ * - `/`         → Landing TV (A-01), publik, tanpa login
+ * - `*`         → NotFound (404)
+ *
+ * Route yang belum dibuat: `/pilar/:key`, `/absensi`, `/dashboard` (A-02).
+ * Sengaja tidak didaftarkan supaya jatuh ke `*` — lebih jujur daripada
+ * menampilkan halaman kosong. Dashboard nanti dibungkus <RequireRole>.
  */
 export default function App() {
-  return <Main />
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </HashRouter>
+  )
 }
