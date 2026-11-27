@@ -1,12 +1,12 @@
 # DMS — TV Per Divisi, Satu Pintu QR, dan Integrasi Excel Otomatis
 
-**Tanggal:** 6 November 2026 · **Status:** rancangan disetujui arahnya — 3 pertanyaan pokok sudah dijawab plant (§10); aturan R-80…R-90 sudah diterapkan
+**Tanggal:** 6 November 2026 · **Status:** rancangan disetujui arahnya — 3 pertanyaan pokok sudah dijawab plant (§10); aturan Satu Divisi per Layar…Status Berkas Jujur sudah diterapkan
 **Pemicu:** permintaan agar tampilan TV tampil **satu divisi per layar** (lebih detail, kolom mengikuti
 Excel), **absensi dikerjakan di awal sebelum DMS**, **QR sebagai satu pintu masuk**, dan **Excel tetap
 diisi petugas seperti biasa tetapi sistem ikut terbarui otomatis tanpa upload**.
 
 Dokumen ini melengkapi — bukan menggantikan — `DMS_Aturan_Sistem_v1.md`, `rancangan/02`, dan
-`rancangan/03`. Nomor aturan baru diusulkan mulai **R-80** (R-78/R-79 sudah dipakai §12 Replikasi plant).
+`rancangan/03`. Nomor aturan baru diusulkan mulai **Satu Divisi per Layar** (Bawaan Replikasi/Lokal saat Replikasi sudah dipakai §12 Replikasi plant).
 
 ---
 
@@ -14,26 +14,26 @@ Dokumen ini melengkapi — bukan menggantikan — `DMS_Aturan_Sistem_v1.md`, `ra
 
 | # | Permintaan | Keputusan rancangan | Aturan |
 |---|---|---|---|
-| 1 | TV tampil satu-satu per divisi | TV jadi **halaman berurutan**: 1 layar = 1 divisi, bukan papan gabungan 5 kolom | R-80 |
-| 2 | Kolom mengikuti Excel | Kolom TV = **kontrak kolom** yang dipetakan dari sheet Excel divisi itu | R-83 |
-| 3 | Dinamis, data beda tiap hari | Kolom tetap (kontrak), **baris & angka dinamis** per tanggal/shift; kosong ≠ hilang | R-84 |
-| 4 | Absensi di awal sebelum DMS | Sesi DMS punya **gerbang absensi**: absensi terkonfirmasi dulu, baru isian divisi dibuka | R-81 |
-| 5 | QR satu pintu, semua terintegrasi | **QR sesi** di TV/papan → satu URL → absensi → divisi → review → kunci | R-82 |
-| 6 | Excel auto-update tanpa upload | Folder kerja dipindah ke OneDrive **sekali oleh IT**, junction di path lama; petugas cukup Ctrl+S | R-85, R-88 |
-| 7 | Petugas jangan diribetkan | **Nol langkah tambahan**: tidak ada upload, ekspor, kirim lampiran, atau isi ulang di aplikasi | R-88 |
-| 8 | Excel tetap dipakai terus | **Tidak dibekukan.** Yang dibagi adalah kepemilikan kolom, bukan waktu | R-89 |
-| 9 | Tiap divisi punya Excel sendiri | Sinkron **per berkas** lewat registry; satu berkas gagal tidak menahan divisi lain | R-86 |
+| 1 | TV tampil satu-satu per divisi | TV jadi **halaman berurutan**: 1 layar = 1 divisi, bukan papan gabungan 5 kolom | Satu Divisi per Layar |
+| 2 | Kolom mengikuti Excel | Kolom TV = **kontrak kolom** yang dipetakan dari sheet Excel divisi itu | Kolom Ikuti Kontrak Excel |
+| 3 | Dinamis, data beda tiap hari | Kolom tetap (kontrak), **baris & angka dinamis** per tanggal/shift; kosong ≠ hilang | Kolom Statis, Isi Dinamis |
+| 4 | Absensi di awal sebelum DMS | Sesi DMS punya **gerbang absensi**: absensi terkonfirmasi dulu, baru isian divisi dibuka | Absensi Dulu |
+| 5 | QR satu pintu, semua terintegrasi | **QR sesi** di TV/papan → satu URL → absensi → divisi → review → kunci | QR Satu Pintu |
+| 6 | Excel auto-update tanpa upload | Folder kerja dipindah ke OneDrive **sekali oleh IT**, junction di path lama; petugas cukup Ctrl+S | Sinkron Excel Otomatis, Nol Langkah Tambahan |
+| 7 | Petugas jangan diribetkan | **Nol langkah tambahan**: tidak ada upload, ekspor, kirim lampiran, atau isi ulang di aplikasi | Nol Langkah Tambahan |
+| 8 | Excel tetap dipakai terus | **Tidak dibekukan.** Yang dibagi adalah kepemilikan kolom, bukan waktu | Kepemilikan Kolom |
+| 9 | Tiap divisi punya Excel sendiri | Sinkron **per berkas** lewat registry; satu berkas gagal tidak menahan divisi lain | Satu Berkas per Divisi |
 
-**Catatan sumber:** tiga workbook di `reference/` hanya memuat `Resume SHE`, `Resume QC`, dan
+**Catatan sumber:** tiga workbook di `docs/reference/` hanya memuat `Resume SHE`, `Resume QC`, dan
 `Resume Prod` (`Summary DMS to KPI`: V=12 / O=5 / total 17). Menurut plant, **tiap divisi sudah punya
-Excel sendiri** — jadi berkas Delivery dan Teknik cukup **didaftarkan** (R-86), bukan dibuat baru.
+Excel sendiri** — jadi berkas Delivery dan Teknik cukup **didaftarkan** (Satu Berkas per Divisi), bukan dibuat baru.
 Contoh kedua berkas itu belum ada di repo; pemetaan kolomnya menyusul (§10).
 
 ---
 
 ## 1. Apa yang sebenarnya ada di Excel
 
-Dibaca langsung dari tiga workbook di `reference/` (read-only). Ketiga plant memakai skema kolom
+Dibaca langsung dari tiga workbook di `docs/reference/` (read-only). Ketiga plant memakai skema kolom
 yang sama; hanya posisi baris header berbeda.
 
 | Sheet | Baris header | Isi | Dipakai untuk |
@@ -86,7 +86,7 @@ tabel kasus di bawahnya diambil dari `Resume <divisi>`. Dua sumber, satu halaman
 
 ---
 
-## 2. TV per divisi — satu layar, satu divisi (R-80)
+## 2. TV per divisi — satu layar, satu divisi (Satu Divisi per Layar)
 
 ### 2.1 Prinsip
 
@@ -95,7 +95,7 @@ tabel kasus di bawahnya diambil dari `Resume <divisi>`. Dua sumber, satu halaman
 2. **Bentuk tetap papan**: kepala papan, grid KPI, tabel kasus, baris PICA — seperti papan fisik,
    hanya saja fokus satu divisi.
 3. **Kolom mengikuti Excel** (§2.3), bukan kolom karangan.
-4. **TV tetap tanpa login & tanpa ketik** (R-56, R-58); interaksi hanya absensi.
+4. **TV tetap tanpa login & tanpa ketik** (TV Tanpa Login, TV Bukan Alat Ketik); interaksi hanya absensi.
 
 ### 2.2 Susunan satu halaman divisi
 
@@ -139,7 +139,7 @@ Tabel: `Date` · `Shift` · `LBN Name` · `Category` · `Priority Level` · `Pro
 **`DT (min)`** (ditonjolkan) · `RootCause` · `Corrective or Preventive Action` · `Due Date` · `PIC` ·
 `Progress` · `Status` · `Occurrence/Recurrence` · ikon standar
 
-**Delivery & Teknik** — berkas Excel-nya sudah ada di masing-masing divisi (R-86), tinggal
+**Delivery & Teknik** — berkas Excel-nya sudah ada di masing-masing divisi (Satu Berkas per Divisi), tinggal
 didaftarkan di registry §5.7. Kolomnya dipetakan seperti divisi lain; sementara menunggu contoh
 berkas, halaman memakai kolom papan fisik: Delivery `PO · Plan (Unit) · Real (Unit) · Ach · MTD`;
 Teknik `MTC Accuracy · Planning MTC · % Failure OEE · Energy Gas · Energy Listrik`.
@@ -151,7 +151,7 @@ fisik: Delivery `PO · Plan (Unit) · Real (Unit) · Ach · MTD`; Teknik `MTC Ac
 
 | Urutan | Halaman | Lama | Catatan |
 |---|---|---|---|
-| 1 | **Absensi** | 30 s (atau sampai terkonfirmasi) | **tampil pertama** saat sesi dibuka (R-81) |
+| 1 | **Absensi** | 30 s (atau sampai terkonfirmasi) | **tampil pertama** saat sesi dibuka (Absensi Dulu) |
 | 2 | SHE | 25 s | |
 | 3 | Quality | 25 s | |
 | 4 | Produksi | 30 s | biasanya kasus terbanyak |
@@ -159,14 +159,14 @@ fisik: Delivery `PO · Plan (Unit) · Real (Unit) · Ach · MTD`; Teknik `MTC Ac
 | 6 | Teknik | 20 s | bila sumber aktif |
 | 7 | Ringkasan / DMS Index | 20 s | penutup putaran |
 
-- Semua durasi, urutan, dan halaman aktif **diatur Admin** (profil TV, R-57).
+- Semua durasi, urutan, dan halaman aktif **diatur Admin** (profil TV, TV Terikat Profil).
 - **Pager wajib** (`Halaman 4/6` + titik) supaya orang tahu masih ada halaman lain.
 - Halaman divisi tanpa data **tetap tampil** dengan pesan "belum ada isian hari ini" +
-  siapa yang belum mengisi — tidak dilewati diam-diam (R-84).
+  siapa yang belum mengisi — tidak dilewati diam-diam (Kolom Statis, Isi Dinamis).
 - Bila tabel kasus lebih panjang dari layar: gulir per blok maksimal 2 sub-halaman, lalu lanjut
   divisi berikutnya. Angka ringkas di kepala tidak pernah terpotong.
 
-### 2.5 Dinamis setiap hari (R-84)
+### 2.5 Dinamis setiap hari (Kolom Statis, Isi Dinamis)
 
 | Unsur | Statis / dinamis | Sumber |
 |---|---|---|
@@ -179,7 +179,7 @@ fisik: Delivery `PO · Plan (Unit) · Real (Unit) · Ach · MTD`; Teknik `MTC Ac
 
 ---
 
-## 3. Absensi di awal, sebelum DMS (R-81)
+## 3. Absensi di awal, sebelum DMS (Absensi Dulu)
 
 Sesi DMS punya status jelas dan **gerbang**:
 
@@ -198,17 +198,17 @@ Aturan:
    dan form divisi **belum bisa dikirim**.
 2. Absensi selesai = tombol **"Konfirmasi kehadiran"** ditekan leader (atau otomatis saat semua
    nama punya status). Setelah itu halaman divisi terbuka dan TV mulai rotasi.
-3. Status awal tetap **hadir** (R-32); lapangan hanya menandai yang tidak hadir. Shift yang tidak
-   pernah dikonfirmasi sampai cut-off tetap **"belum dikonfirmasi"** (R-36).
+3. Status awal tetap **hadir** (Status Awal Hadir); lapangan hanya menandai yang tidak hadir. Shift yang tidak
+   pernah dikonfirmasi sampai cut-off tetap **"belum dikonfirmasi"** (Absensi Tutup di Cut-off).
 4. **Override:** Supervisor/DH boleh membuka isian bila absensi tertunda, dengan alasan tercatat
    di audit. Berguna saat listrik/jaringan mati.
-5. Absensi tetap bisa dari TV tanpa login (R-33) **atau** dari hasil pindai QR — menulis ke catatan
+5. Absensi tetap bisa dari TV tanpa login (Absensi TV/QR/Web) **atau** dari hasil pindai QR — menulis ke catatan
    yang sama, tidak ada dua rekap.
-6. Setelah absensi dikonfirmasi, angkanya langsung menjadi penjelas output (R-37) di halaman Produksi.
+6. Setelah absensi dikonfirmasi, angkanya langsung menjadi penjelas output (Absensi Penjelas Output) di halaman Produksi.
 
 ---
 
-## 4. QR satu pintu (R-82)
+## 4. QR satu pintu (QR Satu Pintu)
 
 ### 4.1 Isi QR
 
@@ -220,7 +220,7 @@ token mengikat: plant · line · tanggal · shift · sesi_id · kedaluwarsa
 ```
 
 - **Berputar setiap shift** (dan bisa dicabut Admin). Token tidak memberi hak ubah angka lampau.
-- TV memperoleh token lewat pairing perangkat (kode perangkat + token yang bisa dicabut, R-34).
+- TV memperoleh token lewat pairing perangkat (kode perangkat + token yang bisa dicabut, Absensi Shift Berjalan).
 - Bila token kedaluwarsa, halaman menampilkan "sesi sudah ditutup — minta QR terbaru di TV",
   bukan form kosong.
 
@@ -254,13 +254,13 @@ alamat aplikasi. Dasbor L1–L3 dan admin tetap di aplikasi yang sama.
 | Risiko | Penanganan |
 |---|---|
 | QR difoto & dipakai orang luar | token per shift + kedaluwarsa + wajib SSO untuk menulis |
-| Token bocor | cabut dari Admin; dampak terbatas line & shift itu (R-34) |
-| Absen berjamaah tidak sah | setiap ketukan tercatat waktu + perangkat (R-35); urungkan 2 menit |
+| Token bocor | cabut dari Admin; dampak terbatas line & shift itu (Absensi Shift Berjalan) |
+| Absen berjamaah tidak sah | setiap ketukan tercatat waktu + perangkat (Ketukan Tercatat); urungkan 2 menit |
 | Spam pindai | rate limit per token/perangkat; audit semua percobaan |
 
 ---
 
-## 5. Excel tetap diisi petugas, sistem auto-update — caranya (R-85)
+## 5. Excel tetap diisi petugas, sistem auto-update — caranya (Sinkron Excel Otomatis)
 
 Ini jawaban inti pertanyaan "bagaimana?". Prinsipnya: **jangan minta petugas upload. Datangi
 file-nya di tempat ia sudah disimpan.** Sistem membaca **satu arah** (Excel → aplikasi); petugas
@@ -277,7 +277,7 @@ berada* — dan itu dikerjakan **satu kali oleh IT**, bukan oleh petugas.
 | **1 · OneDrive + junction** ⭐ | Folder kerja dipindah **ke dalam** folder OneDrive; di lokasi lama dibuat *junction* agar path & shortcut tetap sama. OneDrive mengunggah sendiri di latar belakang → Graph/Power Automate membaca | **nol** (Ctrl+S saja) | 1× per laptop ±15 menit | 10–60 s | paling sedikit perawatan; sudah ada tenant M365 |
 | **2 · Agen kecil di laptop** | Layanan Windows mengawasi folder; saat file selesai disimpan, dikirim ke API lewat HTTPS | **nol** | pasang & rawat agen di N laptop | 15–60 s | tanpa cloud; tapi N titik yang harus dirawat |
 | **3 · Folder bersama + 1 pengawas** | File dipindah ke folder jaringan; petugas membuka lewat shortcut lama (mapped drive); satu pengawas di server | **nol** | pindah file + 1 server selalu hidup | 15–60 s | paling mudah dirawat tanpa cloud; butuh LAN/VPN |
-| ~~4 · Kirim manual~~ | petugas unggah / kirim lampiran / ekspor CSV | **ada** | kecil | — | **ditolak** — melanggar R-88 |
+| ~~4 · Kirim manual~~ | petugas unggah / kirim lampiran / ekspor CSV | **ada** | kecil | — | **ditolak** — melanggar Nol Langkah Tambahan |
 
 **Rekomendasi: Opsi 1.** Alasannya: tidak ada aplikasi baru di laptop, tidak ada tombol baru, tidak
 ada pelatihan baru, dan perawatan jangka panjang paling ringan. Opsi 2 dipakai bila kebijakan
@@ -372,7 +372,7 @@ riwayat, laporan otomatis).
 
 Konsekuensi yang harus dipegang:
 
-1. Tombol "ubah angka" **tidak muncul** di aplikasi untuk kolom milik Excel (R-89). Yang muncul:
+1. Tombol "ubah angka" **tidak muncul** di aplikasi untuk kolom milik Excel (Kepemilikan Kolom). Yang muncul:
    **"Perbaiki di Excel"** + nama file dan barisnya, supaya petugas tahu ke mana harus pergi.
 2. Bila aplikasi menemukan angka yang tampak salah (mis. PIC berisi URL), aplikasi **tidak menebak
    dan tidak mengubahnya** — hanya menandai dan memberi tahu.
@@ -397,7 +397,7 @@ Di Admin **dan** kecil di footer TV:
 - per berkas: `nama · plant · sinkron terakhir · hasil (tambah/ubah) · durasi · status`
 - tombol **"Sinkronkan sekarang"** (paksa satu putaran) & **"Lihat karantina"**
 - peringatan bila tidak ada perubahan > N menit pada jam kerja, atau gagal 3× berturut
-- TV tetap menampilkan **jam pembaruan terakhir** (R-60) + **sumber** (R-87)
+- TV tetap menampilkan **jam pembaruan terakhir** (Kesegaran Data di TV) + **sumber** (Angka Bersumber)
 
 ### 5.7 Satu berkas per divisi — daftar sumber (registry)
 
@@ -424,7 +424,7 @@ Ini penting supaya orang tidak salah menuduh divisi belum bekerja:
 
 | Keadaan | Yang tampil di TV | Yang dilakukan sistem |
 |---|---|---|
-| File belum tersentuh hari itu | **"belum diisi"** + nama penanggung jawab | tetap tampil, tidak dilewati (R-84) |
+| File belum tersentuh hari itu | **"belum diisi"** + nama penanggung jawab | tetap tampil, tidak dilewati (Kolom Statis, Isi Dinamis) |
 | Laptop mati / belum online | **"belum tersinkron · terakhir 07.12"** | angka terakhir tetap tampil dengan jamnya; antrean OneDrive menyusul saat online |
 | Online tapi sinkron gagal | **"sinkron tertunda"** | coba ulang; 3× gagal → notifikasi Admin |
 | File sedang dibuka di Excel | tidak ada tanda khusus | tunggu selesai disimpan (debounce), jangan baca file setengah jadi |
@@ -438,17 +438,17 @@ kembali; *delta query* mengejar semua versi yang terlewat.
 
 | Kode | Isi ringkas |
 |---|---|
-| **R-80** | TV menampilkan **satu divisi per layar** dengan pager; bukan papan gabungan. Urutan & durasi diatur Admin. |
-| **R-81** | **Absensi lebih dulu**: isian divisi tidak bisa dikirim sebelum kehadiran sesi dikonfirmasi; override Supervisor/DH beralasan & tercatat. |
-| **R-82** | **QR sesi = satu pintu**: token terikat plant/line/tanggal/shift, berputar tiap shift, dapat dicabut; menulis wajib SSO. |
-| **R-83** | Kolom TV & form **mengikuti kontrak kolom Excel** divisi itu; kolom baru masuk staging, tidak otomatis tampil. |
-| **R-84** | Kolom statis, **baris & angka dinamis** per hari/shift; divisi tanpa data tetap tampil dengan status "belum diisi". |
-| **R-85** | Integrasi Excel **satu arah, otomatis, terus-menerus**. Excel **tidak dibekukan**; aplikasi tidak pernah menulis ke workbook. |
-| **R-86** | Tiap divisi memakai Excel-nya sendiri; sinkron **per berkas** lewat registry. Delivery & Teknik cukup didaftarkan, bukan dibuat baru. |
-| **R-88** | **Nol langkah tambahan bagi petugas.** Dilarang meminta upload, ekspor, kirim lampiran, atau isi ulang data yang sudah ada di Excel. |
-| **R-89** | **Kepemilikan kolom**: kolom yang ada di Excel bersifat baca-saja di aplikasi (koreksi di Excel); aplikasi hanya memiliki kolom yang tidak ada di Excel. |
-| **R-90** | TV membedakan **"belum diisi"** dan **"belum tersinkron"** (laptop offline); angka terakhir tetap tampil dengan jamnya. |
-| **R-87** | Setiap angka membawa **badge sumber** (Excel/Aplikasi) dan waktu sinkron terakhir. |
+| **Satu Divisi per Layar** | TV menampilkan **satu divisi per layar** dengan pager; bukan papan gabungan. Urutan & durasi diatur Admin. |
+| **Absensi Dulu** | **Absensi lebih dulu**: isian divisi tidak bisa dikirim sebelum kehadiran sesi dikonfirmasi; override Supervisor/DH beralasan & tercatat. |
+| **QR Satu Pintu** | **QR sesi = satu pintu**: token terikat plant/line/tanggal/shift, berputar tiap shift, dapat dicabut; menulis wajib SSO. |
+| **Kolom Ikuti Kontrak Excel** | Kolom TV & form **mengikuti kontrak kolom Excel** divisi itu; kolom baru masuk staging, tidak otomatis tampil. |
+| **Kolom Statis, Isi Dinamis** | Kolom statis, **baris & angka dinamis** per hari/shift; divisi tanpa data tetap tampil dengan status "belum diisi". |
+| **Sinkron Excel Otomatis** | Integrasi Excel **satu arah, otomatis, terus-menerus**. Excel **tidak dibekukan**; aplikasi tidak pernah menulis ke workbook. |
+| **Satu Berkas per Divisi** | Tiap divisi memakai Excel-nya sendiri; sinkron **per berkas** lewat registry. Delivery & Teknik cukup didaftarkan, bukan dibuat baru. |
+| **Nol Langkah Tambahan** | **Nol langkah tambahan bagi petugas.** Dilarang meminta upload, ekspor, kirim lampiran, atau isi ulang data yang sudah ada di Excel. |
+| **Kepemilikan Kolom** | **Kepemilikan kolom**: kolom yang ada di Excel bersifat baca-saja di aplikasi (koreksi di Excel); aplikasi hanya memiliki kolom yang tidak ada di Excel. |
+| **Status Berkas Jujur** | TV membedakan **"belum diisi"** dan **"belum tersinkron"** (laptop offline); angka terakhir tetap tampil dengan jamnya. |
+| **Angka Bersumber** | Setiap angka membawa **badge sumber** (Excel/Aplikasi) dan waktu sinkron terakhir. |
 
 ---
 
@@ -458,7 +458,7 @@ Perubahan pada empat dokumen di bawah **sudah diterapkan** pada versi ini.
 
 | Dokumen | Perubahan |
 |---|---|
-| `DMS_Aturan_Sistem_v1` §5, §9, §10, §13, §14 | ✅ tambah R-80…R-90; R-55/R-59 disesuaikan; §14: 3 keputusan terbuka + 5 sudah diputuskan |
+| `DMS_Aturan_Sistem_v1` §5, §9, §10, §13, §14 | ✅ tambah Satu Divisi per Layar…Status Berkas Jujur; TV Berbentuk Papan/Rotasi TV disesuaikan; §14: 3 keputusan terbuka + 5 sudah diputuskan |
 | `rancangan/02` §1, §5.2, §5.3, §5.7 | ✅ komponen ingest di arsitektur; TV per divisi; absensi sebagai gerbang; profil TV & sinkronisasi |
 | `rancangan/03` §1, §8 | ✅ urutan harian: QR → absensi → divisi; alur TV per divisi |
 | `DMS_Logic_Design` §9.8 | ✅ aturan TV: rotasi per divisi, penanda halaman, kolom kontrak, badge sumber |
@@ -532,14 +532,14 @@ Delivery & Teknik menampilkan "menunggu berkas" karena berkasnya belum diserahka
 | # | Pertanyaan | Jawaban | Akibat pada rancangan |
 |---|---|---|---|
 | 1 | Di mana file Excel disimpan? | **masih di laptop petugas** | §5.1 Opsi 1: pindah folder ke OneDrive + junction di path lama, dikerjakan IT satu kali |
-| 2 | Sumber Delivery & Teknik? | **tiap divisi sudah punya Excel sendiri** | tidak ada form baru; cukup daftarkan berkasnya di registry §5.7 (R-86) |
-| 3 | Kapan Excel dibekukan? | **tidak dibekukan — sinkron terus setiap saat** | §5.4 kepemilikan kolom, bukan cutover (R-85, R-89) |
+| 2 | Sumber Delivery & Teknik? | **tiap divisi sudah punya Excel sendiri** | tidak ada form baru; cukup daftarkan berkasnya di registry §5.7 (Satu Berkas per Divisi) |
+| 3 | Kapan Excel dibekukan? | **tidak dibekukan — sinkron terus setiap saat** | §5.4 kepemilikan kolom, bukan cutover (Sinkron Excel Otomatis, Kepemilikan Kolom) |
 
 **Masih perlu dilengkapi (tidak menahan pembangunan):**
 
 | # | Perlu | Untuk apa | Siapa |
 |---|---|---|---|
-| 1 | Contoh file Excel **Delivery** dan **Teknik** | memetakan kolomnya seperti §2.3 — tiga workbook di `reference/` hanya memuat SHE/QC/Prod | Kepala divisi terkait |
+| 1 | Contoh file Excel **Delivery** dan **Teknik** | memetakan kolomnya seperti §2.3 — tiga workbook di `docs/reference/` hanya memuat SHE/QC/Prod | Kepala divisi terkait |
 | 2 | Daftar laptop + path folder kerja tiap divisi | skrip pemasangan satu kali (§5.1.1) | IT plant |
 | 3 | Kebijakan akun: akun kerja petugas atau akun layanan bersama | menentukan izin Graph dan kepemilikan berkas | IT + Admin DMS |
 | 4 | Laptop yang sering offline / tidak boleh cloud | dipakai untuk memilih Opsi 2 atau 3 pada laptop itu saja | IT plant |

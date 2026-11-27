@@ -1,0 +1,2 @@
+# placeholder — dependensi produksi yang NYATA ada di `app/requirements.txt` (flask, openpyxl, qrcode, pillow).
+# Setelah tahap B/D: pin versi + tambah gunicorn/waitress. JANGAN duplikasi daftar versi di sini.

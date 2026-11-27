@@ -2,7 +2,7 @@
 
 Prototipe yang **benar-benar berjalan** untuk membuktikan rancangan di
 `docs/laporan/DMS_TV_PerDivisi_dan_Integrasi_Excel_v1.md`. Bukan gambar lagi: angka di layar
-dihitung dari log kasus pada workbook `reference/`.
+dihitung dari log kasus pada workbook `docs/reference/`.
 
 ## Menjalankan
 
@@ -35,7 +35,7 @@ Ganti plant lewat `/?plant=EP` atau `/?plant=NP`. Lingkup line: `/?line=Line%209
   `No` yang bisa dinomori ulang. Baca ulang berkas yang sama tidak mendobel data.
 - **Terverifikasi ujung ke ujung.** berkas uji disimpan ulang → pengawas membaca dalam ±7 detik →
   papan berubah. Ubah kolom non-kunci (PIC/progress) menghasilkan **1 ubah**, bukan baris baru;
-  baca ulang berkas yang sama menghasilkan **0 tambah / 0 ubah**. `reference/` tidak tersentuh.
+  baca ulang berkas yang sama menghasilkan **0 tambah / 0 ubah**. `docs/reference/` tidak tersentuh.
 - **Batas yang perlu diketahui:** kunci baris memakai teks masalah. Bila petugas **menyunting teks
   masalah**, baris lama ditandai "terhapus di sumber" dan baris baru muncul — riwayat tetap ada,
   tetapi secara statistik terlihat sebagai kasus baru. Menyunting sebab/tindakan/PIC/status

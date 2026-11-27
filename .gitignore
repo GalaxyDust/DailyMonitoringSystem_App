@@ -1,24 +1,48 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# ──────────────────────────────────────────────
+# DMS — .gitignore (root)
+# ──────────────────────────────────────────────
 
-node_modules
-dist
-dist-ssr
+# ── Dependensi & hasil build ──
+node_modules/
+dist/
+dist-ssr/
 *.local
 
-# Editor directories and files
+# ── Python ──
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# ── Environment & secrets ──
+.env
+.env.*
+!.env.example
+
+# ── Data runtime lokal (bukan repo) ──
+app/var/
+backend/var/
+*.sqlite3
+*.sqlite3-journal
+*.db
+
+# ── Log & OS ──
+*.log
+logs/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ──
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
+*.swp
+*~
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
