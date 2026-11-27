@@ -42,3 +42,7 @@ desktop.ini
 .idea/
 *.swp
 *~
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
